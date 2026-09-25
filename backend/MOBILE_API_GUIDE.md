@@ -20,7 +20,7 @@ It creates/refreshes service areas, rating tags, an active driver vehicle and th
 
 ## Suggested happy-path test
 
-1. Authorize as the customer; `POST /auth/me/` is not needed—use `GET /auth/me/` to verify identity.
+1. Authorize as the customer; `POST /auth/me/` is not neededâ€”use `GET /auth/me/` to verify identity.
 2. Create a request with `POST /rides/` using Jableh coordinates near longitude `35.90`, latitude `35.36`.
 3. Authorize as the driver; call `POST /drivers/me/go-online/`, then list candidates and submit an offer.
 4. Switch back to customer; list offers and select one.
@@ -42,7 +42,7 @@ python manage.py reset_operational_data --yes
 python manage.py seed_mobile_demo
 ```
 
-`reset_operational_data` removes rides, offers, trips, notifications, ratings, complaints and presence keys, but keeps users, driver profiles, vehicles, service areas and rating tags. It refuses production unless explicitly confirmed. Never use `wipe_database.py` for routine mobile testing.
+`reset_operational_data` removes rides, offers, trips, notifications, ratings, complaints and presence keys, but keeps users, driver profiles, vehicles, service areas and rating tags. It refuses production unless explicitly confirmed.
 
 For a single command reset in a disposable environment:
 
@@ -52,7 +52,7 @@ python manage.py seed_mobile_demo --reset-operational --i-understand-reset
 
 ## WebSocket
 
-Use `ws://<host>/ws/...` locally and `wss://<host>/ws/...` in production. Authenticate with the same token according to the route’s documented query/header convention in the mobile client integration. Start Daphne and Redis before testing real-time flows.
+Use `ws://<host>/ws/...` locally and `wss://<host>/ws/...` in production. Authenticate with the same token according to the routeâ€™s documented query/header convention in the mobile client integration. Start Daphne and Redis before testing real-time flows.
 
 ## Production notes
 
