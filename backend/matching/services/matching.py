@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -518,13 +519,24 @@ class MatchingService:
             "pricing_policy": PricingPolicy.DRIVER_BIDDING,
             "currency": ride.currency,
         }
+        policy = PricingPolicy.DRIVER_BIDDING
+
+        # الزبون عرض سعره: السائق يقبله كما هو أو يعرض أعلى منه ضمن سقف،
+        # ولا يعرض أقلّ منه — سعر الزبون نفسه اجتاز أرضيّته عند عرضه.
+        if ride.customer_proposed_fare is not None:
+            proposed = ride.customer_proposed_fare
+            counter_cap = cls._counter_cap(ride)
+            ride_quote["fare_floor"] = proposed
+            ride_quote["fare_cap"] = counter_cap
+            ride_quote["pricing_policy"] = PricingPolicy.CUSTOMER_BIDDING
+            policy = PricingPolicy.CUSTOMER_BIDDING
 
         try:
             gross_fare = PricingService.validate_proposed_fare(
                 proposed_fare=gross_fare,
                 quote=ride_quote,
                 service_area=ride.service_area,
-                policy=PricingPolicy.DRIVER_BIDDING,
+                policy=policy,
                 proposer="driver",
             )
         except PricingPolicyError as exc:
@@ -871,6 +883,101 @@ class MatchingService:
     # التنظيف الصحيح حسب نوع الرحلة، دون إسقاط باقي الركاب في
     # الرحلات المشتركة (يتم فقط ترقية مضيف جديد إن لزم الأمر).
     # =========================================================
+
+    # =========================================================
+    # الزبون يقترح سعره (السوم بنمط inDrive)
+    # =========================================================
+
+    DEFAULT_PROPOSAL_MIN_RATIO = Decimal("0.70")
+    DEFAULT_COUNTER_RATIO = Decimal("1.50")
+    #: بلا سقف في المنطقة: ثلاثة أضعاف التسعيرة — يمنع خطأ إصبع (صفر زائد).
+    PROPOSAL_SANITY_CAP = Decimal("3")
+
+    @classmethod
+    def proposal_bounds(cls, ride):
+        """(أرضيّة، سقف) ما يقترحه الزبون لهذا الطلب."""
+        from pricing.services import PricingService
+
+        area = ride.service_area
+        quote = Decimal(ride.gross_fare)
+        ratio = getattr(area, "customer_proposal_min_ratio", None) or cls.DEFAULT_PROPOSAL_MIN_RATIO
+        floor = (quote * Decimal(ratio)).quantize(Decimal("0.01"))
+        min_fare = PricingService._min_fare_absolute(area)
+        if min_fare is not None:
+            floor = max(floor, min_fare)
+        cap = ride.fare_cap if ride.fare_cap is not None else (quote * cls.PROPOSAL_SANITY_CAP)
+        return floor, Decimal(cap).quantize(Decimal("0.01"))
+
+    @classmethod
+    def _counter_cap(cls, ride):
+        """أعلى عرض للسائق على سعر الزبون: نسبة المنطقة، ولا يتجاوز سقفها."""
+        area = ride.service_area
+        ratio = getattr(area, "customer_proposal_counter_ratio", None) or cls.DEFAULT_COUNTER_RATIO
+        cap = (Decimal(ride.customer_proposed_fare) * Decimal(ratio)).quantize(Decimal("0.01"))
+        if ride.fare_cap is not None:
+            cap = min(cap, Decimal(ride.fare_cap))
+        return max(cap, Decimal(ride.customer_proposed_fare))
+
+    @classmethod
+    @transaction.atomic
+    def propose_fare(cls, ride_id, customer, fare):
+        """
+        الزبون يعرض سعره أو يرفعه. يُرفع ولا يُخفض: خفضُه بعد أن تحرّك
+        سائقون على السعر الأعلى طُعمٌ بالاتّجاه المعاكس.
+        """
+        from locations.models import PricingPolicy
+        from pricing.services import PricingPolicyError, PricingService
+
+        ride = RideRequest.objects.select_for_update().get(id=ride_id, customer=customer)
+
+        if ride.status not in OPEN_RIDE_STATUSES or ride.is_expired:
+            raise MatchingError("الطلب لم يعد مفتوحًا للعروض.")
+        if ride.auto_dispatch:
+            raise MatchingError("«الأقرب» يرسل الطلب بسعر المنصّة — اقتراح السعر في «سوم» وحده.")
+
+        area = ride.service_area
+        if area is not None and not area.allows_policy(PricingPolicy.CUSTOMER_BIDDING):
+            raise MatchingError("اقتراح السعر غير مفعّل في منطقتك.")
+
+        floor, cap = cls.proposal_bounds(ride)
+        current = ride.customer_proposed_fare
+        if current is not None:
+            floor = max(floor, Decimal(current) + Decimal("0.01"))
+
+        try:
+            fare = PricingService.validate_proposed_fare(
+                proposed_fare=fare,
+                quote={
+                    "gross_fare": ride.gross_fare,
+                    "fare_floor": floor,
+                    "fare_cap": cap,
+                    "pricing_policy": PricingPolicy.CUSTOMER_BIDDING,
+                    "currency": ride.currency,
+                },
+                service_area=area,
+                policy=PricingPolicy.CUSTOMER_BIDDING,
+                proposer="customer",
+            )
+        except PricingPolicyError as exc:
+            if current is not None and Decimal(fare) <= Decimal(current):
+                raise MatchingError("سعرك معروضٌ الآن — تستطيع رفعه فقط.")
+            raise MatchingError(str(exc))
+
+        ride.customer_proposed_fare = fare
+        ride.save(update_fields=["customer_proposed_fare", "updated_at"])
+
+        from realtime.events import EventBus
+
+        transaction.on_commit(
+            lambda: EventBus.publish(
+                group_name=f"ride_{ride.id}",
+                event_type="ride.fare_proposed",
+                entity_type="ride",
+                entity_id=ride.id,
+                payload={"customer_proposed_fare": str(fare)},
+            )
+        )
+        return ride
 
     @classmethod
     @transaction.atomic

@@ -14,6 +14,7 @@ library;
 
 import 'package:equatable/equatable.dart';
 
+import '../models/fare_proposal.dart';
 import '../models/json.dart';
 import 'server_clock.dart';
 
@@ -93,6 +94,7 @@ class AreaTimings extends Equatable {
     required this.locationMaxAgeSeconds,
     this.cancelFreeWindowSeconds = 120,
     this.cancelDriverLateGraceMinutes = 5,
+    this.cancelWaitMinutes = 5,
     this.lateCancelStrikeLimit = 3,
   });
 
@@ -100,6 +102,9 @@ class AreaTimings extends Equatable {
   final int cancelFreeWindowSeconds;
   final int cancelDriverLateGraceMinutes;
   final int lateCancelStrikeLimit;
+
+  /// بعد وصول السائق وانتظاره هذه الدقائق يستطيع تسجيل «الزبون لم يحضر».
+  final int cancelWaitMinutes;
 
   /// عدّاد بطاقة العرض.
   final int offerTtlSeconds;
@@ -159,6 +164,7 @@ class AreaTimings extends Equatable {
             readInt(json, 'cancel_free_window_seconds', fallback: 120),
         cancelDriverLateGraceMinutes:
             readInt(json, 'cancel_driver_late_grace_minutes', fallback: 5),
+        cancelWaitMinutes: readInt(json, 'cancel_wait_minutes', fallback: 5),
         lateCancelStrikeLimit:
             readInt(json, 'late_cancel_strike_limit', fallback: 3),
       );
@@ -175,6 +181,7 @@ class AreaTimings extends Equatable {
         'location_max_age_seconds': locationMaxAgeSeconds,
         'cancel_free_window_seconds': cancelFreeWindowSeconds,
         'cancel_driver_late_grace_minutes': cancelDriverLateGraceMinutes,
+        'cancel_wait_minutes': cancelWaitMinutes,
         'late_cancel_strike_limit': lateCancelStrikeLimit,
       };
 
@@ -279,7 +286,18 @@ class AreaPricing extends Equatable {
     required this.surgeEnabled,
     this.surgeMaxMultiplier,
     this.minFareAbsolute,
-  });
+    this.customerCanPropose = false,
+    FareProposalRules? proposalRules,
+  }) : proposalRulesOrNull = proposalRules;
+
+  /// «سوم» بنمط inDrive مفعّل هنا: الزبون يعرض سعره.
+  final bool customerCanPropose;
+  /// null = افتراضات الخادم (القواعد ليست ثابتة وقت الترجمة فلا تكون
+  /// قيمةً افتراضيّة للمُنشئ).
+  final FareProposalRules? proposalRulesOrNull;
+
+  FareProposalRules get proposalRules =>
+      proposalRulesOrNull ?? FareProposalRules.defaults;
 
   final String currencyCode;
   final String defaultPolicy;
@@ -298,6 +316,8 @@ class AreaPricing extends Equatable {
         surgeEnabled: readBool(json, 'surge_enabled'),
         surgeMaxMultiplier: readStringOrNull(json, 'surge_max_multiplier'),
         minFareAbsolute: readStringOrNull(json, 'min_fare_absolute'),
+        customerCanPropose: readBool(json, 'customer_can_propose'),
+        proposalRules: FareProposalRules.fromJson(json),
       );
 
   Json toJson() => {
@@ -307,11 +327,19 @@ class AreaPricing extends Equatable {
         'surge_enabled': surgeEnabled,
         'surge_max_multiplier': surgeMaxMultiplier,
         'min_fare_absolute': minFareAbsolute,
+        'customer_can_propose': customerCanPropose,
+        ...proposalRules.toJson(),
       };
 
   @override
-  List<Object?> get props =>
-      [currencyCode, defaultPolicy, allowedPolicies, surgeEnabled];
+  List<Object?> get props => [
+        currencyCode,
+        defaultPolicy,
+        allowedPolicies,
+        surgeEnabled,
+        customerCanPropose,
+        proposalRules,
+      ];
 }
 
 /// خدمةٌ من كتالوج المشغّل — تكسي، مشترك، سفريات… أو قادمة «قريبًا».
@@ -363,6 +391,59 @@ class ServiceInfo extends Equatable {
   List<Object?> get props => [code, status, sortOrder, name];
 }
 
+/// مزوّد بلاطات الخريطة — من الخادم، فيتبدّل بلا تحديث للتطبيق.
+///
+/// الافتراض خوادم OpenStreetMap العامّة: تكفي للتطوير، وسياسة استخدامها
+/// تمنع تطبيقًا تجاريًّا بحجم مدينة — فالإنتاج يضع رابط مزوّده في
+/// `MAP_TILES_URL` على الخادم.
+class MapTileSource extends Equatable {
+  const MapTileSource({
+    required this.urlTemplate,
+    required this.attribution,
+    this.darkUrlTemplate,
+    this.maxZoom = 19,
+  });
+
+  static const openStreetMap = MapTileSource(
+    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors',
+  );
+
+  final String urlTemplate;
+
+  /// نسخة الوضع الليليّ إن وفّرها المزوّد — null = الرابط نفسه.
+  final String? darkUrlTemplate;
+
+  /// نصّ الحقوق الذي يشترطه المزوّد — يُعرض على الخريطة.
+  final String attribution;
+
+  final int maxZoom;
+
+  factory MapTileSource.fromJson(Json json) {
+    final url = readString(json, 'url_template');
+    if (!url.contains('{z}') || !url.contains('{x}') || !url.contains('{y}')) {
+      return openStreetMap;
+    }
+    return MapTileSource(
+      urlTemplate: url,
+      darkUrlTemplate: readStringOrNull(json, 'dark_url_template'),
+      attribution:
+          readString(json, 'attribution', fallback: openStreetMap.attribution),
+      maxZoom: readInt(json, 'max_zoom', fallback: 19),
+    );
+  }
+
+  Json toJson() => {
+        'url_template': urlTemplate,
+        'dark_url_template': darkUrlTemplate,
+        'attribution': attribution,
+        'max_zoom': maxZoom,
+      };
+
+  @override
+  List<Object?> get props => [urlTemplate, darkUrlTemplate, attribution, maxZoom];
+}
+
 class AppConfig extends Equatable {
   const AppConfig({
     required this.areaCode,
@@ -380,7 +461,11 @@ class AppConfig extends Equatable {
     this.services = const [],
     this.features = const {},
     this.tripCategories = const ['city', 'intercity', 'service_line'],
+    this.mapTiles = MapTileSource.openStreetMap,
   });
+
+  /// بلاطات الخريطة — من الخادم.
+  final MapTileSource mapTiles;
 
   /// الكتالوج كما يراه المشغّل لهذه المدينة — يُبنى منه شريط الخدمات.
   final List<ServiceInfo> services;
@@ -463,6 +548,9 @@ class AppConfig extends Equatable {
         tripCategories: json['trip_categories'] is List
             ? readStringList(json, 'trip_categories')
             : const ['city', 'intercity', 'service_line'],
+        mapTiles: json['map_tiles'] is Map
+            ? MapTileSource.fromJson(asJson(json['map_tiles']))
+            : MapTileSource.openStreetMap,
       );
 
   Json toJson() => {
@@ -481,6 +569,7 @@ class AppConfig extends Equatable {
         'services': services.map((s) => s.toJson()).toList(growable: false),
         'features': features,
         'trip_categories': tripCategories,
+        'map_tiles': mapTiles.toJson(),
       };
 
   @override
@@ -494,5 +583,6 @@ class AppConfig extends Equatable {
         services,
         features,
         tripCategories,
+        mapTiles,
       ];
 }

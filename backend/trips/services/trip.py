@@ -367,10 +367,17 @@ class TripService:
 
         now = timezone.now()
 
-        from trips.models import CancellationKind
+        from trips.models import CancellationKind, DriverCancelReason
         from trips.services.cancellation import CancellationPolicy
+        from trips.services.compensation import WastedTripCompensation
 
-        if actor == "driver":
+        no_show = actor == "driver" and reason_code == DriverCancelReason.CUSTOMER_NO_SHOW
+        if no_show:
+            error = CancellationPolicy.no_show_error(trip, now)
+            if error:
+                raise TripError(error)
+            kind, strikes = CancellationKind.NO_SHOW, 2
+        elif actor == "driver":
             kind, strikes = CancellationKind.DRIVER, 1
         elif actor == "customer":
             kind, strikes = CancellationPolicy.classify_customer(trip, now)
@@ -388,10 +395,12 @@ class TripService:
             ]
         )
 
+        compensation = None
         if kind is not None:
-            CancellationPolicy.record(trip, actor, kind, strikes, reason, reason_code)
+            record = CancellationPolicy.record(trip, actor, kind, strikes, reason, reason_code)
+            compensation = WastedTripCompensation.apply(record)
 
-        if actor == "driver":
+        if actor == "driver" and not no_show:
             cls._requeue_after_driver_cancel(ride, trip, now)
             cls._sync_engagement(trip.driver_id)
             cls._publish(
@@ -406,7 +415,11 @@ class TripService:
         cls._publish(
             trip,
             "ride.cancelled",
-            {"cancelled_by": actor, "reason": reason, "kind": kind or ""},
+            {
+                "cancelled_by": actor, "reason": reason, "kind": kind or "",
+                # مبلغٌ عُوِّض به السائق عن المشوار الفاضي — "0.00" إن لم يُعوَّض.
+                "driver_compensation": str(compensation or "0.00"),
+            },
         )
 
         return trip

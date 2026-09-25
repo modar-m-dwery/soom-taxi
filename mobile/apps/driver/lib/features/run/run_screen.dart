@@ -14,6 +14,8 @@
 /// تلقائيًّا».
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soum_core/soum_core.dart';
@@ -345,6 +347,18 @@ class _RunSheet extends ConsumerWidget {
                       )
                     : Text(label),
               ),
+              // بعد الوصول: «الزبون لم يحضر» يُفتح بعد انتظارٍ كامل — لا
+              // يُحسب على السائق، ويُعوَّض عن مشواره.
+              if (stage == ResumeStage.driverArrived &&
+                  trip?.arrivedAt != null) ...[
+                const SizedBox(height: 8),
+                _NoShowButton(
+                  arrivedAt: trip!.arrivedAt!,
+                  wait: Duration(minutes: config.timings.cancelWaitMinutes),
+                  isBusy: isBusy,
+                  onPressed: () => _confirmNoShow(context, ref),
+                ),
+              ],
               // الإلغاء قبل البدء وحده: بعده نزاعٌ لا إلغاء (الخادم يرفض).
               if (stage != ResumeStage.inProgress && trip != null) ...[
                 const SizedBox(height: 4),
@@ -360,16 +374,61 @@ class _RunSheet extends ConsumerWidget {
     );
   }
 
+  Future<void> _confirmNoShow(BuildContext context, WidgetRef ref) async {
+    final strings = SoumStrings.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(strings.runNoShowConfirmTitle),
+        content: Text(strings.runNoShowConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(strings.actionBack),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(strings.actionConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await ref
+        .read(workControllerProvider.notifier)
+        .reportNoShow(strings.runNoShow);
+    if (!context.mounted) return;
+    if (!result.ok) {
+      final error = ref.read(workControllerProvider).failure;
+      if (error != null) showApiError(context, error);
+      return;
+    }
+    final compensation = result.compensation;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          compensation == null
+              ? strings.runNoShowDone
+              : strings.runNoShowCompensated(compensation.format()),
+        ),
+      ),
+    );
+  }
+
   Future<void> _confirmCancel(BuildContext context, WidgetRef ref) async {
     final strings = SoumStrings.of(context);
+    // النصّ للإدارة، والرمز للعدّ: «عطل بالسيارة» مسموحٌ مرّتين بالشهر،
+    // والنمط يُقرأ من الرموز لا من نصٍّ حرّ.
     final reasons = [
-      strings.cancelReasonCar,
-      strings.cancelReasonNoAnswer,
-      strings.cancelReasonFar,
-      strings.cancelReasonOther,
+      (strings.cancelReasonCar, DriverCancelReason.carProblem),
+      (strings.cancelReasonNoAnswer, DriverCancelReason.customerUnreachable),
+      (strings.cancelReasonFar, DriverCancelReason.roadBlocked),
+      (strings.cancelReasonOther, DriverCancelReason.other),
     ];
 
-    final reason = await showModalBottomSheet<String>(
+    final reason = await showModalBottomSheet<(String, DriverCancelReason)>(
       context: context,
       showDragHandle: true,
       builder: (sheetContext) => SafeArea(
@@ -387,7 +446,7 @@ class _RunSheet extends ConsumerWidget {
               const SizedBox(height: 12),
               for (final option in reasons)
                 ListTile(
-                  title: Text(option),
+                  title: Text(option.$1),
                   trailing: const Icon(Icons.chevron_left_rounded),
                   onTap: () => Navigator.pop(sheetContext, option),
                 ),
@@ -398,10 +457,74 @@ class _RunSheet extends ConsumerWidget {
     );
     if (reason == null || !context.mounted) return;
 
-    final ok = await ref.read(workControllerProvider.notifier).cancelTrip(reason);
+    final ok = await ref
+        .read(workControllerProvider.notifier)
+        .cancelTrip(reason.$1, code: reason.$2);
     if (!ok && context.mounted) {
       final error = ref.read(workControllerProvider).failure;
       if (error != null) showApiError(context, error);
     }
+  }
+}
+
+/// «الزبون لم يحضر» — معطّل حتّى تنقضي مهلة الانتظار، بعدٍّ تنازليّ ظاهر.
+///
+/// الخادم هو الحكم (يرفض قبل المهلة ويقول كم بقي)، والعدّاد هنا كي لا
+/// يضغط السائق زرًّا سيُرفض. الوقت من `arrived_at` الذي سجّله الخادم لا من
+/// لحظة ضغط السائق «وصلت».
+class _NoShowButton extends StatefulWidget {
+  const _NoShowButton({
+    required this.arrivedAt,
+    required this.wait,
+    required this.isBusy,
+    required this.onPressed,
+  });
+
+  final DateTime arrivedAt;
+  final Duration wait;
+  final bool isBusy;
+  final VoidCallback onPressed;
+
+  @override
+  State<_NoShowButton> createState() => _NoShowButtonState();
+}
+
+class _NoShowButtonState extends State<_NoShowButton> {
+  Timer? _tick;
+
+  Duration get _left {
+    final left = widget.arrivedAt.add(widget.wait).difference(DateTime.now());
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {});
+      if (_left == Duration.zero) _tick?.cancel();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = SoumStrings.of(context);
+    final left = _left;
+    final ready = left == Duration.zero;
+    final clock =
+        '${left.inMinutes}:${(left.inSeconds % 60).toString().padLeft(2, '0')}';
+
+    return OutlinedButton.icon(
+      onPressed: ready && !widget.isBusy ? widget.onPressed : null,
+      icon: const Icon(Icons.person_off_outlined),
+      label: Text(ready ? strings.runNoShow : strings.runNoShowWait(clock)),
+    );
   }
 }

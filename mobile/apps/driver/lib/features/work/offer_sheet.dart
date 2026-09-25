@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soum_core/soum_core.dart';
 import 'package:soum_ui/soum_ui.dart';
 
+import '../../providers.dart';
 import 'work_controller.dart';
 
 Future<void> showOfferSheet(BuildContext context, RideRequest ride) {
@@ -37,12 +38,21 @@ class _OfferSheetState extends ConsumerState<_OfferSheet> {
   late final TextEditingController _fare;
   late final TextEditingController _eta;
 
+  /// سعر الزبون إن عرض سعرًا (سوم بنمط inDrive).
+  Money? get _proposed => widget.ride.customerProposedFare;
+
+  FareProposalRules get _rules =>
+      ref.read(configProvider).pricing.proposalRules;
+
   @override
   void initState() {
     super.initState();
-    // السعر المرجعيّ الذي حسبه الخادم هو الافتراض: أكثرُ العروض تقبله
-    // كما هو، وإجبارُ السائق على كتابته في كلّ طلب إبطاءٌ بلا فائدة.
-    _fare = TextEditingController(text: widget.ride.fare.grossFare.toApi());
+    // السعر المرجعيّ هو الافتراض: سعر الزبون إن عرض سعرًا، وإلّا ما حسبه
+    // الخادم. أكثرُ العروض تقبله كما هو، وإجبارُ السائق على كتابته في كلّ
+    // طلب إبطاءٌ بلا فائدة.
+    _fare = TextEditingController(
+      text: (_proposed ?? widget.ride.fare.grossFare).toApi(),
+    );
     _eta = TextEditingController(text: '5');
   }
 
@@ -65,8 +75,12 @@ class _OfferSheetState extends ConsumerState<_OfferSheet> {
   /// null = ضمن الممرّ أو لا ممرّ.
   bool get _outOfRange {
     final fare = _parsedFare;
-    final floor = widget.ride.fare.fareFloor;
-    final cap = widget.ride.fare.fareCap;
+    // على سعر الزبون: لا أقلّ منه، ولا أعلى من سقف العرض المضادّ.
+    final proposed = _proposed;
+    final floor = proposed ?? widget.ride.fare.fareFloor;
+    final cap = proposed != null
+        ? _rules.counterCap(widget.ride)
+        : widget.ride.fare.fareCap;
     if (fare == null) return false;
     if (floor != null && fare < floor) return true;
     if (cap != null && fare > cap) return true;
@@ -109,7 +123,38 @@ class _OfferSheetState extends ConsumerState<_OfferSheet> {
             const SizedBox(height: 14),
             Text(strings.workOfferTitle, style: theme.textTheme.titleLarge),
 
-            if (fare.fareFloor != null && fare.fareCap != null) ...[
+            if (_proposed != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                strings.workCustomerPrice(_proposed!.format()),
+                style: theme.textTheme.titleMedium,
+              ),
+              Text(
+                strings.workCounterUpTo(_rules.counterCap(widget.ride).format()),
+                style: SoumTheme.tabular(theme.textTheme.bodySmall!),
+              ),
+              const SizedBox(height: 10),
+              // اقبل بسعر الزبون أو +5٪ و+10٪ و+15٪ بلمسة — الكتابة للاستثناء.
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  for (final (index, option)
+                      in _rules.quickCounters(widget.ride).indexed)
+                    ChoiceChip(
+                      label: Text(
+                        index == 0
+                            ? strings.workAcceptCustomerPrice
+                            : option.format(),
+                      ),
+                      selected: _parsedFare == option,
+                      onSelected: (_) => setState(
+                        () => _fare.text = option.toApi(),
+                      ),
+                    ),
+                ],
+              ),
+            ] else if (fare.fareFloor != null && fare.fareCap != null) ...[
               const SizedBox(height: 4),
               Text(
                 strings.workFareRange(

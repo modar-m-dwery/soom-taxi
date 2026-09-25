@@ -84,6 +84,11 @@ class CreateRideRequestSerializer(serializers.Serializer):
         return attrs
 
 
+class ProposeFareSerializer(serializers.Serializer):
+    # نصّ عشريّ كبقيّة المال — لا float.
+    proposed_fare = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
 class RideRequestSerializer(serializers.ModelSerializer):
 
     pickup_lat = serializers.SerializerMethodField()
@@ -159,6 +164,7 @@ class RideRequestSerializer(serializers.ModelSerializer):
             "currency",
             "fare_floor",
             "fare_cap",
+            "customer_proposed_fare",
             "surge_multiplier",
 
             "created_at",

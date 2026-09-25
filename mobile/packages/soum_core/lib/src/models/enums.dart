@@ -257,3 +257,17 @@ enum CancelReason {
   const CancelReason(this.code);
   final String code;
 }
+
+/// لماذا ألغى السائق — `customer_no_show` وحده يغيّر النتيجة: لا يُحسب على
+/// السائق، ويُغلق الطلب، ويُعوَّض عن المشوار الفاضي. والخادم لا يقبله إلّا
+/// بعد وصولٍ تحقّق منه وانتظار `cancel_wait_minutes`.
+enum DriverCancelReason {
+  customerNoShow('customer_no_show'),
+  carProblem('car_problem'),
+  customerUnreachable('customer_unreachable'),
+  roadBlocked('road_blocked'),
+  other('other');
+
+  const DriverCancelReason(this.code);
+  final String code;
+}

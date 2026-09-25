@@ -26,6 +26,26 @@ class CustomerShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final arc = ref.watch(rideControllerProvider);
 
+    // الطلب انتهى بغير يد الزبون (مهلة، عدم حضور، إدارة): رسالةٌ تقول ما
+    // حدث. الرئيسية وحدها بلا تفسير تبدو كأنّ التطبيق أضاع الطلب.
+    ref.listen(rideControllerProvider.select((a) => a.ended), (previous, next) {
+      if (next == null || next == previous) return;
+      final strings = SoumStrings.of(context);
+      final message = switch (next) {
+        RideEnd.expired => '${strings.rideExpired} — ${strings.rideExpiredBody}',
+        RideEnd.noShow => strings.rideEndedNoShow,
+        RideEnd.cancelledByOther => strings.tripCancelledBy,
+      };
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 6),
+          ),
+        );
+    });
+
     // انتقالٌ متحرّك بين المراحل لا قفزة: المستخدم يتابع سيارةً تتحرّك،
     // وتبدّلٌ مفاجئ يجعله يظنّ أنّ التطبيق أُعيد تشغيله.
     return AnimatedSwitcher(

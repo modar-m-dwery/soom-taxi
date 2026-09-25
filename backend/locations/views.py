@@ -28,7 +28,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.throttling import TrustedAnonThrottle
-from locations.models import ServiceArea, SurgeMode
+from locations.models import PricingPolicy, ServiceArea, SurgeMode
 from locations.serializers import AppConfigSerializer
 from locations.services import LocationService
 
@@ -186,6 +186,7 @@ class AppConfigView(APIView):
                 "cancel_driver_late_grace_minutes": (
                     area.cancel_driver_late_grace_minutes
                 ),
+                "cancel_wait_minutes": area.cancel_wait_minutes,
                 "late_cancel_strike_limit": area.late_cancel_strike_limit,
                 "invitation_reject_cooldown_seconds": (
                     area.effective_invitation_reject_cooldown_seconds
@@ -240,6 +241,14 @@ class AppConfigView(APIView):
                     else None
                 ),
                 "referral_reward": str(area.referral_reward),
+                "customer_can_propose": area.allows_policy(
+                    PricingPolicy.CUSTOMER_BIDDING
+                ),
+                "customer_proposal_min_ratio": str(area.customer_proposal_min_ratio),
+                "customer_proposal_counter_ratio": str(
+                    area.customer_proposal_counter_ratio
+                ),
+                "customer_proposal_step": str(area.customer_proposal_step),
             },
         )
 
@@ -259,6 +268,7 @@ class AppConfigView(APIView):
             "timings": kwargs["timings"],
             "geometry": kwargs["geometry"],
             "pricing": kwargs["pricing"],
+            "map_tiles": _map_tiles(),
             "server_time": timezone.now(),
         }
 
@@ -287,6 +297,7 @@ class AppConfigView(APIView):
             "auto_dispatch_max_attempts": 5,
             "cancel_free_window_seconds": 120,
             "cancel_driver_late_grace_minutes": 5,
+            "cancel_wait_minutes": 5,
             "late_cancel_strike_limit": 3,
             "invitation_reject_cooldown_seconds": getattr(
                 settings, "RIDE_INVITATION_REJECT_COOLDOWN_SECONDS", 60
@@ -343,4 +354,20 @@ class AppConfigView(APIView):
             "first_ride_discount_pct": "0",
             "first_ride_discount_cap": None,
             "referral_reward": "0",
+            "customer_can_propose": True,
+            "customer_proposal_min_ratio": "0.70",
+            "customer_proposal_counter_ratio": "1.50",
+            "customer_proposal_step": "500.00",
         }
+
+
+def _map_tiles():
+    """بلاطات الخريطة من الإعدادات — واحدة للمدن كلّها."""
+    from django.conf import settings
+
+    return {
+        "url_template": settings.MAP_TILES_URL,
+        "dark_url_template": settings.MAP_TILES_DARK_URL or None,
+        "attribution": settings.MAP_TILES_ATTRIBUTION,
+        "max_zoom": settings.MAP_TILES_MAX_ZOOM,
+    }

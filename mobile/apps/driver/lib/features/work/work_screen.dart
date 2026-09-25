@@ -195,14 +195,28 @@ class CandidateCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(strings.fareGross, style: theme.textTheme.labelSmall),
-                      MoneyText(
-                        ride.fare.grossFare,
-                        style: theme.textTheme.titleLarge,
-                      ),
+                      // الزبون عرض سعره: هو الرقم الأهمّ في البطاقة، لا
+                      // تسعيرة المنصّة — السائق يقبله أو يعرض أعلى.
+                      if (ride.customerProposedFare != null) ...[
+                        Text(
+                          strings.workCustomerPriceLabel,
+                          style: theme.textTheme.labelSmall,
+                        ),
+                        MoneyText(
+                          ride.customerProposedFare!,
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ] else ...[
+                        Text(strings.fareGross, style: theme.textTheme.labelSmall),
+                        MoneyText(
+                          ride.fare.grossFare,
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ],
                       // الممرّ يُعرض قبل الإدخال: السائق يعرف الحدّ قبل
                       // أن يرسل سعرًا سيُرفض.
-                      if (ride.fare.fareFloor != null &&
+                      if (ride.customerProposedFare == null &&
+                          ride.fare.fareFloor != null &&
                           ride.fare.fareCap != null)
                         Text(
                           strings.workFareRange(

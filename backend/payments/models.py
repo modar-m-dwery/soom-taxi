@@ -111,6 +111,7 @@ class LedgerEntryType(models.TextChoices):
     SETTLEMENT = "settlement", "تسوية"
     ADJUSTMENT = "adjustment", "تسوية يدوية"
     PROMOTION = "promotion", "خصم ترويجي تتحمّله المنصّة"
+    COMPENSATION = "compensation", "تعويض مشوار فاضي تتحمّله المنصّة"
 
 
 class RefundStatus(models.TextChoices):
@@ -432,10 +433,13 @@ class LedgerEntry(models.Model):
     `LedgerService.assert_balanced` بعد كل عملية.
     """
 
+    # فارغ لحركةٍ بلا دفعة: تعويض سائقٍ عن رحلةٍ أُلغيت لا دفعة لها أصلًا.
     payment = models.ForeignKey(
         Payment,
         on_delete=models.PROTECT,
         related_name="ledger_entries",
+        null=True,
+        blank=True,
     )
 
     account = models.CharField(

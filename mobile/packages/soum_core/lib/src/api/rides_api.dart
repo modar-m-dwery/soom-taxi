@@ -2,6 +2,7 @@ import '../models/active_ride.dart';
 import '../models/enums.dart';
 import '../models/geo.dart';
 import '../models/json.dart';
+import '../models/money.dart';
 import '../models/offer.dart';
 import '../models/ride.dart';
 import '../models/subscription.dart';
@@ -61,6 +62,14 @@ class RidesApi {
         if (reason != null && reason.isNotEmpty) 'reason': reason,
         'reason_code': ?reasonCode?.code,
       };
+
+  /// «سوم» بنمط inDrive: يعرض الزبون سعره أو يرفعه. يُرفع ولا يُخفض، وأرضيّته
+  /// نسبةٌ من تسعيرة المنصّة (`pricing.customer_proposal_min_ratio`).
+  Future<RideRequest> proposeFare(int rideId, Money fare) async =>
+      RideRequest.fromJson(asJson(await _client.post<dynamic>(
+        '/rides/$rideId/propose-fare/',
+        body: {'proposed_fare': fare.toApi()},
+      )));
 
   Future<List<RideRequest>> mine({String? status}) async {
     final body = await _client.get<dynamic>(

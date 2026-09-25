@@ -639,6 +639,7 @@ SPECTACULAR_SETTINGS = {
         "ComplaintSeverityEnum": "feedback.models.ComplaintSeverity.choices",
         "RefundStatusEnum": "payments.models.RefundStatus.choices",
         "CancelReasonEnum": "trips.models.CancelReason.choices",
+        "DriverCancelReasonEnum": "trips.models.DriverCancelReason.choices",
     },
 
     "SORT_OPERATIONS": True,
@@ -742,7 +743,9 @@ GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH", default=None)
 GEOS_LIBRARY_PATH = env("GEOS_LIBRARY_PATH", default=None)
 
 MAPS_ROUTING_ENABLED = env.bool("MAPS_ROUTING_ENABLED", default=True)
-MAPS_ROUTING_REQUIRED = env.bool("MAPS_ROUTING_REQUIRED", default=True)
+# False: تعطّل مزوّد التوجيه يتراجع إلى تقدير داخليّ (source=estimated) بدل
+# أن يوقف الحجز كلّه. True يعيد السلوك القديم — لا تستعمله مع مزوّدٍ بلا عقد.
+MAPS_ROUTING_REQUIRED = env.bool("MAPS_ROUTING_REQUIRED", default=False)
 MAPS_ROUTING_BASE_URL = env("MAPS_ROUTING_BASE_URL", default="https://router.project-osrm.org")
 MAPS_ROUTING_TIMEOUT_SECONDS = env.int("MAPS_ROUTING_TIMEOUT_SECONDS", default=10)
 
@@ -757,6 +760,21 @@ MAPS_ROUTING_BREAKER_COOLDOWN = env.int("MAPS_ROUTING_BREAKER_COOLDOWN", default
 MAPS_ROAD_DETOUR_FACTOR = env.float("MAPS_ROAD_DETOUR_FACTOR", default=1.35)
 MAPS_AVERAGE_SPEED_KMH = env.float("MAPS_AVERAGE_SPEED_KMH", default=30.0)
 MAPS_USER_AGENT = env("MAPS_USER_AGENT", default="RidesApp/1.0 (contact: ops@example.com)")
+
+# بلاطات الخريطة في التطبيقين — تُرسل في /config/ فيتبدّل المزوّد بلا تحديث
+# للتطبيق. الافتراض خوادم OSM العامّة: للتطوير فقط (سياسة استخدامها تمنع
+# تطبيقًا تجاريًّا بحجم مدينة). للإنتاج ضع رابط مزوّدك بمفتاحه، مثلًا:
+#   https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=KEY
+#   https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key=KEY
+# المفتاح هنا مفتاح عميل (يصل للتطبيق حتمًا): قيّده بمعرّف التطبيق عند المزوّد.
+MAP_TILES_URL = env(
+    "MAP_TILES_URL", default="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+)
+MAP_TILES_DARK_URL = env("MAP_TILES_DARK_URL", default="")
+MAP_TILES_ATTRIBUTION = env(
+    "MAP_TILES_ATTRIBUTION", default="© OpenStreetMap contributors",
+)
+MAP_TILES_MAX_ZOOM = env.int("MAP_TILES_MAX_ZOOM", default=19)
 OTP_DELIVERY_BACKEND = env("OTP_DELIVERY_BACKEND", default="console")
 if DEPLOYMENT_ENV == "production" and OTP_DELIVERY_BACKEND in (
     "console",

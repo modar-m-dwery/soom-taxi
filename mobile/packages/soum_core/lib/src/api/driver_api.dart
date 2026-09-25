@@ -7,6 +7,7 @@ import '../models/json.dart';
 import '../models/money.dart';
 import '../models/offer.dart';
 import '../models/ride.dart';
+import '../models/trip.dart';
 import '../models/vehicle.dart';
 import '../network/api_client.dart';
 
@@ -250,11 +251,20 @@ class DriverApi {
 
   /// تراجعٌ بعد القبول وقبل البدء. السبب إلزاميّ، والطلب يعود إلى البحث
   /// للزبون. تكراره يوقف السائق عن العروض مؤقّتًا (سياسة الإلغاء).
-  Future<void> cancelTrip(int rideId, {required String reason}) =>
-      _client.post<dynamic>(
-        '/driver/rides/$rideId/cancel/',
-        body: {'reason': reason},
-      );
+  ///
+  /// إلّا [DriverCancelReason.customerNoShow] بعد الوصول والانتظار: لا يُحسب
+  /// عليه، والرحلة العائدة تحمل `driverCompensation` إن عُوِّض.
+  Future<Trip> cancelTrip(
+    int rideId, {
+    required String reason,
+    DriverCancelReason? reasonCode,
+  }) async {
+    final json = await _client.post<Json>(
+      '/driver/rides/$rideId/cancel/',
+      body: {'reason': reason, 'reason_code': ?reasonCode?.code},
+    );
+    return Trip.fromJson(json);
+  }
 
   /// يردّ `trip.not_arrived` إن لم يسبقه `arrived`.
   Future<void> start(int rideId) =>

@@ -1368,7 +1368,7 @@
         "/api/v1/driver/rides/{ride_id}/cancel/": {
             "post": {
                 "operationId": "driver_cancel_trip",
-                "description": "السائق يتراجع بعد القبول وقبل البدء. الطلب يعود إلى البحث للزبون،\nويُحسب الإلغاء على السائق (راجع trips/services/cancellation.py).",
+                "description": "السائق يتراجع بعد القبول وقبل البدء. الطلب يعود إلى البحث للزبون،\nويُحسب الإلغاء على السائق (راجع trips/services/cancellation.py).\n\nإلّا `reason_code=customer_no_show` بعد الوصول والانتظار: يُحسب على\nالزبون، ويُغلق الطلب، ويُعوَّض السائق عن المشوار الفاضي.",
                 "summary": "Driver cancels an accepted trip before starting",
                 "parameters": [
                     {
@@ -3951,6 +3951,83 @@
                 }
             }
         },
+        "/api/v1/rides/{ride_id}/propose-fare/": {
+            "post": {
+                "operationId": "propose_ride_fare",
+                "description": "السوم بنمط inDrive: الزبون يعرض سعره على طلبٍ مفتوح، أو يرفعه وهو\nينتظر. السائقون يقبلونه كما هو أو يعرضون أعلى منه ضمن سقف المنطقة.",
+                "summary": "Customer proposes (or raises) their fare",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ride_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Rides"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProposeFareRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProposeFareRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProposeFareRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RideRequest"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/rides/mine/": {
             "get": {
                 "operationId": "list_my_rides",
@@ -5090,6 +5167,9 @@
                     "pricing": {
                         "$ref": "#/components/schemas/AreaPricing"
                     },
+                    "map_tiles": {
+                        "$ref": "#/components/schemas/MapTiles"
+                    },
                     "server_time": {
                         "type": "string",
                         "format": "date-time",
@@ -5242,6 +5322,22 @@
                     "referral_reward": {
                         "type": "string",
                         "description": "رصيد الإحالة للداعي والمدعوّ بعد أوّل رحلة — «0» إن كان معطَّلًا."
+                    },
+                    "customer_can_propose": {
+                        "type": "boolean",
+                        "description": "هل يعرض الزبون سعره في «سوم» هنا (خطّة customer_bidding)."
+                    },
+                    "customer_proposal_min_ratio": {
+                        "type": "string",
+                        "description": "أدنى سعر يقترحه الزبون كنسبة من تسعيرة المنصّة."
+                    },
+                    "customer_proposal_counter_ratio": {
+                        "type": "string",
+                        "description": "أعلى عرض للسائق كنسبة من سعر الزبون."
+                    },
+                    "customer_proposal_step": {
+                        "type": "string",
+                        "description": "خطوة زرّي − و+ بعملة المنطقة."
                     }
                 },
                 "required": [
@@ -5291,6 +5387,10 @@
                     },
                     "cancel_driver_late_grace_minutes": {
                         "type": "integer"
+                    },
+                    "cancel_wait_minutes": {
+                        "type": "integer",
+                        "description": "بعد وصول السائق وانتظاره هذه الدقائق: إلغاء الزبون مخالفتان، ويستطيع السائق تسجيل «الزبون لم يحضر»."
                     },
                     "late_cancel_strike_limit": {
                         "type": "integer"
@@ -6091,6 +6191,17 @@
                     "updated_at"
                 ]
             },
+            "DriverCancelReasonEnum": {
+                "enum": [
+                    "customer_no_show",
+                    "car_problem",
+                    "customer_unreachable",
+                    "road_blocked",
+                    "other"
+                ],
+                "type": "string",
+                "description": "* `customer_no_show` - الزبون لم يحضر\n* `car_problem` - عطل بالسيارة\n* `customer_unreachable` - الزبون لا يردّ\n* `road_blocked` - المكان بعيد أو الطريق مغلق\n* `other` - سبب آخر"
+            },
             "DriverCancelTripRequest": {
                 "type": "object",
                 "properties": {
@@ -6098,6 +6209,9 @@
                         "type": "string",
                         "minLength": 3,
                         "maxLength": 255
+                    },
+                    "reason_code": {
+                        "$ref": "#/components/schemas/DriverCancelReasonEnum"
                     }
                 },
                 "required": [
@@ -6356,6 +6470,34 @@
                 ],
                 "type": "string",
                 "description": "* `pending` - Pending\n* `accepted` - Accepted\n* `rejected` - Rejected\n* `expired` - Expired\n* `cancelled` - Cancelled"
+            },
+            "MapTiles": {
+                "type": "object",
+                "description": "مزوّد بلاطات الخريطة — يتبدّل من الخادم بلا تحديث للتطبيق.",
+                "properties": {
+                    "url_template": {
+                        "type": "string",
+                        "description": "رابط البلاطات بـ{z} و{x} و{y}، ومعه مفتاح المزوّد إن لزم."
+                    },
+                    "dark_url_template": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "نسخة الوضع الليليّ — null = الرابط نفسه."
+                    },
+                    "attribution": {
+                        "type": "string",
+                        "description": "نصّ الحقوق الذي يشترطه المزوّد."
+                    },
+                    "max_zoom": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "attribution",
+                    "dark_url_template",
+                    "max_zoom",
+                    "url_template"
+                ]
             },
             "NearbyVehicle": {
                 "type": "object",
@@ -6753,6 +6895,19 @@
                 ],
                 "type": "string",
                 "description": "* `urgent` - عاجل\n* `normal` - عادي\n* `low` - منخفض"
+            },
+            "ProposeFareRequest": {
+                "type": "object",
+                "properties": {
+                    "proposed_fare": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    }
+                },
+                "required": [
+                    "proposed_fare"
+                ]
             },
             "PublishTripRequest": {
                 "type": "object",
@@ -7682,6 +7837,13 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "customer_proposed_fare": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "surge_multiplier": {
                         "type": "string",
                         "format": "decimal",
@@ -7705,6 +7867,7 @@
                     "created_at",
                     "currency",
                     "customer_late_cancels",
+                    "customer_proposed_fare",
                     "customer_total",
                     "destination_city",
                     "destination_lat",
@@ -8551,6 +8714,13 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "driver_compensation": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+                        "nullable": true,
+                        "readOnly": true
+                    },
                     "pickup_verified": {
                         "type": "boolean",
                         "readOnly": true
@@ -8589,6 +8759,7 @@
                     "customer_phone",
                     "distance_m",
                     "driver",
+                    "driver_compensation",
                     "driver_name",
                     "driver_phone",
                     "driver_rating",

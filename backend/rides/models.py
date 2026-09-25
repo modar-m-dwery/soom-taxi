@@ -229,6 +229,15 @@ class RideRequest(models.Model):
         blank=True,
     )
 
+    # السوم بنمط inDrive: السعر الذي عرضه الزبون. السائقون يقبلونه كما هو
+    # أو يعرضون أعلى منه، ولا يُعرض عليه أقلّ منه. يُرفع ولا يُخفض.
+    customer_proposed_fare = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+
     surge_multiplier = models.DecimalField(
         max_digits=4,
         decimal_places=2,

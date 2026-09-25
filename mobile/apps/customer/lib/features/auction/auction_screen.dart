@@ -99,6 +99,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
               clock: clock,
               canInvite: canInvite,
               canShare: canShare,
+              // «سوم» بنمط inDrive: الزبون يعرض سعره. «الأقرب» بسعر المنصّة.
+              canPropose: config.pricing.customerCanPropose &&
+                  !arc.isAutoDispatching,
               onSelect: _select,
               onInvite: () => showInviteSheet(context, ref),
               onShare: () => showSharedSheet(context, ride.id),
@@ -240,6 +243,7 @@ class _OffersSheet extends StatelessWidget {
     required this.clock,
     required this.canInvite,
     required this.canShare,
+    required this.canPropose,
     required this.onSelect,
     required this.onInvite,
     required this.onShare,
@@ -249,6 +253,7 @@ class _OffersSheet extends StatelessWidget {
   final ServerClock clock;
   final bool canInvite;
   final bool canShare;
+  final bool canPropose;
   final Future<void> Function(int) onSelect;
   final VoidCallback onInvite;
   final VoidCallback onShare;
@@ -307,6 +312,8 @@ class _OffersSheet extends StatelessWidget {
                 ],
               ),
             ),
+            if (canPropose && arc.ride != null)
+              ProposalBar(ride: arc.ride!, isBusy: arc.isBusy),
             if (!arc.hasOffers)
               const Padding(
                 padding: EdgeInsets.fromLTRB(16, 4, 16, 22),
@@ -417,6 +424,124 @@ class OfferCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                   ),
                   child: Text(strings.offerChoose),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// «سعرك» — الزبون يعرض سعره بزرّي − و+ ثمّ يرفعه وهو ينتظر.
+///
+/// الحدود من `pricing` في إعداد المدينة (نسخة العميل من حدود الخادم،
+/// مقرَّبةً إلى الخطوة) كي لا يضغط الزبون زرًّا سيُرفض — والخادم هو الحكم.
+class ProposalBar extends ConsumerStatefulWidget {
+  const ProposalBar({super.key, required this.ride, required this.isBusy});
+
+  final RideRequest ride;
+  final bool isBusy;
+
+  @override
+  ConsumerState<ProposalBar> createState() => _ProposalBarState();
+}
+
+class _ProposalBarState extends ConsumerState<ProposalBar> {
+  Money? _value;
+
+  FareProposalRules get _rules =>
+      ref.read(configProvider).pricing.proposalRules;
+
+  @override
+  void didUpdateWidget(ProposalBar old) {
+    super.didUpdateWidget(old);
+    // عُرض السعر أو رُفع: البداية التالية خطوةٌ فوقه.
+    if (old.ride.customerProposedFare != widget.ride.customerProposedFare) {
+      _value = null;
+    }
+  }
+
+  Money _clamp(Money value) {
+    final min = _rules.minFor(widget.ride);
+    final max = _rules.maxFor(widget.ride);
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+  }
+
+  Future<void> _send(Money value) async {
+    final strings = SoumStrings.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ok =
+        await ref.read(rideControllerProvider.notifier).proposeFare(value);
+    if (!mounted) return;
+    final error = ref.read(rideControllerProvider).lastError;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(ok ? strings.proposalSent : (error?.detail ?? '')),
+      ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = SoumStrings.of(context);
+    final theme = Theme.of(context);
+    final rules = _rules;
+    final ride = widget.ride;
+    final step = Money(rules.step, ride.fare.grossFare.currency);
+    final value = _clamp(_value ?? rules.suggestedFor(ride));
+    final proposed = ride.customerProposedFare;
+    final canLower = value > rules.minFor(ride);
+    final canRaise = value < rules.maxFor(ride);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              proposed == null
+                  ? strings.proposalHint(ride.fare.grossFare.format())
+                  : strings.proposalYours(proposed.format()),
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton.filledTonal(
+                  tooltip: strings.proposalLower,
+                  onPressed: canLower && !widget.isBusy
+                      ? () => setState(() => _value = _clamp(value - step))
+                      : null,
+                  icon: const Icon(Icons.remove_rounded),
+                ),
+                Expanded(
+                  child: Center(
+                    child: MoneyText(value, style: theme.textTheme.titleLarge),
+                  ),
+                ),
+                IconButton.filledTonal(
+                  tooltip: strings.proposalHigher,
+                  onPressed: canRaise && !widget.isBusy
+                      ? () => setState(() => _value = _clamp(value + step))
+                      : null,
+                  icon: const Icon(Icons.add_rounded),
+                ),
+                const SizedBox(width: 10),
+                FilledButton(
+                  onPressed: widget.isBusy ? null : () => _send(value),
+                  child: Text(
+                    proposed == null ? strings.proposalSend : strings.proposalRaise,
+                  ),
                 ),
               ],
             ),

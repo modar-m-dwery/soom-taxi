@@ -3,6 +3,7 @@ from django.urls import path
 from rides.views import (
     RideRequestCreateView,
     CustomerCancelRideView,
+    CustomerProposeFareView,
     MyRidesView,
     MyRideSubscriptionsView,
     CancelRideSubscriptionView,
@@ -39,6 +40,11 @@ urlpatterns = [
         "<int:ride_id>/cancel/",
         CustomerCancelRideView.as_view(),
         name="ride-cancel",
+    ),
+    path(
+        "<int:ride_id>/propose-fare/",
+        CustomerProposeFareView.as_view(),
+        name="ride-propose-fare",
     ),
 
 ]

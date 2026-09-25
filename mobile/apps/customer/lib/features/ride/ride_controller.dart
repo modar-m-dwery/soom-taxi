@@ -137,6 +137,22 @@ class RideController extends Notifier<RideArc> {
   /// 409 هنا **ليست عطلًا**: زبون آخر اختار السائق نفسه في اللحظة نفسها،
   /// والخادم أقفل الصفّ فردّ على الثاني. المطلوب رسالة لطيفة وقائمة
   /// محدَّثة — لا شاشة خطأ تُخرج الزبون من التدفّق.
+  /// «سوم» بنمط inDrive: يعرض الزبون سعره أو يرفعه وهو ينتظر العروض.
+  Future<bool> proposeFare(Money fare) async {
+    final ride = state.ride;
+    if (ride == null) return false;
+
+    state = state.copyWith(isBusy: true);
+    try {
+      final updated = await _soum.rides.proposeFare(ride.id, fare);
+      state = state.copyWith(isBusy: false, ride: updated);
+      return true;
+    } on ApiException catch (error) {
+      state = state.copyWith(isBusy: false, lastError: error, clearError: false);
+      return false;
+    }
+  }
+
   Future<bool> selectOffer(int offerId) async {
     final ride = state.ride;
     if (ride == null) return false;
@@ -529,6 +545,7 @@ class RideController extends Notifier<RideArc> {
       endedReason: readStringOrNull(data, 'reason') ??
           readStringOrNull(data, 'cancel_reason') ??
           type,
+      ended: rideEndFor(type, data),
     );
   }
 
@@ -565,4 +582,13 @@ class RideController extends Notifier<RideArc> {
     unawaited(_room?.close());
     _room = null;
   }
+}
+
+/// كيف انتهى الطلب، من حدث النهاية — null إن ألغاه الزبون بيده.
+RideEnd? rideEndFor(String type, Json data) {
+  if (type == RealtimeEventType.rideExpired) return RideEnd.expired;
+  if (readStringOrNull(data, 'kind') == 'no_show') return RideEnd.noShow;
+  // الزبون ألغى بيده: يعرف ما حدث، فلا رسالة.
+  if (readStringOrNull(data, 'cancelled_by') == 'customer') return null;
+  return RideEnd.cancelledByOther;
 }

@@ -3,6 +3,19 @@ library;
 
 import 'package:soum_core/soum_core.dart';
 
+/// كيف انتهى الطلب دون أن يلغيه الزبون — لرسالةٍ تقول له ما حدث بدل أن
+/// يجد نفسه على الرئيسية بلا تفسير.
+enum RideEnd {
+  /// انقضت مهلة البحث بلا سائق.
+  expired,
+
+  /// السائق وصل وانتظر، ولم يحضر الزبون.
+  noShow,
+
+  /// الإدارة أو النظام ألغى.
+  cancelledByOther,
+}
+
 class RideArc {
   const RideArc({
     this.ride,
@@ -15,6 +28,7 @@ class RideArc {
     this.isBusy = false,
     this.lastError,
     this.endedReason,
+    this.ended,
     this.autoDispatchExhausted = false,
     this.driverRequeued = false,
   });
@@ -44,6 +58,9 @@ class RideArc {
 
   /// سبب انتهاء الرحلة كما وصل من الخادم — لعرضه بدل رسالة عامّة.
   final String? endedReason;
+
+  /// انتهى الطلب بغير يد الزبون — القشرة تعرض رسالةً مرّة.
+  final RideEnd? ended;
 
   /// «الأقرب» لم يجد من يقبل، والطلب صار مزادًا عاديًّا.
   final bool autoDispatchExhausted;

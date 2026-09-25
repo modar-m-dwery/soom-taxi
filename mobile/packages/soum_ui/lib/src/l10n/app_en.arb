@@ -504,5 +504,66 @@
   "riderCancelFoundOther": "I found another ride",
   "riderCancelWrongPickup": "Wrong pickup spot",
   "riderCancelOther": "Other reason",
-  "driverMockLocation": "Your phone is sending a fake (mock) location, so we can't send you riders. Turn off the fake-location app in Developer options, then go online again."
+  "driverMockLocation": "Your phone is sending a fake (mock) location, so we can't send you riders. Turn off the fake-location app in Developer options, then go online again.",
+  "runNoShow": "Rider didn't show",
+  "runNoShowWait": "\"Rider didn't show\" unlocks in {time}",
+  "@runNoShowWait": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "runNoShowConfirmTitle": "Mark the rider as a no-show?",
+  "runNoShowConfirmBody": "This cancellation won't count against you, and the request closes. If you're eligible, a compensation is added to your balance right away.",
+  "runNoShowDone": "Rider marked as a no-show — it doesn't count against you.",
+  "runNoShowCompensated": "Rider marked as a no-show; {amount} was added to your balance.",
+  "@runNoShowCompensated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rideEndedNoShow": "Your driver arrived and waited, but you didn't show, so the request was closed.",
+  "proposalTitle": "Your price",
+  "proposalYours": "Your price shown to drivers: {amount}",
+  "@proposalYours": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "proposalHint": "Platform fare {amount} — drivers accept your price or offer more.",
+  "@proposalHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "proposalSend": "Offer my price",
+  "proposalRaise": "Raise my price",
+  "proposalSent": "Your price was sent to nearby drivers.",
+  "proposalLower": "Lower",
+  "proposalHigher": "Higher",
+  "workCustomerPrice": "Rider's price: {amount}",
+  "@workCustomerPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "workAcceptCustomerPrice": "Accept rider's price",
+  "workCounterUpTo": "Or offer more — up to {amount}",
+  "@workCounterUpTo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "workCustomerPriceLabel": "Rider's price"
 }

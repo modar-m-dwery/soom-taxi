@@ -59,6 +59,9 @@ class DriverCancelTripView(APIView):
     """
     السائق يتراجع بعد القبول وقبل البدء. الطلب يعود إلى البحث للزبون،
     ويُحسب الإلغاء على السائق (راجع trips/services/cancellation.py).
+
+    إلّا `reason_code=customer_no_show` بعد الوصول والانتظار: يُحسب على
+    الزبون، ويُغلق الطلب، ويُعوَّض السائق عن المشوار الفاضي.
     """
 
     authentication_classes = [TokenAuthentication]
@@ -79,6 +82,7 @@ class DriverCancelTripView(APIView):
                 ride_id=ride_id,
                 actor="driver",
                 reason=serializer.validated_data["reason"],
+                reason_code=serializer.validated_data.get("reason_code", ""),
                 driver=request.user.driver_profile,
             )
         except RideRequest.DoesNotExist:

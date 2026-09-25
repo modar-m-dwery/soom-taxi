@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.gis.db import models as gis_models
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -414,6 +416,28 @@ class ServiceArea(models.Model):
         help_text="مدّة إيقاف السائق عن العروض والدعوات بعد تجاوز الحدّ.",
     )
 
+    # تعويض المشوار الفاضي: السائق وصل وانتظر ثمّ ألغى الزبون أو لم يحضر.
+    # تتحمّله المنصّة (يُخصم من العمولة المستحقّة على السائق)، لا الزبون —
+    # بلا غرامات نقديّة كبقيّة السياسة.
+    wasted_trip_compensation = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=(
+            "تعويض السائق عن المشوار الفاضي بعملة المنطقة. فارغ = أجرة فتح "
+            "العدّاد لطلب الزبون نفسه. 0 = بلا تعويض."
+        ),
+    )
+
+    wasted_trip_compensation_daily_cap = models.PositiveSmallIntegerField(
+        default=3,
+        help_text=(
+            "أقصى عدد تعويضات للسائق في اليوم — حمايةٌ من سائقٍ وزبونٍ "
+            "يتّفقان على «لم يحضر» ليأخذا التعويض."
+        ),
+    )
+
     # -----------------------------------------------------------------
     # التسعير - القلب الجديد
     # -----------------------------------------------------------------
@@ -478,6 +502,35 @@ class ServiceArea(models.Model):
         null=True,
         blank=True,
         help_text="حد أدنى مطلق للأجرة بعملة المنطقة. مثال: 13 درهم في دبي.",
+    )
+
+    # -----------------------------------------------------------------
+    # الزبون يقترح سعره (السوم بنمط inDrive) — يعمل حين تكون خطّة
+    # «الزبون يقترح السعر» ضمن الخطط المسموحة.
+    # -----------------------------------------------------------------
+
+    customer_proposal_min_ratio = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal("0.70"),
+        help_text=(
+            "أدنى سعر يقترحه الزبون كنسبة من تسعيرة المنصّة (0.70 = 70٪). "
+            "يمنع سباقًا نحو الأرخص على حساب السائق."
+        ),
+    )
+
+    customer_proposal_counter_ratio = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal("1.50"),
+        help_text="أعلى عرض يقدّمه السائق كنسبة من سعر الزبون (1.50 = +50٪).",
+    )
+
+    customer_proposal_step = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("500"),
+        help_text="خطوة زرّي − و+ في شاشة الزبون، بعملة المنطقة.",
     )
 
     driver_min_share_pct = models.DecimalField(
@@ -612,7 +665,12 @@ class ServiceArea(models.Model):
 
     @staticmethod
     def default_pricing_policies():
-        return [PricingPolicy.PLATFORM_FIXED, PricingPolicy.DRIVER_BIDDING]
+        # السوم الكامل: السائق يعرض سعره، والزبون يقترح سعره (inDrive).
+        return [
+            PricingPolicy.PLATFORM_FIXED,
+            PricingPolicy.DRIVER_BIDDING,
+            PricingPolicy.CUSTOMER_BIDDING,
+        ]
 
     def save(self, *args, **kwargs):
         # JSONField(default=list) يعطي قائمة فارغة، وهي ليست إعدادًا صالحًا.

@@ -2323,6 +2323,120 @@ abstract class SoumStrings {
   /// In ar, this message translates to:
   /// **'هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد.'**
   String get driverMockLocation;
+
+  /// No description provided for @runNoShow.
+  ///
+  /// In ar, this message translates to:
+  /// **'الزبون لم يحضر'**
+  String get runNoShow;
+
+  /// No description provided for @runNoShowWait.
+  ///
+  /// In ar, this message translates to:
+  /// **'«الزبون لم يحضر» يُتاح بعد {time}'**
+  String runNoShowWait(String time);
+
+  /// No description provided for @runNoShowConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسجّل أنّ الزبون لم يحضر؟'**
+  String get runNoShowConfirmTitle;
+
+  /// No description provided for @runNoShowConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يُحسب هذا الإلغاء عليك، ويُغلق الطلب. وإن استحققت تعويضًا عن المشوار يُضاف إلى رصيدك فورًا.'**
+  String get runNoShowConfirmBody;
+
+  /// No description provided for @runNoShowDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'سُجّل عدم حضور الزبون — لا يُحسب عليك.'**
+  String get runNoShowDone;
+
+  /// No description provided for @runNoShowCompensated.
+  ///
+  /// In ar, this message translates to:
+  /// **'سُجّل عدم حضور الزبون، وأُضيف {amount} تعويضًا إلى رصيدك.'**
+  String runNoShowCompensated(String amount);
+
+  /// No description provided for @rideEndedNoShow.
+  ///
+  /// In ar, this message translates to:
+  /// **'السائق وصل وانتظرك ولم تحضر، فأُغلق الطلب.'**
+  String get rideEndedNoShow;
+
+  /// No description provided for @proposalTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سعرك'**
+  String get proposalTitle;
+
+  /// No description provided for @proposalYours.
+  ///
+  /// In ar, this message translates to:
+  /// **'سعرك المعروض على السائقين: {amount}'**
+  String proposalYours(String amount);
+
+  /// No description provided for @proposalHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسعيرة المنصّة {amount} — السائقون يقبلون سعرك أو يعرضون أعلى منه.'**
+  String proposalHint(String amount);
+
+  /// No description provided for @proposalSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض سعري'**
+  String get proposalSend;
+
+  /// No description provided for @proposalRaise.
+  ///
+  /// In ar, this message translates to:
+  /// **'ارفع سعري'**
+  String get proposalRaise;
+
+  /// No description provided for @proposalSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'عُرض سعرك على السائقين القريبين.'**
+  String get proposalSent;
+
+  /// No description provided for @proposalLower.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنقص'**
+  String get proposalLower;
+
+  /// No description provided for @proposalHigher.
+  ///
+  /// In ar, this message translates to:
+  /// **'زِد'**
+  String get proposalHigher;
+
+  /// No description provided for @workCustomerPrice.
+  ///
+  /// In ar, this message translates to:
+  /// **'سعر الزبون: {amount}'**
+  String workCustomerPrice(String amount);
+
+  /// No description provided for @workAcceptCustomerPrice.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقبل بسعر الزبون'**
+  String get workAcceptCustomerPrice;
+
+  /// No description provided for @workCounterUpTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'أو اعرض أعلى — حتّى {amount}'**
+  String workCounterUpTo(String amount);
+
+  /// No description provided for @workCustomerPriceLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'سعر الزبون'**
+  String get workCustomerPriceLabel;
 }
 
 class _SoumStringsDelegate extends LocalizationsDelegate<SoumStrings> {

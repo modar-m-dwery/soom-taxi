@@ -376,10 +376,31 @@ class WorkController extends Notifier<WorkState> {
   }
 
   /// تراجعٌ بعد القبول. الطلب يعود للبحث عند الزبون.
-  Future<bool> cancelTrip(String reason) async {
+  Future<bool> cancelTrip(String reason, {DriverCancelReason? code}) async {
     final ride = state.ride;
     if (ride == null) return false;
-    return _act(() => _soum.driver.cancelTrip(ride.id, reason: reason));
+    return _act(
+      () => _soum.driver.cancelTrip(ride.id, reason: reason, reasonCode: code),
+    );
+  }
+
+  /// «الزبون لم يحضر» بعد الوصول والانتظار. لا يُحسب على السائق، ويعيد
+  /// تعويض المشوار الفاضي إن عُوِّض (الخادم يقرّر: سقف يوميّ وحماية من
+  /// التواطؤ).
+  Future<({bool ok, Money? compensation})> reportNoShow(String reason) async {
+    final ride = state.ride;
+    if (ride == null) return (ok: false, compensation: null);
+
+    Money? compensation;
+    final ok = await _act(() async {
+      final trip = await _soum.driver.cancelTrip(
+        ride.id,
+        reason: reason,
+        reasonCode: DriverCancelReason.customerNoShow,
+      );
+      compensation = trip.driverCompensation;
+    });
+    return (ok: ok, compensation: compensation);
   }
 
   Future<bool> _act(Future<void> Function() action) async {

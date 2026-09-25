@@ -23,6 +23,7 @@ export 'src/config/server_clock.dart';
 
 export 'src/models/active_ride.dart';
 export 'src/models/enums.dart';
+export 'src/models/fare_proposal.dart';
 export 'src/models/geo.dart';
 export 'src/models/geohash.dart';
 export 'src/models/incentive.dart';

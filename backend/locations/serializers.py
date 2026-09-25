@@ -45,6 +45,14 @@ class AreaTimingsSerializer(serializers.Serializer):
 
     cancel_driver_late_grace_minutes = serializers.IntegerField(required=False)
 
+    cancel_wait_minutes = serializers.IntegerField(
+        required=False,
+        help_text=(
+            "بعد وصول السائق وانتظاره هذه الدقائق: إلغاء الزبون مخالفتان، "
+            "ويستطيع السائق تسجيل «الزبون لم يحضر»."
+        ),
+    )
+
     late_cancel_strike_limit = serializers.IntegerField(required=False)
 
     auto_dispatch_max_attempts = serializers.IntegerField(required=False)
@@ -135,6 +143,35 @@ class AreaPricingSerializer(serializers.Serializer):
     referral_reward = serializers.CharField(
         help_text="رصيد الإحالة للداعي والمدعوّ بعد أوّل رحلة — «0» إن كان معطَّلًا.",
     )
+    customer_can_propose = serializers.BooleanField(
+        required=False,
+        help_text="هل يعرض الزبون سعره في «سوم» هنا (خطّة customer_bidding).",
+    )
+    customer_proposal_min_ratio = serializers.CharField(
+        required=False,
+        help_text="أدنى سعر يقترحه الزبون كنسبة من تسعيرة المنصّة.",
+    )
+    customer_proposal_counter_ratio = serializers.CharField(
+        required=False,
+        help_text="أعلى عرض للسائق كنسبة من سعر الزبون.",
+    )
+    customer_proposal_step = serializers.CharField(
+        required=False,
+        help_text="خطوة زرّي − و+ بعملة المنطقة.",
+    )
+
+
+class MapTilesSerializer(serializers.Serializer):
+    """مزوّد بلاطات الخريطة — يتبدّل من الخادم بلا تحديث للتطبيق."""
+
+    url_template = serializers.CharField(
+        help_text="رابط البلاطات بـ{z} و{x} و{y}، ومعه مفتاح المزوّد إن لزم.",
+    )
+    dark_url_template = serializers.CharField(
+        allow_null=True, help_text="نسخة الوضع الليليّ — null = الرابط نفسه.",
+    )
+    attribution = serializers.CharField(help_text="نصّ الحقوق الذي يشترطه المزوّد.")
+    max_zoom = serializers.IntegerField()
 
 
 class VehicleCategorySerializer(serializers.Serializer):
@@ -193,6 +230,7 @@ class AppConfigSerializer(serializers.Serializer):
     timings = AreaTimingsSerializer()
     geometry = AreaGeometrySerializer()
     pricing = AreaPricingSerializer()
+    map_tiles = MapTilesSerializer(required=False)
 
     server_time = serializers.DateTimeField(
         help_text=(

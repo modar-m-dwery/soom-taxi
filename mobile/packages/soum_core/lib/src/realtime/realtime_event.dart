@@ -178,6 +178,9 @@ abstract final class RealtimeEventType {
   static const tripCancelled = 'trip.cancelled';
   static const rideCancelled = 'ride.cancelled';
   static const rideCancelledByDriver = 'ride.cancelled_by_driver';
+
+  /// الزبون عرض سعره أو رفعه (سوم بنمط inDrive).
+  static const rideFareProposed = 'ride.fare_proposed';
   static const rideExpired = 'ride.expired';
   static const complaintUpdated = 'complaint.updated';
 

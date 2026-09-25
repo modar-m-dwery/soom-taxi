@@ -31,6 +31,7 @@ from rides.models import (
 )
 
 from rides.serializers import (
+    ProposeFareSerializer,
     RideSubscriptionSerializer,
     CreateRideRequestSerializer,
     RideRequestSerializer,
@@ -140,6 +141,38 @@ class RideRequestCreateView(APIView):
             RideRequestSerializer(ride).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class CustomerProposeFareView(APIView):
+    """
+    السوم بنمط inDrive: الزبون يعرض سعره على طلبٍ مفتوح، أو يرفعه وهو
+    ينتظر. السائقون يقبلونه كما هو أو يعرضون أعلى منه ضمن سقف المنطقة.
+    """
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsCustomer]
+
+    @extend_schema(
+        tags=["Rides"],
+        operation_id="propose_ride_fare",
+        summary="Customer proposes (or raises) their fare",
+        request=ProposeFareSerializer,
+        responses={200: RideRequestSerializer, 400: ErrorResponse, 404: ErrorResponse},
+    )
+    def post(self, request, ride_id):
+        serializer = ProposeFareSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            ride = MatchingService.propose_fare(
+                ride_id=ride_id,
+                customer=request.user,
+                fare=serializer.validated_data["proposed_fare"],
+            )
+        except RideRequest.DoesNotExist:
+            return Response({"detail": "Ride not found."}, status=status.HTTP_404_NOT_FOUND)
+        except MatchingError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(RideRequestSerializer(ride).data, status=status.HTTP_200_OK)
 
 
 class CustomerCancelRideView(APIView):

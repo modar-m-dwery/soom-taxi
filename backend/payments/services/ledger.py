@@ -47,9 +47,12 @@ class LedgerService:
 
     @staticmethod
     @transaction.atomic
-    def record(payment, lines, transaction_ref=None, memo=""):
+    def record(payment, lines, transaction_ref=None, memo="", currency=None):
         """
         يكتب مجموعة قيود متوازنة دفعةً واحدة.
+
+        `payment` قد يكون None لحركةٍ لا دفعة لها (تعويض مشوار فاضي)،
+        وحينها تُمرَّر `currency` صراحةً.
 
         `lines` قائمة من قواميس:
 
@@ -94,7 +97,10 @@ class LedgerService:
             )
 
         ref = transaction_ref or new_transaction_ref()
-        currency = payment.currency
+        if payment is not None:
+            currency = payment.currency
+        elif not currency:
+            raise LedgerError("حركةٌ بلا دفعة تحتاج عملةً صريحة.")
 
         entries = [
             LedgerEntry(
@@ -118,7 +124,7 @@ class LedgerService:
         logger.info(
             "ledger: كُتب %d قيدًا للدفعة %s بمرجع %s",
             len(entries),
-            payment.pk,
+            payment.pk if payment is not None else "—",
             ref,
         )
 

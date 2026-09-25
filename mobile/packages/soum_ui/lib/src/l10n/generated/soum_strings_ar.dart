@@ -1264,4 +1264,74 @@ class SoumStringsAr extends SoumStrings {
   @override
   String get driverMockLocation =>
       'هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد.';
+
+  @override
+  String get runNoShow => 'الزبون لم يحضر';
+
+  @override
+  String runNoShowWait(String time) {
+    return '«الزبون لم يحضر» يُتاح بعد $time';
+  }
+
+  @override
+  String get runNoShowConfirmTitle => 'نسجّل أنّ الزبون لم يحضر؟';
+
+  @override
+  String get runNoShowConfirmBody =>
+      'لا يُحسب هذا الإلغاء عليك، ويُغلق الطلب. وإن استحققت تعويضًا عن المشوار يُضاف إلى رصيدك فورًا.';
+
+  @override
+  String get runNoShowDone => 'سُجّل عدم حضور الزبون — لا يُحسب عليك.';
+
+  @override
+  String runNoShowCompensated(String amount) {
+    return 'سُجّل عدم حضور الزبون، وأُضيف $amount تعويضًا إلى رصيدك.';
+  }
+
+  @override
+  String get rideEndedNoShow => 'السائق وصل وانتظرك ولم تحضر، فأُغلق الطلب.';
+
+  @override
+  String get proposalTitle => 'سعرك';
+
+  @override
+  String proposalYours(String amount) {
+    return 'سعرك المعروض على السائقين: $amount';
+  }
+
+  @override
+  String proposalHint(String amount) {
+    return 'تسعيرة المنصّة $amount — السائقون يقبلون سعرك أو يعرضون أعلى منه.';
+  }
+
+  @override
+  String get proposalSend => 'اعرض سعري';
+
+  @override
+  String get proposalRaise => 'ارفع سعري';
+
+  @override
+  String get proposalSent => 'عُرض سعرك على السائقين القريبين.';
+
+  @override
+  String get proposalLower => 'أنقص';
+
+  @override
+  String get proposalHigher => 'زِد';
+
+  @override
+  String workCustomerPrice(String amount) {
+    return 'سعر الزبون: $amount';
+  }
+
+  @override
+  String get workAcceptCustomerPrice => 'اقبل بسعر الزبون';
+
+  @override
+  String workCounterUpTo(String amount) {
+    return 'أو اعرض أعلى — حتّى $amount';
+  }
+
+  @override
+  String get workCustomerPriceLabel => 'سعر الزبون';
 }

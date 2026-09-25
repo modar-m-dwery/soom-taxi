@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soum_core/soum_core.dart';
+import 'package:soum_maps/soum_maps.dart';
 import 'package:soum_push/soum_push.dart';
 import 'package:soum_ui/soum_ui.dart';
 
@@ -39,7 +40,11 @@ class DriverApp extends StatelessWidget {
           path: '/',
           builder: (context, state) => BootGate(
             appName: SoumStrings.of(context).appNameDriver,
-            onReady: (context, ready) => DriverShell(boot: ready),
+            onReady: (context, ready) {
+              // مزوّد البلاطات من الخادم: يتبدّل بلا تحديث للتطبيق.
+              SoumMap.tiles = ready.config.mapTiles;
+              return DriverShell(boot: ready);
+            },
           ),
           routes: [
             GoRoute(

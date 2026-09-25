@@ -102,6 +102,7 @@ class RideRequest extends Equatable {
     this.searchRadiusKm,
     this.autoDispatch = false,
     this.customerLateCancels = 0,
+    this.customerProposedFare,
     required this.createdAt,
   });
 
@@ -145,6 +146,10 @@ class RideRequest extends Equatable {
   /// للسائق: مخالفات الإلغاء المتأخّر على صاحب الطلب هذا الأسبوع.
   final int customerLateCancels;
 
+  /// «سوم» بنمط inDrive: السعر الذي عرضه الزبون. السائق يقبله كما هو أو
+  /// يعرض أعلى منه — لا أقلّ. null = لم يعرض سعرًا.
+  final Money? customerProposedFare;
+
   bool get isScheduled => scheduledAt != null;
 
   /// الثواني المتبقّية على مهلة البحث، أو null حين لا مهلة.
@@ -179,9 +184,15 @@ class RideRequest extends Equatable {
         searchRadiusKm: readDoubleOrNull(json, 'search_radius_km'),
         autoDispatch: readBool(json, 'auto_dispatch'),
         customerLateCancels: readInt(json, 'customer_late_cancels', fallback: 0),
+        customerProposedFare: readMoneyOrNull(
+          json,
+          'customer_proposed_fare',
+          currency: readString(json, 'currency', fallback: Money.defaultCurrency),
+        ),
         createdAt: readDate(json, 'created_at'),
       );
 
   @override
-  List<Object?> get props => [id, status, mode, expiresAt, fare, autoDispatch];
+  List<Object?> get props =>
+      [id, status, mode, expiresAt, fare, autoDispatch, customerProposedFare];
 }

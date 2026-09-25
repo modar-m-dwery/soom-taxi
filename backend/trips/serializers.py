@@ -1,6 +1,9 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from trips.models import CancelReason, Trip, TripCompletionRecord, TripLocation
+from trips.models import (
+    CancelReason, DriverCancelReason, Trip, TripCompletionRecord, TripLocation, TripStatus,
+)
 
 
 class TripLocationSerializer(serializers.ModelSerializer):
@@ -48,6 +51,24 @@ class TripSerializer(serializers.ModelSerializer):
     customer_phone = serializers.SerializerMethodField()
     driver_phone = serializers.SerializerMethodField()
 
+    # تعويض المشوار الفاضي لرحلةٍ أُلغيت بعد وصول سائقها وانتظاره. null لغيرها.
+    driver_compensation = serializers.SerializerMethodField()
+
+    @extend_schema_field(
+        serializers.DecimalField(max_digits=12, decimal_places=2, allow_null=True)
+    )
+    def get_driver_compensation(self, obj):
+        if obj.status != TripStatus.CANCELLED:
+            return None
+        # سجلّ هذا السائق تحديدًا: سجلّ الرحلة قد يحمل إلغاء سائقٍ سبقه.
+        record = (
+            obj.cancellations.filter(driver_id=obj.driver_id)
+            .order_by("-created_at").first()
+        )
+        if record is None or not record.driver_compensation:
+            return None
+        return f"{record.driver_compensation:.2f}"
+
     def get_customer_name(self, obj) -> str:
         name = (getattr(obj.customer, "name", "") or "").strip()
         return name.split()[0] if name else ""
@@ -69,7 +90,7 @@ class TripSerializer(serializers.ModelSerializer):
             "created_at", "arriving_at", "arrived_at",
             "started_at", "completed_at", "cancelled_at",
             "distance_m", "duration_s", "gps_points_count",
-            "final_fare", "currency",
+            "final_fare", "currency", "driver_compensation",
             "pickup_verified", "dropoff_verified",
             "needs_review", "review_reason",
             "cancelled_by", "cancel_reason",
@@ -86,6 +107,11 @@ class CancelTripSerializer(serializers.Serializer):
 class DriverCancelTripSerializer(serializers.Serializer):
     # إلزاميّ للسائق: الإدارة تقرأ لماذا يلغي، والنمط يكشف المتلاعب.
     reason = serializers.CharField(min_length=3, max_length=255)
+    # `customer_no_show` وحده يغيّر النتيجة (لا يُحسب على السائق ويُعوَّض)،
+    # ولا يُقبل إلّا بعد الوصول وانتظار `cancel_wait_minutes`.
+    reason_code = serializers.ChoiceField(
+        choices=DriverCancelReason.choices, required=False,
+    )
 
 
 # =====================================================================

@@ -6,8 +6,8 @@
 /// نفسها — فالخطّ المرسوم يطابق الطريق الذي حُسب عليه السعر.
 ///
 /// شرط استعمال بلاطات OSM العامّة: معرّف تطبيق صريح وحدّ معقول للطلبات.
-/// النشر الحقيقي بحجم مدينة يحتاج خادم بلاطات خاصًّا أو اشتراكًا — وهو
-/// قرارٌ لاحق لا يمسّ سطرًا واحدًا خارج هذا الملفّ.
+/// النشر الحقيقي بحجم مدينة يحتاج خادم بلاطات خاصًّا أو اشتراكًا — ورابطه
+/// يأتي من الخادم (`map_tiles` في `/config/`) فيتبدّل بلا تحديث للتطبيق.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -91,6 +91,10 @@ class OsmMapController implements SoumMapController {
 }
 
 class SoumMap extends StatelessWidget {
+  /// مزوّد البلاطات للخرائط كلّها — يضبطه التطبيق من `config.mapTiles`
+  /// عند الإقلاع.
+  static MapTileSource tiles = MapTileSource.openStreetMap;
+
   const SoumMap({
     super.key,
     required this.controller,
@@ -122,6 +126,8 @@ class SoumMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final source = tiles;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return FlutterMap(
       mapController: controller.raw,
       options: MapOptions(
@@ -144,9 +150,11 @@ class SoumMap extends StatelessWidget {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: dark
+              ? (source.darkUrlTemplate ?? source.urlTemplate)
+              : source.urlTemplate,
           userAgentPackageName: 'sy.soum.taxi',
-          maxNativeZoom: 19,
+          maxNativeZoom: source.maxZoom,
           // خريطةٌ فارغة بلا سبب هي أسوأ عطل يُشخَّص. في التطوير نطبع
           // سبب كلّ بلاطة فشلت — شبكة، شهادة، حظر — بدل الصمت.
           errorTileCallback: kDebugMode
@@ -204,7 +212,7 @@ class SoumMap extends StatelessWidget {
                 .toList(growable: false),
           ),
         // إسناد البلاطات شرطُ استعمالها، لا تزيين.
-        const _OsmAttribution(),
+        _OsmAttribution(text: source.attribution),
       ],
     );
   }
@@ -308,7 +316,10 @@ class _MovingMarkersState extends State<_MovingMarkers>
 }
 
 class _OsmAttribution extends StatelessWidget {
-  const _OsmAttribution();
+  const _OsmAttribution({required this.text});
+
+  /// نصّ الحقوق كما يشترطه المزوّد — من `map_tiles.attribution`.
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -321,11 +332,11 @@ class _OsmAttribution extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75),
             borderRadius: BorderRadius.circular(3),
           ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             child: Text(
-              '© OpenStreetMap',
-              style: TextStyle(fontSize: 9.5),
+              text,
+              style: const TextStyle(fontSize: 9.5),
               textDirection: TextDirection.ltr,
             ),
           ),

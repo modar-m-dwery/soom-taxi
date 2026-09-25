@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.db import models
@@ -223,6 +225,8 @@ class CancellationKind(models.TextChoices):
     LATE = "late", "متأخّر"
     AFTER_WAIT = "after_wait", "بعد انتظار السائق"
     DRIVER = "driver", "ألغاه السائق"
+    # السائق وصل وانتظر ولم يحضر الزبون: يُحسب على الزبون لا على السائق.
+    NO_SHOW = "no_show", "الزبون لم يحضر"
 
 
 class CancelReason(models.TextChoices):
@@ -237,6 +241,19 @@ class CancelReason(models.TextChoices):
     DRIVER_ASKED = "driver_asked", "السائق طلب منّي الإلغاء"
     FOUND_OTHER = "found_other", "وجدت وسيلة أخرى"
     WRONG_PICKUP = "wrong_pickup", "مكان الالتقاط خطأ"
+    OTHER = "other", "سبب آخر"
+
+
+class DriverCancelReason(models.TextChoices):
+    """
+    لماذا ألغى السائق. `customer_no_show` وحده يغيّر النتيجة: لا يُحسب على
+    السائق، ويُحسب على الزبون، ويُعوَّض السائق — ولا يُقبل إلّا بعد وصولٍ
+    تحقّق منه الخادم وانتظارٍ كامل.
+    """
+    CUSTOMER_NO_SHOW = "customer_no_show", "الزبون لم يحضر"
+    CAR_PROBLEM = "car_problem", "عطل بالسيارة"
+    CUSTOMER_UNREACHABLE = "customer_unreachable", "الزبون لا يردّ"
+    ROAD_BLOCKED = "road_blocked", "المكان بعيد أو الطريق مغلق"
     OTHER = "other", "سبب آخر"
 
 
@@ -267,7 +284,13 @@ class CancellationRecord(models.Model):
     strikes = models.PositiveSmallIntegerField(default=0)
     reason = models.CharField(max_length=255, blank=True)
     reason_code = models.CharField(
-        max_length=20, choices=CancelReason.choices, blank=True, default="",
+        max_length=24,
+        choices=CancelReason.choices + DriverCancelReason.choices,
+        blank=True, default="",
+    )
+    # ما عُوِّض به السائق عن المشوار الفاضي (0 = لا تعويض). القيد في الدفتر.
+    driver_compensation = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal("0.00"),
     )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 

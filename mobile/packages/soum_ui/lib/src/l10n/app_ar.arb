@@ -709,5 +709,66 @@
   "riderCancelFoundOther": "وجدت وسيلة أخرى",
   "riderCancelWrongPickup": "مكان الالتقاط خاطئ",
   "riderCancelOther": "سبب آخر",
-  "driverMockLocation": "هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد."
+  "driverMockLocation": "هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد.",
+  "runNoShow": "الزبون لم يحضر",
+  "runNoShowWait": "«الزبون لم يحضر» يُتاح بعد {time}",
+  "@runNoShowWait": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "runNoShowConfirmTitle": "نسجّل أنّ الزبون لم يحضر؟",
+  "runNoShowConfirmBody": "لا يُحسب هذا الإلغاء عليك، ويُغلق الطلب. وإن استحققت تعويضًا عن المشوار يُضاف إلى رصيدك فورًا.",
+  "runNoShowDone": "سُجّل عدم حضور الزبون — لا يُحسب عليك.",
+  "runNoShowCompensated": "سُجّل عدم حضور الزبون، وأُضيف {amount} تعويضًا إلى رصيدك.",
+  "@runNoShowCompensated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rideEndedNoShow": "السائق وصل وانتظرك ولم تحضر، فأُغلق الطلب.",
+  "proposalTitle": "سعرك",
+  "proposalYours": "سعرك المعروض على السائقين: {amount}",
+  "@proposalYours": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "proposalHint": "تسعيرة المنصّة {amount} — السائقون يقبلون سعرك أو يعرضون أعلى منه.",
+  "@proposalHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "proposalSend": "اعرض سعري",
+  "proposalRaise": "ارفع سعري",
+  "proposalSent": "عُرض سعرك على السائقين القريبين.",
+  "proposalLower": "أنقص",
+  "proposalHigher": "زِد",
+  "workCustomerPrice": "سعر الزبون: {amount}",
+  "@workCustomerPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "workAcceptCustomerPrice": "اقبل بسعر الزبون",
+  "workCounterUpTo": "أو اعرض أعلى — حتّى {amount}",
+  "@workCounterUpTo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "workCustomerPriceLabel": "سعر الزبون"
 }

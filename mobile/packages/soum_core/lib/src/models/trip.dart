@@ -21,6 +21,7 @@ class Trip extends Equatable {
     required this.vehicleColor,
     required this.vehiclePlate,
     required this.finalFare,
+    this.driverCompensation,
     required this.currency,
     required this.pickupVerified,
     required this.dropoffVerified,
@@ -61,6 +62,9 @@ class Trip extends Equatable {
 
   final Money finalFare;
   final String currency;
+
+  /// تعويض المشوار الفاضي لرحلةٍ أُلغيت بعد وصول السائق وانتظاره.
+  final Money? driverCompensation;
 
   final bool pickupVerified;
   final bool dropoffVerified;
@@ -111,6 +115,8 @@ class Trip extends Equatable {
       vehicleColor: readString(json, 'vehicle_color'),
       vehiclePlate: readString(json, 'vehicle_plate'),
       finalFare: readMoney(json, 'final_fare', currency: currency),
+      driverCompensation:
+          readMoneyOrNull(json, 'driver_compensation', currency: currency),
       currency: currency,
       pickupVerified: readBool(json, 'pickup_verified'),
       dropoffVerified: readBool(json, 'dropoff_verified'),

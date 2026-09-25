@@ -1264,4 +1264,76 @@ class SoumStringsEn extends SoumStrings {
   @override
   String get driverMockLocation =>
       'Your phone is sending a fake (mock) location, so we can\'t send you riders. Turn off the fake-location app in Developer options, then go online again.';
+
+  @override
+  String get runNoShow => 'Rider didn\'t show';
+
+  @override
+  String runNoShowWait(String time) {
+    return '\"Rider didn\'t show\" unlocks in $time';
+  }
+
+  @override
+  String get runNoShowConfirmTitle => 'Mark the rider as a no-show?';
+
+  @override
+  String get runNoShowConfirmBody =>
+      'This cancellation won\'t count against you, and the request closes. If you\'re eligible, a compensation is added to your balance right away.';
+
+  @override
+  String get runNoShowDone =>
+      'Rider marked as a no-show — it doesn\'t count against you.';
+
+  @override
+  String runNoShowCompensated(String amount) {
+    return 'Rider marked as a no-show; $amount was added to your balance.';
+  }
+
+  @override
+  String get rideEndedNoShow =>
+      'Your driver arrived and waited, but you didn\'t show, so the request was closed.';
+
+  @override
+  String get proposalTitle => 'Your price';
+
+  @override
+  String proposalYours(String amount) {
+    return 'Your price shown to drivers: $amount';
+  }
+
+  @override
+  String proposalHint(String amount) {
+    return 'Platform fare $amount — drivers accept your price or offer more.';
+  }
+
+  @override
+  String get proposalSend => 'Offer my price';
+
+  @override
+  String get proposalRaise => 'Raise my price';
+
+  @override
+  String get proposalSent => 'Your price was sent to nearby drivers.';
+
+  @override
+  String get proposalLower => 'Lower';
+
+  @override
+  String get proposalHigher => 'Higher';
+
+  @override
+  String workCustomerPrice(String amount) {
+    return 'Rider\'s price: $amount';
+  }
+
+  @override
+  String get workAcceptCustomerPrice => 'Accept rider\'s price';
+
+  @override
+  String workCounterUpTo(String amount) {
+    return 'Or offer more — up to $amount';
+  }
+
+  @override
+  String get workCustomerPriceLabel => 'Rider\'s price';
 }

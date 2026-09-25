@@ -12,6 +12,7 @@ import logging
 from datetime import timedelta
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
 
 from integrity import registry
@@ -140,26 +141,74 @@ def on_cancellation(record):
             _check_off_app_pair(record)
 
         if record.kind == CancellationKind.AFTER_WAIT:
-            # مرّتان بأسبوع: السائق وصل ونطر خمس دقائق فأكثر، ثمّ ألغى الزبون.
-            # الزبون النظاميّ يفعلها نادرًا جدًّا — وحتّى هنا الأثر «مراقبة» لا تقييد.
-            since = timezone.now() - timedelta(days=NO_SHOW_WINDOW_DAYS)
-            waits = CancellationRecord.objects.filter(
-                customer=customer, actor="customer",
-                kind=CancellationKind.AFTER_WAIT, created_at__gte=since,
-            ).count()
-            if waits >= NO_SHOW_MIN:
-                IntegrityService.record(
-                    customer,
-                    registry.REPEATED_NO_SHOW.code,
-                    evidence={f"after_wait_cancels_{NO_SHOW_WINDOW_DAYS}d": waits},
-                    dedupe_key=f"no_show:{customer.pk}:{timezone.now():%G-W%V}",
-                )
+            _check_repeated_no_show(customer)
+
+    elif record.kind == CancellationKind.NO_SHOW and driver_user is not None:
+        # «لم يحضر» يسجّلها السائق، والذنب على الزبون — لكنّها أيضًا أسهل
+        # طريق لثنائيٍّ متواطئ: تعويضٌ للسائق ومشوارٌ خارج التطبيق معًا.
+        _check_repeated_no_show(customer)
+        _check_no_show_pair(record)
 
     elif record.actor == "driver" and driver_user is not None:
         from integrity.services.detectors import Detectors
 
         Detectors.driver_cancel_rate(driver=record.driver)
     return None
+
+
+def _check_repeated_no_show(customer):
+    """
+    مرّتان بأسبوع: السائق وصل ونطر، ثمّ ألغى الزبون أو لم يحضر. الزبون
+    النظاميّ يفعلها نادرًا جدًّا — وحتّى هنا الأثر «مراقبة» لا تقييد.
+    """
+    from trips.models import CancellationKind, CancellationRecord
+
+    since = timezone.now() - timedelta(days=NO_SHOW_WINDOW_DAYS)
+    waits = CancellationRecord.objects.filter(
+        Q(actor="customer", kind=CancellationKind.AFTER_WAIT)
+        | Q(kind=CancellationKind.NO_SHOW),
+        customer=customer, created_at__gte=since,
+    ).count()
+    if waits >= NO_SHOW_MIN:
+        IntegrityService.record(
+            customer,
+            registry.REPEATED_NO_SHOW.code,
+            evidence={f"no_shows_{NO_SHOW_WINDOW_DAYS}d": waits},
+            dedupe_key=f"no_show:{customer.pk}:{timezone.now():%G-W%V}",
+        )
+
+
+def _check_no_show_pair(record):
+    """
+    الثنائي نفسه مرّتين في أسبوعين: «لم يحضر» ثمّ «لم يحضر». زبونٌ لا يحضر
+    لسائقين مختلفين مزعجٌ فقط؛ لا يحضر للسائق نفسه مرّةً بعد مرّة فهو غالبًا
+    يركب معه — خارج التطبيق، والسائق يقبض التعويض فوق ذلك.
+    """
+    from trips.models import CancellationKind, CancellationRecord
+
+    since = timezone.now() - timedelta(days=14)
+    count = CancellationRecord.objects.filter(
+        customer=record.customer, driver=record.driver,
+        kind=CancellationKind.NO_SHOW, created_at__gte=since,
+    ).count()
+    if count < 2:
+        return
+
+    week = f"{timezone.now():%G-W%V}"
+    evidence = {"no_show_same_pair_14d": count}
+    IntegrityService.record(
+        record.driver.user, registry.OFF_APP_SUSPECTED.code,
+        evidence=evidence, ride=record.ride, trip=record.trip,
+        counterpart=record.customer,
+        dedupe_key=f"off_app_ns:d:{record.driver_id}:{record.customer_id}:{week}",
+    )
+    IntegrityService.record(
+        record.customer, registry.OFF_APP_SUSPECTED.code,
+        evidence=evidence, ride=record.ride, trip=record.trip,
+        counterpart=record.driver.user,
+        weight=registry.OFF_APP_SUSPECTED.weight // 2,
+        dedupe_key=f"off_app_ns:c:{record.driver_id}:{record.customer_id}:{week}",
+    )
 
 
 def _check_off_app_pair(record):

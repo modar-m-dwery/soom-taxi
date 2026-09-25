@@ -189,6 +189,8 @@ class ServiceAreaAdmin(GISModelAdmin):
                     "late_cancel_penalty_hours",
                     "driver_cancel_daily_limit",
                     "driver_cancel_block_minutes",
+                    "wasted_trip_compensation",
+                    "wasted_trip_compensation_daily_cap",
                 )
             },
         ),
@@ -243,6 +245,9 @@ class ServiceAreaAdmin(GISModelAdmin):
                     "fare_floor_multiplier",
                     "fare_cap_multiplier",
                     "min_fare_absolute",
+                    "customer_proposal_min_ratio",
+                    "customer_proposal_counter_ratio",
+                    "customer_proposal_step",
                     "driver_min_share_pct",
                     "commission_cap_pct",
                     "allow_renegotiation_after_match",

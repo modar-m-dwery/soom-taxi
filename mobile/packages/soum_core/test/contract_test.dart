@@ -32,6 +32,8 @@ const _moneyFields = {
   'amount_refunded',
   'refundable_amount',
   'price_per_seat',
+  'driver_compensation',
+  'customer_proposed_fare',
 };
 
 Map<String, dynamic> _schema(Map<String, dynamic> spec, String name) {
@@ -64,7 +66,7 @@ void main() {
 
   // 82 نقطة في التسليم، ثمّ خمس أُضيفت في 2026-09-20: الإحالة (2)،
   // اشتراكات الصباح (3). الرقم يُحدَّث عمدًا لا آليًّا: نقطة تختفي يجب أن تُرى.
-  test('المخطّط يحمل النقاط الاثنتين والتسعين (+ إلغاء السائق، الحوافز، الإعلانات)', () {
+  test('المخطّط يحمل النقاط الثلاث والتسعين (+ إلغاء السائق، الحوافز، الإعلانات، اقتراح السعر)', () {
     final paths = spec['paths'] as Map<String, dynamic>;
     final operations = paths.values
         .cast<Map<String, dynamic>>()
@@ -72,7 +74,7 @@ void main() {
         .where((m) => const {'get', 'post', 'put', 'patch', 'delete'}.contains(m))
         .length;
 
-    expect(operations, 92);
+    expect(operations, 93);
   });
 
   group('النماذج تطابق المخطّط', () {
@@ -141,6 +143,8 @@ void main() {
         clientOnly: const {'unknown', 'expired'});
     check('CancelReasonEnum', CancelReason.values,
         (e) => (e as CancelReason).code, clientOnly: const {});
+    check('DriverCancelReasonEnum', DriverCancelReason.values,
+        (e) => (e as DriverCancelReason).code, clientOnly: const {});
 
     // الاتجاه المعاكس لأسباب الإلغاء وحدها: التطبيق يعرض قائمةً ثابتة،
     // فسببٌ يضيفه الخادم ولا يعرفه التطبيق لا يختاره زبونٌ أبدًا.
@@ -193,6 +197,7 @@ void main() {
     check('OpenComplaintRequest', 'feedback_api.dart', "'/complaints/', body");
     check('RideSubscriptionRequest', 'rides_api.dart', "'/rides/subscriptions/', body");
     check('ApplyReferralCodeRequest', 'payments_api.dart', 'applyReferralCode');
+    check('ProposeFareRequest', 'rides_api.dart', "'/rides/\$rideId/propose-fare/'");
 
     // الإلغاءان يبنيان جسمهما في دالّة واحدة — `_cancelBody`.
     test('_cancelBody ← CancelTripRequest', () {

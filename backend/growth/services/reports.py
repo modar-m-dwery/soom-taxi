@@ -14,7 +14,7 @@ from django.db.models.functions import ExtractHour
 from django.utils import timezone
 
 from rides.models import RideRequest, RideStatus
-from trips.models import CancellationRecord, Trip, TripStatus
+from trips.models import CancellationKind, CancellationRecord, Trip, TripStatus
 from users.models import DriverProfile, UserRole
 
 UNMATCHED = [RideStatus.EXPIRED, RideStatus.CANCELLED]
@@ -172,7 +172,7 @@ class Reports:
 
         cancels = CancellationRecord.objects.filter(
             driver=driver, actor="driver", created_at__gte=since,
-        ).count()
+        ).exclude(kind=CancellationKind.NO_SHOW).count()
         invitations = RideInvitation.objects.filter(driver=driver, sent_at__gte=since)
         answered = invitations.exclude(status=InvitationStatus.PENDING).count()
         accepted = invitations.filter(status=InvitationStatus.ACCEPTED).count()

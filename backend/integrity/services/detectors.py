@@ -280,7 +280,7 @@ class Detectors:
     @staticmethod
     def driver_cancel_rate(driver=None, days=7):
         """سائقٌ ألغى أكثر من 30٪ ممّا قبله هذا الأسبوع (بثماني رحلات مقبولة فأكثر)."""
-        from trips.models import CancellationRecord, Trip
+        from trips.models import CancellationKind, CancellationRecord, Trip
         from users.models import DriverProfile
 
         since = timezone.now() - timedelta(days=days)
@@ -296,7 +296,7 @@ class Detectors:
                 continue
             cancelled = CancellationRecord.objects.filter(
                 driver=d, actor="driver", created_at__gte=since,
-            ).count()
+            ).exclude(kind=CancellationKind.NO_SHOW).count()
             rate = cancelled / accepted
             if rate < DRIVER_CANCEL_RATE_THRESHOLD:
                 continue
