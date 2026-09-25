@@ -520,6 +520,9 @@ NOTIFICATION_SMS_FALLBACK_COOLDOWN = env.int(
 # "notifications.backends.fcm.FCMBackend" واضبط الاثنين أدناه.
 FCM_PROJECT_ID = env("FCM_PROJECT_ID", default="")
 FCM_SERVICE_ACCOUNT_FILE = env("FCM_SERVICE_ACCOUNT_FILE", default="")
+# بديل الملفّ للاستضافة السحابيّة: محتوى JSON نفسه أو Base64 له. يغني عن
+# FCM_PROJECT_ID لأنّ الملفّ يحمل project_id. لا تضعه في الريبو أبدًا.
+FCM_SERVICE_ACCOUNT_JSON = env("FCM_SERVICE_ACCOUNT_JSON", default="")
 
 
 # -----------------------------------------------------------------

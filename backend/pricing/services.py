@@ -149,7 +149,11 @@ class PricingService:
         # -------------------------------------------------------------
         # العمولة وصافي السائق
         # -------------------------------------------------------------
-        platform_fee = cls._platform_fee(service_area, gross)
+        from catalog.services import Catalog
+
+        platform_fee = cls._platform_fee(
+            service_area, gross, service=Catalog.service_for_mode(mode) or "taxi",
+        )
         driver_net = _money(gross - platform_fee)
         customer_total = _money(gross)
 
@@ -280,8 +284,13 @@ class PricingService:
         التقدير، فكانت الدفعة تُفتح بـ5,136 لعرضٍ قُبل بـ6,000 — والتطبيقان
         يعرضان التقدير. «السعر الذي تختاره هو الذي تدفعه» يُنفَّذ هنا.
         """
+        from growth.services.commission import CommissionService
+
         gross = _money(_d(offer.gross_fare))
-        fee = cls._platform_fee(ride.service_area, gross, driver=driver)
+        fee = cls._platform_fee(
+            ride.service_area, gross, driver=driver,
+            service=CommissionService.service_for_ride(ride),
+        )
         ride.gross_fare = gross
         ride.platform_fee = fee
         ride.driver_net = _money(gross - fee)
@@ -364,7 +373,7 @@ class PricingService:
         return floor, cap
 
     @classmethod
-    def _platform_fee(cls, service_area, gross, driver=None):
+    def _platform_fee(cls, service_area, gross, driver=None, service=None):
         """
         MVP: صفر دائمًا. لكن السقف مطبَّق مسبقًا حتى لا يُنسى يوم تُفعَّل
         العمولة - إندونيسيا 15% وكينيا 18% سقوف قانونية لا تفضيلات.
@@ -381,7 +390,7 @@ class PricingService:
 
         fee = max(
             _d(cls.PLATFORM_FEE),
-            CommissionService.fee_for(driver, service_area, gross),
+            CommissionService.fee_for(driver, service_area, gross, service=service),
         )
 
         cap_pct = getattr(service_area, "commission_cap_pct", None)

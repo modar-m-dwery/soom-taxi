@@ -78,6 +78,99 @@ class CommissionTests(TestCase):
         self.assertEqual(fee, Decimal("500.00"))
 
 
+class CommissionWindowAndServiceTests(TestCase):
+    """«الليل أرخص» و«المشترك بعمولة أقلّ» — بتوقيت دمشق."""
+
+    def setUp(self):
+        from zoneinfo import ZoneInfo
+
+        self.tz = ZoneInfo("Asia/Damascus")
+        self.driver = make_driver()
+        CommissionRule.objects.create(name="عامّة", scope="default", rate_pct=Decimal("10"))
+
+    def _at(self, hour, day=24):
+        # 2026-09-24 خميس (weekday 3)
+        from datetime import datetime
+
+        return datetime(2026, 9, day, hour, 30, tzinfo=self.tz)
+
+    def _fee(self, when, service=None):
+        return CommissionService.fee_for(self.driver, None, 10000, now=when, service=service)
+
+    def test_night_window_crosses_midnight(self):
+        CommissionRule.objects.create(
+            name="ليل", scope="default", rate_pct=Decimal("5"), hour_from=22, hour_to=5,
+        )
+        self.assertEqual(self._fee(self._at(23)), Decimal("500.00"))
+        self.assertEqual(self._fee(self._at(3)), Decimal("500.00"))
+        self.assertEqual(self._fee(self._at(12)), Decimal("1000.00"))
+        # حدّ النهاية غير مشمول
+        self.assertEqual(self._fee(self._at(5)), Decimal("1000.00"))
+
+    def test_hours_are_damascus_time_not_utc(self):
+        CommissionRule.objects.create(
+            name="ليل", scope="default", rate_pct=Decimal("5"), hour_from=22, hour_to=5,
+        )
+        from datetime import timezone as dt_timezone
+
+        utc_20 = self._at(23).astimezone(dt_timezone.utc)   # 20:30 UTC = 23:30 دمشق
+        self.assertEqual(utc_20.hour, 20)
+        self.assertEqual(self._fee(utc_20), Decimal("500.00"))
+
+    def test_weekday_rule(self):
+        CommissionRule.objects.create(
+            name="خميس", scope="default", rate_pct=Decimal("7"), weekdays=[3],
+        )
+        self.assertEqual(self._fee(self._at(12, day=24)), Decimal("700.00"))   # خميس
+        self.assertEqual(self._fee(self._at(12, day=25)), Decimal("1000.00"))  # جمعة
+
+    def test_service_rule_only_for_that_service(self):
+        CommissionRule.objects.create(
+            name="مشترك", scope="default", rate_pct=Decimal("6"), service_code="shared",
+        )
+        self.assertEqual(self._fee(self._at(12), service="shared"), Decimal("600.00"))
+        self.assertEqual(self._fee(self._at(12), service="taxi"), Decimal("1000.00"))
+        self.assertEqual(self._fee(self._at(12)), Decimal("1000.00"))
+
+    def test_driver_rule_still_beats_windowed_default(self):
+        CommissionRule.objects.create(
+            name="ليل", scope="default", rate_pct=Decimal("5"), hour_from=22, hour_to=5,
+        )
+        CommissionRule.objects.create(
+            name="سائق", scope="driver", driver=self.driver, rate_pct=Decimal("2"),
+        )
+        self.assertEqual(self._fee(self._at(23)), Decimal("200.00"))
+
+    def test_settled_fare_uses_ride_service(self):
+        from matching.models import OfferStatus, RideOffer
+        from pricing.services import PricingService
+        from rides.models import RideMode
+
+        CommissionRule.objects.create(
+            name="مشترك", scope="default", rate_pct=Decimal("6"), service_code="shared",
+        )
+        ride = make_ride(make_customer(), mode=RideMode.SHARED, gross_fare="10000.00")
+        offer = RideOffer(
+            ride=ride, driver=self.driver, gross_fare=Decimal("10000"), eta_minutes=3,
+            status=OfferStatus.ACCEPTED, expires_at=timezone.now(),
+        )
+        PricingService.settle_from_offer(ride, offer, self.driver)
+        self.assertEqual(ride.platform_fee, Decimal("600.00"))
+
+    def test_validation(self):
+        from django.core.exceptions import ValidationError
+
+        bad = [
+            CommissionRule(name="x", scope="default", hour_from=22),
+            CommissionRule(name="x", scope="default", hour_from=5, hour_to=5),
+            CommissionRule(name="x", scope="default", weekdays=[7]),
+            CommissionRule(name="x", scope="default", service_code="spaceship"),
+        ]
+        for rule in bad:
+            with self.assertRaises(ValidationError):
+                rule.clean()
+
+
 class CampaignTests(TestCase):
 
     def test_credit_offer_to_idle_customers_is_granted_once(self):

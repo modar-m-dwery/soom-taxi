@@ -26,7 +26,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from integrity.simulation import report as report_mod
-from integrity.simulation.world import SimClock, World, simulated_time
+from integrity.simulation.world import LOCAL_TZ, SimClock, World, simulated_time
 
 
 class Command(BaseCommand):
@@ -51,13 +51,12 @@ class Command(BaseCommand):
         if 60 % opts["step_minutes"]:
             raise CommandError("--step-minutes يجب أن يقسم 60.")
 
+        # منتصف الليل بتوقيت دمشق، لا UTC.
         if opts["start"]:
-            start = timezone.make_aware(datetime.strptime(opts["start"], "%Y-%m-%d"))
+            day = datetime.strptime(opts["start"], "%Y-%m-%d").date()
         else:
-            today = timezone.localdate()
-            start = timezone.make_aware(
-                datetime.combine(today - timedelta(days=int(opts["days"]) + 1), datetime.min.time())
-            )
+            day = timezone.now().astimezone(LOCAL_TZ).date() - timedelta(days=int(opts["days"]) + 1)
+        start = datetime.combine(day, datetime.min.time(), tzinfo=LOCAL_TZ)
 
         world = World(
             drivers=opts["drivers"], customers=opts["customers"],

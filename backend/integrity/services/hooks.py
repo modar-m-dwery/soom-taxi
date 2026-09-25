@@ -163,14 +163,27 @@ def on_cancellation(record):
 
 
 def _check_off_app_pair(record):
-    """الثنائي نفسه: السائق وصل، والزبون ألغى — مرّتان في أسبوعين تكفيان للشكّ."""
-    from trips.models import CancellationRecord
+    """
+    الثنائي نفسه: السائق وصل، والزبون ألغى **قبل أن ينتهي الانتظار** —
+    مرّتان في أسبوعين تكفيان للشكّ.
 
+    الإلغاء بعد انتظارٍ كامل (AFTER_WAIT) مستثنى عمدًا: ذاك نمط زبونٍ يلعب
+    والسائق ضحيّته، لا اتّفاقٌ بينهما. وجدته المحاكاة: سائقٌ نظاميّ صادف
+    الزبونَ المزعج نفسه مرّتين ليلًا فاتُّهم بالعمل خارج التطبيق.
+    """
+    from trips.models import CancellationKind, CancellationRecord
+
+    if record.kind == CancellationKind.AFTER_WAIT:
+        return
     since = timezone.now() - timedelta(days=14)
-    count = CancellationRecord.objects.filter(
-        customer=record.customer, driver=record.driver, actor="customer",
-        trip__arrived_at__isnull=False, created_at__gte=since,
-    ).count()
+    count = (
+        CancellationRecord.objects.filter(
+            customer=record.customer, driver=record.driver, actor="customer",
+            trip__arrived_at__isnull=False, created_at__gte=since,
+        )
+        .exclude(kind=CancellationKind.AFTER_WAIT)
+        .count()
+    )
     if count < 2:
         return
 

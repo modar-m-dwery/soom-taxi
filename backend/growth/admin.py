@@ -25,12 +25,22 @@ class DriverGroupAdmin(admin.ModelAdmin):
 
 @admin.register(CommissionRule)
 class CommissionRuleAdmin(admin.ModelAdmin):
-    list_display = ("name", "scope", "target", "rate_pct", "fixed_fee", "is_active", "valid_until")
+    list_display = (
+        "name", "scope", "target", "service_code", "window", "rate_pct", "fixed_fee",
+        "is_active", "valid_until",
+    )
     list_editable = ("rate_pct", "is_active")
-    list_filter = ("scope", "is_active", "area")
+    list_filter = ("scope", "is_active", "area", "service_code")
     autocomplete_fields = ("driver",)
     fieldsets = (
         (None, {"fields": ("name", "scope", "driver", "group", "area", "is_active")}),
+        ("الخدمة والوقت (اختياريّ)", {
+            "fields": ("service_code", "weekdays", "hour_from", "hour_to"),
+            "description": (
+                "مثال «الليل أرخص»: من 22 إلى 5. مثال «المشترك»: service_code = shared. "
+                "داخل النطاق نفسه، القاعدة المحصورة بخدمة أو بوقت تغلب العامّة."
+            ),
+        }),
         ("المبلغ", {
             "fields": ("rate_pct", "fixed_fee", "min_fee", "max_fee"),
             "description": (
@@ -44,6 +54,12 @@ class CommissionRuleAdmin(admin.ModelAdmin):
     @admin.display(description="على")
     def target(self, obj):
         return obj.driver or obj.group or obj.area or "الكلّ"
+
+    @admin.display(description="الوقت")
+    def window(self, obj):
+        days = "، ".join(str(d) for d in obj.weekdays) if obj.weekdays else "كلّ الأيّام"
+        hours = f"{obj.hour_from}–{obj.hour_to}" if obj.hour_from is not None else "كلّ اليوم"
+        return f"{days} · {hours}"
 
 
 class CampaignRecipientInline(admin.TabularInline):

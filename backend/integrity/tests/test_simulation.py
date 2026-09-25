@@ -8,15 +8,14 @@ from django.test import TransactionTestCase
 from django.utils import timezone
 
 from integrity.simulation import report
-from integrity.simulation.world import SimClock, World, simulated_time
+from integrity.simulation.world import LOCAL_TZ, SimClock, World, simulated_time
 
 
 class SimulationSmokeTests(TransactionTestCase):
 
     def test_few_hours_of_city_life(self):
-        start = timezone.make_aware(
-            datetime.combine(timezone.localdate() - timedelta(days=2), datetime.min.time())
-        ) + timedelta(hours=7)
+        day = timezone.now().astimezone(LOCAL_TZ).date() - timedelta(days=2)
+        start = datetime.combine(day, datetime.min.time(), tzinfo=LOCAL_TZ) + timedelta(hours=7)
         world = World(drivers=14, customers=70, cheat_ratio=0.5, days=0.25, seed=3)
         clock = SimClock(start)
         with simulated_time(clock):

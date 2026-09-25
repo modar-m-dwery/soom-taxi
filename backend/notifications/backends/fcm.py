@@ -29,23 +29,57 @@ PERMANENT_ERRORS = {
 }
 
 
+def service_account_info(raw):
+    """
+    يقبل محتوى ملفّ حساب الخدمة نصًّا JSON أو Base64 له، ويرجع القاموس،
+    أو None إن كان فارغًا أو غير صالح (فتبقى القناة «غير مهيّأة» لا معطوبة).
+    """
+    import base64
+    import binascii
+
+    raw = (raw or "").strip()
+    if not raw:
+        return None
+    if not raw.startswith("{"):
+        try:
+            raw = base64.b64decode(raw, validate=True).decode("utf-8")
+        except (binascii.Error, UnicodeDecodeError, ValueError):
+            return None
+    try:
+        info = json.loads(raw)
+    except ValueError:
+        return None
+    if not isinstance(info, dict) or "private_key" not in info or "client_email" not in info:
+        return None
+    return info
+
+
 class FCMBackend(BaseBackend):
 
     name = "fcm"
 
     def __init__(self):
         self._credentials = None
-        self._project_id = getattr(settings, "FCM_PROJECT_ID", "") or ""
         self._service_account = (
             getattr(settings, "FCM_SERVICE_ACCOUNT_FILE", "") or ""
+        )
+        # البديل السحابيّ للملفّ: محتوى JSON نفسه (أو Base64 له) في متغيّر
+        # بيئة — منصّات الاستضافة وأسرار CI تحمل نصوصًا لا ملفّات.
+        self._service_account_info = service_account_info(
+            getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", "") or ""
+        )
+        self._project_id = (
+            getattr(settings, "FCM_PROJECT_ID", "")
+            or (self._service_account_info or {}).get("project_id", "")
+            or ""
         )
 
     # -------------------------------------------------------------
 
     def check_ready(self):
-        if not self._project_id or not self._service_account:
+        if not self._project_id or not (self._service_account or self._service_account_info):
             raise NotConfigured(
-                "FCM_PROJECT_ID و FCM_SERVICE_ACCOUNT_FILE غير مضبوطين."
+                "اضبط FCM_PROJECT_ID مع FCM_SERVICE_ACCOUNT_FILE أو FCM_SERVICE_ACCOUNT_JSON."
             )
 
         try:
@@ -61,11 +95,18 @@ class FCMBackend(BaseBackend):
         from google.oauth2 import service_account
 
         if self._credentials is None:
-            self._credentials = (
-                service_account.Credentials.from_service_account_file(
-                    self._service_account, scopes=SCOPES
+            if self._service_account_info:
+                self._credentials = (
+                    service_account.Credentials.from_service_account_info(
+                        self._service_account_info, scopes=SCOPES
+                    )
                 )
-            )
+            else:
+                self._credentials = (
+                    service_account.Credentials.from_service_account_file(
+                        self._service_account, scopes=SCOPES
+                    )
+                )
 
         if not self._credentials.valid:
             self._credentials.refresh(Request())

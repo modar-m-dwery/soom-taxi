@@ -50,25 +50,43 @@ class LocationService:
     # -----------------------------------------------------------
 
     @classmethod
+    def _size_km2(cls, area):
+        """مساحة المنطقة تقريبًا — تكفي للمقارنة بين منطقتين متداخلتين."""
+        if area.boundary is not None:
+            lat = area.boundary.centroid.y
+            return area.boundary.area * 111.32 * cos(radians(lat)) * 110.57
+        radius = float(area.fallback_radius_km or 0)
+        return 3.141592653589793 * radius * radius
+
+    @classmethod
     def resolve_area(cls, lng, lat):
         """
         يرجّع ServiceArea التي تحوي هذه النقطة، أو None لو كانت خارج كل
         مناطق الخدمة المُفعَّلة حاليًا.
+
+        حين تتداخل منطقتان (ضيعةٌ لها إعداداتها داخل نطاق مدينة) تغلب
+        **الأصغر**: الأدقّ أولى، تمامًا كما في العمولات. بلا هذا كانت النتيجة
+        تتبع ترتيب الصفوف في القاعدة — أي عشوائيّة من وجهة نظر المشغّل.
         """
         point = Point(lng, lat, srid=4326)
 
+        matches = []
         for area in cls.get_active_service_areas():
             if area.boundary is not None:
                 if area.boundary.contains(point):
-                    return area
+                    matches.append(area)
                 continue  # لها حدود دقيقة وهذه النقطة خارجها - جرّب التالية
 
             if area.center is not None:
                 distance_km = cls._haversine_km(lng, lat, area.center.x, area.center.y)
                 if distance_km <= float(area.fallback_radius_km):
-                    return area
+                    matches.append(area)
 
-        return None
+        if not matches:
+            return None
+        if len(matches) == 1:
+            return matches[0]
+        return min(matches, key=cls._size_km2)
 
     @classmethod
     def resolve_area_for_ride(cls, ride):

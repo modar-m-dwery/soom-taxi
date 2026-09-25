@@ -112,6 +112,18 @@ class CancellationSignalTests(APITestCase):
         self.assertEqual(customer_signal.weight, registry.OFF_APP_SUSPECTED.weight // 2)
         self.assertEqual(customer_signal.counterpart, self.driver.user)
 
+    def test_prankster_waits_do_not_blame_the_driver(self):
+        # الزبون أنطر السائق نفسه مرّتين ثمّ ألغى: الضحيّة السائق، لا شريكه.
+        for _ in range(2):
+            ride, trip = _assigned(self.customer, self.driver, arrived=True)
+            record = CancellationRecord.objects.create(
+                ride=ride, trip=trip, customer=self.customer, driver=self.driver,
+                actor="customer", kind=CancellationKind.AFTER_WAIT, strikes=2,
+            )
+            hooks.on_cancellation(record)
+        self.assertFalse(_signals(self.driver.user, registry.OFF_APP_SUSPECTED.code).exists())
+        self.assertTrue(_signals(self.customer, registry.REPEATED_NO_SHOW.code).exists())
+
     def test_single_arrive_then_cancel_is_not_suspicious(self):
         ride, _ = _assigned(self.customer, self.driver, arrived=True)
         with self.captureOnCommitCallbacks(execute=True):

@@ -662,3 +662,50 @@ class ChannelPreferenceApiTests(ChannelTestBase):
 
         self.assertEqual(response.status_code, 201)
         self.assertIn("t.me/soum_bot", response.data["deep_link"])
+
+
+# =====================================================================
+# مفتاح FCM من متغيّر بيئة (الاستضافة السحابيّة)
+# =====================================================================
+
+import base64 as _b64  # noqa: E402
+import json as _json  # noqa: E402
+
+from django.test import SimpleTestCase  # noqa: E402
+
+from notifications.backends.base import NotConfigured  # noqa: E402
+from notifications.backends.fcm import FCMBackend, service_account_info  # noqa: E402
+
+_FAKE_SA = {
+    "type": "service_account",
+    "project_id": "demo-project",
+    "private_key": "-----BEGIN PRIVATE KEY-----\\nX\\n-----END PRIVATE KEY-----\\n",
+    "client_email": "fcm@demo-project.iam.gserviceaccount.com",
+}
+
+
+class FCMEnvCredentialsTests(SimpleTestCase):
+
+    def test_parses_raw_json_and_base64(self):
+        raw = _json.dumps(_FAKE_SA)
+        self.assertEqual(service_account_info(raw)["project_id"], "demo-project")
+        encoded = _b64.b64encode(raw.encode()).decode()
+        self.assertEqual(service_account_info(encoded)["client_email"], _FAKE_SA["client_email"])
+
+    def test_rejects_garbage(self):
+        for bad in ("", "   ", "not-base64!!", _b64.b64encode(b"{}").decode(), "{broken"):
+            self.assertIsNone(service_account_info(bad))
+
+    @override_settings(FCM_PROJECT_ID="", FCM_SERVICE_ACCOUNT_FILE="", FCM_SERVICE_ACCOUNT_JSON="")
+    def test_not_configured_without_credentials(self):
+        with self.assertRaises(NotConfigured):
+            FCMBackend().check_ready()
+
+    def test_json_env_is_enough_and_supplies_project_id(self):
+        with override_settings(
+            FCM_PROJECT_ID="", FCM_SERVICE_ACCOUNT_FILE="",
+            FCM_SERVICE_ACCOUNT_JSON=_json.dumps(_FAKE_SA),
+        ):
+            backend = FCMBackend()
+            self.assertTrue(backend.check_ready())
+            self.assertEqual(backend._project_id, "demo-project")

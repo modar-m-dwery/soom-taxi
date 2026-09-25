@@ -86,6 +86,26 @@ class CommissionRule(models.Model):
     max_fee = _money_field(null=True, blank=True)
     valid_from = models.DateTimeField(null=True, blank=True)
     valid_until = models.DateTimeField(null=True, blank=True)
+    # ------------------------------------------------------------------
+    # متى وعلى أيّ خدمة — «الليل أرخص»، «المشترك بعمولة أقلّ». كلّها
+    # اختياريّة: الفارغ = كلّ الخدمات، كلّ الأيّام، كلّ الساعات.
+    # ------------------------------------------------------------------
+    service_code = models.CharField(
+        max_length=40, blank=True, default="",
+        help_text="رمز الخدمة من الكتالوج (taxi، shared، intercity…). فارغ = كلّ الخدمات.",
+    )
+    weekdays = models.JSONField(
+        default=list, blank=True,
+        help_text="أيّام الأسبوع بأرقام: 0=الاثنين … 4=الجمعة، 5=السبت، 6=الأحد. فارغ = كلّ الأيّام.",
+    )
+    hour_from = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MaxValueValidator(23)],
+        help_text="بداية النافذة بتوقيت دمشق (0–23). مع «حتّى» فقط.",
+    )
+    hour_to = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MaxValueValidator(24)],
+        help_text="نهاية النافذة (غير مشمولة). 22 ← 5 = الليل عبر منتصفه.",
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -107,6 +127,37 @@ class CommissionRule(models.Model):
             raise ValidationError({required[self.scope][0]: "مطلوب لهذا النطاق."})
         if self.min_fee is not None and self.max_fee is not None and self.min_fee > self.max_fee:
             raise ValidationError({"max_fee": "الحدّ الأعلى أصغر من الأدنى."})
+        if (self.hour_from is None) != (self.hour_to is None):
+            raise ValidationError({"hour_to": "حدّد البداية والنهاية معًا أو اتركهما فارغين."})
+        if self.hour_from is not None and self.hour_from == self.hour_to:
+            raise ValidationError({"hour_to": "نافذة بطول صفر — اتركهما فارغين لكلّ اليوم."})
+        if not isinstance(self.weekdays, list) or any(
+            not isinstance(d, int) or not 0 <= d <= 6 for d in self.weekdays
+        ):
+            raise ValidationError({"weekdays": "قائمة أرقام من 0 إلى 6، مثل [3] للخميس."})
+        if self.service_code:
+            from catalog.registry import SERVICES
+
+            if self.service_code not in SERVICES:
+                raise ValidationError({
+                    "service_code": f"خدمة غير معروفة. المتاح: {', '.join(sorted(SERVICES))}",
+                })
+
+    def applies_at(self, local_dt):
+        """هل تنطبق القاعدة في هذه اللحظة (بتوقيت المدينة)؟"""
+        if self.weekdays and local_dt.weekday() not in self.weekdays:
+            return False
+        if self.hour_from is None:
+            return True
+        hour = local_dt.hour
+        if self.hour_from < self.hour_to:
+            return self.hour_from <= hour < self.hour_to
+        # نافذة عبر منتصف الليل: 22 ← 5
+        return hour >= self.hour_from or hour < self.hour_to
+
+    @property
+    def is_windowed(self):
+        return bool(self.weekdays) or self.hour_from is not None
 
 
 # =====================================================================

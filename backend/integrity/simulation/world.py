@@ -23,12 +23,17 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from decimal import Decimal
 from unittest import mock
+from zoneinfo import ZoneInfo
 
 from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.utils import timezone
 
 from integrity.simulation import demand
+
+# ساعات الذروة بتوقيت المدينة لا بتوقيت الخادم (UTC): ذروة الثامنة صباحًا
+# في جبلة هي الخامسة UTC.
+LOCAL_TZ = ZoneInfo("Asia/Damascus")
 
 # جبلة — مركز المدينة (يطابق ServiceArea «JAB» في أوامر المشروع).
 JABLEH_CENTER = (35.9275, 35.3617)
@@ -393,7 +398,7 @@ class World:
             Detectors.run_all()
 
     def tick(self, now):
-        local = timezone.localtime(now)
+        local = now.astimezone(LOCAL_TZ)
         key = (local.date().isoformat(), local.hour)
         bucket = self.hourly.setdefault(key, {
             "requests": 0, "matched": 0, "expired": 0, "online": 0,
@@ -740,10 +745,16 @@ class World:
         points = [a]
         waypoints = [b]
         if detour:
+            # نقطةٌ جانبيّة **عموديّة** على الطريق المباشر، بُعدها يجعل طول
+            # الساقين معًا = detour × المسافة المباشرة.
             direct = distance_km(a, b)
-            extra = direct * (detour - 1) / 2
+            half = direct / 2
+            side = math.sqrt(max((detour * half) ** 2 - half ** 2, 0))
             mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
-            waypoints = [offset(mid, extra, extra * 0.6), b]
+            dx_km = (b[0] - a[0]) * 111.32 * math.cos(math.radians(mid[1]))
+            dy_km = (b[1] - a[1]) * 110.57
+            norm = math.hypot(dx_km, dy_km) or 1.0
+            waypoints = [offset(mid, -dy_km / norm * side, dx_km / norm * side), b]
         cur = a
         for w in waypoints:
             while distance_km(cur, w) > 0.15:
