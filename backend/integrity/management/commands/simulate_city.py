@@ -29,6 +29,10 @@ from integrity.simulation import report as report_mod
 from integrity.simulation.world import LOCAL_TZ, SimClock, World, simulated_time
 
 
+LOCK_KEY = "integrity:simulate_city:lock"
+LOCK_TTL_SECONDS = 6 * 3600
+
+
 class Command(BaseCommand):
     help = "Peak-hour city simulation with cheating drivers/customers; measures fraud detection."
 
@@ -58,6 +62,18 @@ class Command(BaseCommand):
             day = timezone.now().astimezone(LOCAL_TZ).date() - timedelta(days=int(opts["days"]) + 1)
         start = datetime.combine(day, datetime.min.time(), tzinfo=LOCAL_TZ)
 
+        # تشغيلان على القاعدة نفسها يتلفان بعضهما: لكلٍّ ساعته، ومنظِّف المهل
+        # في أحدهما يُنهي طلبات الآخر قبل أوانها. قفلٌ واحد عبر الكاش.
+        from django.core.cache import cache
+
+        if not cache.add(LOCK_KEY, "1", LOCK_TTL_SECONDS):
+            raise CommandError("محاكاةٌ أخرى تعمل الآن على هذه القاعدة — انتظرها.")
+        try:
+            self._run(opts, start)
+        finally:
+            cache.delete(LOCK_KEY)
+
+    def _run(self, opts, start):
         world = World(
             drivers=opts["drivers"], customers=opts["customers"],
             cheat_ratio=opts["cheat_ratio"], days=opts["days"], ramadan=opts["ramadan"],

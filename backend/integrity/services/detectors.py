@@ -23,7 +23,7 @@ from integrity.services.scoring import IntegrityService
 logger = logging.getLogger(__name__)
 
 # عتبات افتراضيّة — كلّها قابلة للتجاوز من الإعدادات إن احتاج السوق.
-DRIVER_CANCEL_RATE_MIN_ACCEPTED = 5
+DRIVER_CANCEL_RATE_MIN_ACCEPTED = 8   # عيّنة أصغر تتّهم سائقًا نظاميًّا ألغى مرّتين صدفةً
 DRIVER_CANCEL_RATE_THRESHOLD = 0.30
 MULTI_ACCOUNT_MIN = 3
 REPEAT_PAIR_MIN_TRIPS = 4
@@ -279,7 +279,7 @@ class Detectors:
 
     @staticmethod
     def driver_cancel_rate(driver=None, days=7):
-        """سائقٌ ألغى أكثر من 30٪ ممّا قبله هذا الأسبوع (بخمس رحلات مقبولة فأكثر)."""
+        """سائقٌ ألغى أكثر من 30٪ ممّا قبله هذا الأسبوع (بثماني رحلات مقبولة فأكثر)."""
         from trips.models import CancellationRecord, Trip
         from users.models import DriverProfile
 

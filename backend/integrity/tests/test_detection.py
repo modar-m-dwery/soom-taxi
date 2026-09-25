@@ -149,10 +149,20 @@ class CancellationSignalTests(APITestCase):
             hooks.on_cancellation(record)
         self.assertEqual(_signals(self.customer, registry.REPEATED_NO_SHOW.code).count(), 1)
 
-    def test_driver_cancel_rate(self):
+    def test_small_sample_does_not_flag_driver(self):
         for i in range(5):
             ride, trip = _assigned(make_customer(), self.driver)
             if i < 2:
+                CancellationRecord.objects.create(
+                    ride=ride, trip=trip, customer=ride.customer, driver=self.driver,
+                    actor="driver", kind=CancellationKind.DRIVER, strikes=1,
+                )
+        self.assertEqual(Detectors.driver_cancel_rate(driver=self.driver), 0)
+
+    def test_driver_cancel_rate(self):
+        for i in range(8):
+            ride, trip = _assigned(make_customer(), self.driver)
+            if i < 3:
                 CancellationRecord.objects.create(
                     ride=ride, trip=trip, customer=ride.customer, driver=self.driver,
                     actor="driver", kind=CancellationKind.DRIVER, strikes=1,

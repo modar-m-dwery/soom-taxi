@@ -155,6 +155,10 @@ class RiskSignalAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    # الإشارة دليلٌ في سجلّ تدقيق: تُسقَط (إنذار كاذب) ولا تُحذف.
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     @admin.display(description="النوع")
     def kind_label(self, obj):
         return obj.kind_label
@@ -187,6 +191,10 @@ class RiskCaseAdmin(admin.ModelAdmin):
     actions = ["confirm_fraud", "dismiss_false_alarm"]
 
     def has_add_permission(self, request):
+        return False
+
+    # القضيّة تُغلق بقرار (تأكيد أو رفض) ولا تُحذف — الحذف يمحو سبب التقييد.
+    def has_delete_permission(self, request, obj=None):
         return False
 
     @admin.display(description="النقاط الآن")
