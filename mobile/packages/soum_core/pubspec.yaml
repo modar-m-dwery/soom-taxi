@@ -1,0 +1,47 @@
+name: soum_core
+description: >
+  العقد مع خادم سوم تاكسي — شبكةٌ ونماذجُ وإعدادٌ وبثٌّ حيّ.
+  لا يستورد flutter/material ولا يرسم شيئًا: كلّ ما فيه يُختبر بلا شاشة.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # الشبكة — المعترضات هي ما يجعل الحدود والمفتاح والأخطاء في مكان واحد
+  dio: ^5.9.0
+
+  # المال. decimal لا double: ‏"5512.00" نصٌّ عشريّ من الخادم، وتحويله
+  # إلى عائم يُدخل خطأ تمثيل في مسار يُحاسَب عليه سائق.
+  decimal: ^3.2.4
+
+  # المقبس الحيّ
+  web_socket_channel: ^3.0.3
+
+  # التخزين
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.3
+
+  # المساواة بلا توليد شيفرة — أسرع دورة تطوير من build_runner
+  equatable: ^2.0.7
+
+  # التواريخ والصيغ
+  intl: ^0.20.2
+
+  # معرّف الجهاز
+  uuid: ^4.5.1
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  http_mock_adapter: ^0.6.1
+  # لبناء مقبس مزيّف في اختبار إعادة الاتصال — WebSocketChannel يرث منه.
+  stream_channel: ^2.1.4

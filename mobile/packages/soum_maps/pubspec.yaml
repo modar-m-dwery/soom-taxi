@@ -1,0 +1,27 @@
+name: soum_maps
+description: >
+  طبقة الخرائط المجرّدة. الشاشات تتكلّم MapProvider لا مزوّدًا بعينه،
+  فاستبدال OpenStreetMap بـGoogle Maps يوم يُشترى الاشتراك تنفيذٌ ثانٍ
+  خلف الواجهة نفسها لا إعادةُ كتابة لكلّ شاشة فيها خريطة.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  soum_core: ^1.0.0
+  flutter_map: ^8.2.4
+  latlong2: ^0.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

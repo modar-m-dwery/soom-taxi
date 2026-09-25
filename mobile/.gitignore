@@ -1,0 +1,24 @@
+# Flutter / Dart — على كلّ عمق
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+*.iml
+.idea/
+
+# Android
+**/android/.gradle/
+**/android/.kotlin/
+**/android/local.properties
+**/android/app/google-services.json
+**/android/key.properties
+*.jks
+*.keystore
+
+# iOS
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Runner/GoogleService-Info.plist
+**/ios/Pods/

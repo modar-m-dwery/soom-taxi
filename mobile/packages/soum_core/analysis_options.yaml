@@ -1,0 +1,18 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # في حزمة تمثّل عقدًا مع خادم، التحذير ليس اقتراحًا.
+    invalid_null_aware_operator: error
+    unused_import: error
+    unnecessary_null_comparison: error
+  exclude:
+    - "**/*.g.dart"
+    - build/**
+
+linter:
+  rules:
+    # الحزمة لا ترسم شيئًا — استيراد material فيها خطأ معماريّ لا أسلوبيّ.
+    avoid_print: true
+    prefer_final_locals: true
+    unawaited_futures: true

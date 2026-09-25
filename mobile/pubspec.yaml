@@ -1,0 +1,15 @@
+# جذر مساحة العمل: التطبيقان والحزم الأربع تُحَلّ اعتمادياتها معًا مرّةً
+# واحدة (`flutter pub get` هنا)، فلا تختلف نسخة حزمة بين التطبيقين.
+name: soum_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - apps/customer
+  - apps/driver
+  - packages/soum_core
+  - packages/soum_ui
+  - packages/soum_maps
+  - packages/soum_push

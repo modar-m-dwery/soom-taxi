@@ -1,0 +1,21 @@
+name: soum_push
+description: >
+  إشعارات الدفع عبر Firebase Cloud Messaging. حزمةٌ وحدها لأنّ soum_ui لا
+  تعتمد على مزوّدٍ بعينه: استبدال FCM غدًا يمسّ هذه الحزمة وحدها.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  soum_ui: ^1.0.0
+  firebase_core: ^4.1.1
+  firebase_messaging: ^16.0.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0

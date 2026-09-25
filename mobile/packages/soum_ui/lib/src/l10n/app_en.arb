@@ -1,0 +1,499 @@
+{
+  "@@locale": "en",
+  "appNameCustomer": "Soom Taksi",
+  "appNameDriver": "Soom Taksi — Driver",
+  "actionRetry": "Try again",
+  "actionCancel": "Cancel",
+  "actionConfirm": "Confirm",
+  "actionContinue": "Continue",
+  "actionClose": "Close",
+  "actionBack": "Back",
+  "actionEdit": "Edit",
+  "bootLoadingConfig": "Reading your city settings…",
+  "bootLoadingSession": "Restoring your session…",
+  "bootRestoringRide": "Taking you back to your ride…",
+  "bootNoConnection": "No internet connection",
+  "bootNoConnectionBody": "We need a connection once to read your city settings. Check your network and try again.",
+  "bootOutsideServiceArea": "Outside our service areas",
+  "bootOutsideServiceAreaBody": "We don't serve your location yet. You can browse, but you won't find nearby cars.",
+  "authPhoneTitle": "Enter your phone number",
+  "authPhoneSubtitle": "We'll send you a short verification code.",
+  "authPhoneLabel": "Phone number",
+  "authPhoneHint": "9XXXXXXXX",
+  "authPhoneInvalid": "Enter a valid Syrian number",
+  "authSendCode": "Send code",
+  "authCodeTitle": "Enter the code",
+  "authCodeSubtitle": "We sent a code to {phone}",
+  "authCodeLabel": "Verification code",
+  "authCodeInvalid": "The code is incomplete",
+  "authVerify": "Verify",
+  "authResendIn": "Resend in {seconds}s",
+  "authResend": "Resend code",
+  "authChangePhone": "Change number",
+  "authDevelopmentCode": "Development code: {code}",
+  "authCodeExpiresIn": "Code expires in {seconds}s",
+  "authThrottled": "Too many attempts. Try again in {seconds}s.",
+  "errorNetwork": "No internet connection",
+  "errorNetworkBody": "Check your network and try again.",
+  "errorGeneric": "Couldn't complete that",
+  "errorSupportReference": "Reference: {requestId}",
+  "sessionExpiredTitle": "Your session ended",
+  "sessionExpiredBody": "Sign in again to continue.",
+  "logout": "Sign out",
+  "logoutConfirm": "Sign out of your account?",
+  "currencySyp": "SYP",
+  "fareApproximate": "Estimated price",
+  "fareRouted": "Routed price",
+  "fareBreakdownTitle": "Fare breakdown",
+  "fareBase": "Base fare",
+  "fareDistance": "Distance",
+  "fareTime": "Time",
+  "fareGross": "Total",
+  "farePlatformFee": "Platform fee",
+  "fareCustomerTotal": "You pay",
+  "fareDriverNet": "Driver receives",
+  "fareApproximateNote": "We couldn't compute the real route, so this is an estimate and may differ slightly.",
+  "homeWhereTo": "Where to?",
+  "homePickup": "Pickup",
+  "homeDestination": "Destination",
+  "homeSetOnMap": "Set on map",
+  "homeMyLocation": "My location",
+  "homeCarsNearby": "{count,plural, =0{No cars nearby} =1{1 car nearby} other{{count} cars nearby}}",
+  "homeNoCarsInRange": "No cars within {km} km",
+  "homeOutsideArea": "You're outside our service areas",
+  "homeLocating": "Finding you…",
+  "modeFast": "Fast",
+  "modeFastHint": "Nearest driver, with live map and direct invite",
+  "modeExpress": "Express",
+  "modeExpressHint": "Fastest, with direct invite",
+  "modeStandard": "Standard",
+  "modeStandardHint": "The usual balance of price and time",
+  "modeSaving": "Saving",
+  "modeSavingHint": "Cheapest — wider range, longer wait",
+  "modeShared": "Shared",
+  "modeSharedHint": "Join an existing ride and split the fare",
+  "categoryCity": "Within the city",
+  "categoryIntercity": "Between cities",
+  "categoryServiceLine": "Service line",
+  "categoryRecreational": "Leisure trip",
+  "cityOrigin": "Origin city",
+  "cityDestination": "Destination city",
+  "cityRequired": "Required for this type",
+  "passengers": "{count,plural, =1{1 passenger} other{{count} passengers}}",
+  "vehicleAny": "Any car",
+  "requestRide": "Request ride",
+  "scheduleFor": "Schedule for later",
+  "searchingTitle": "Finding you a driver",
+  "searchingSubtitle": "Within {km} km of your pickup",
+  "searchingTimeLeft": "{seconds}s",
+  "offersTitle": "{count,plural, =1{1 offer} other{{count} offers}}",
+  "offersEmpty": "No offers yet",
+  "offerEta": "{minutes} min",
+  "offerChoose": "Choose",
+  "offerTaken": "That car is no longer available. Pick another.",
+  "rideExpired": "No driver found",
+  "rideExpiredBody": "The search window closed with no offers. Try a wider mode or search again.",
+  "rideCancelled": "Request cancelled",
+  "cancelRide": "Cancel request",
+  "inviteTitle": "Invite a specific car",
+  "inviteSend": "Invite",
+  "inviteWaiting": "Waiting for the driver",
+  "inviteTtl": "Response window",
+  "inviteRejected": "The driver declined. Pick another car.",
+  "inviteExpired": "The window closed with no reply",
+  "inviteCancel": "Cancel invite",
+  "inviteSeatsAvailable": "{count} seats free",
+  "inviteDistance": "about {meters} m away",
+  "tripDriverAssigned": "Your ride is confirmed",
+  "tripDriverArriving": "Your driver is on the way",
+  "tripDriverArrived": "Your driver is waiting",
+  "tripInProgress": "On the way to your destination",
+  "tripCompleted": "You've arrived",
+  "tripCancelledBy": "Ride cancelled",
+  "tripCallDriver": "Call driver",
+  "tripCancelTrip": "Cancel ride",
+  "tripPlate": "Plate",
+  "paymentTitle": "Payment",
+  "paymentCashWaiting": "Waiting for the driver to confirm they were paid",
+  "paymentCashNote": "Pay the driver in cash. They confirm it in their app.",
+  "paymentPaid": "Paid",
+  "paymentAmount": "Amount",
+  "rateTitle": "How was your ride?",
+  "rateSubmit": "Submit rating",
+  "rateReasonRequired": "Pick a reason or write a comment",
+  "rateComment": "Comment (optional)",
+  "rateThanks": "Thanks for rating",
+  "rateAlready": "You already rated this ride",
+  "complaintOpen": "File a complaint",
+  "complaintDescription": "Tell us what happened",
+  "complaintSubmit": "Submit complaint",
+  "historyTitle": "My rides",
+  "historyEmpty": "No rides yet",
+  "historyViewPath": "View route",
+  "skip": "Skip",
+  "done": "Done",
+  "unitKm": "{value} km",
+  "unitMinutes": "{value} min",
+  "routeSummary": "{km} · {minutes}",
+  "complaintCategory": "Complaint type",
+  "complaintCatFare": "Fare",
+  "complaintCatDriver": "Driver conduct",
+  "complaintCatSafety": "Safety",
+  "complaintCatLostItem": "Lost item",
+  "complaintCatOther": "Other",
+  "complaintSent": "We got your complaint and we'll follow up.",
+  "complaintWindow": "You can file a complaint within 30 days of the ride.",
+  "driverGoOnline": "Go online",
+  "driverGoOffline": "Go offline",
+  "driverConnecting": "Connecting…",
+  "driverOffline": "Offline",
+  "driverOnlineNoHeartbeat": "Online — waiting for first location ping",
+  "driverOnlineNoHeartbeatHint": "You won't get requests until the server has your location.",
+  "driverMatchable": "You're working",
+  "driverMatchableHint": "Riders can see you and requests will come in.",
+  "driverStale": "Location ping lost",
+  "driverStaleHint": "You dropped out of the visible fleet. Reconnecting…",
+  "driverLocationNeeded": "We need location access for you to work",
+  "driverNotEligible": "You can't work yet",
+  "onboardTitle": "Before you start",
+  "onboardBecomeDriver": "Switch your account to driver",
+  "onboardAddVehicle": "Register your vehicle",
+  "onboardDocuments": "Upload the four documents",
+  "onboardPendingReview": "Waiting for admin review",
+  "onboardStepDone": "Done",
+  "vehicleTitle": "My vehicle",
+  "vehicleAdd": "Register a vehicle",
+  "vehicleType": "Category",
+  "vehicleMake": "Make",
+  "vehicleModel": "Model",
+  "vehicleYear": "Year",
+  "vehicleColor": "Color",
+  "vehiclePlate": "Plate number",
+  "vehicleSeats": "Seats",
+  "vehicleActive": "Active",
+  "vehicleActivate": "Activate",
+  "vehicleDeactivate": "Deactivate",
+  "vehicleSaved": "Vehicle saved",
+  "docsTitle": "My documents",
+  "docNationalId": "National ID",
+  "docDriverLicense": "Driver's licence",
+  "docVehicleRegistration": "Vehicle registration",
+  "docInsurance": "Insurance",
+  "docUpload": "Upload",
+  "docReplace": "Replace",
+  "docPending": "Under review",
+  "docApproved": "Approved",
+  "docRejected": "Rejected",
+  "docExpired": "Expired",
+  "docExpiresOn": "Expires {date}",
+  "docUploading": "Uploading…",
+  "workCandidates": "Available requests",
+  "workNoCandidates": "No requests right now",
+  "workNoCandidatesHint": "Nearby requests will appear here as they come in.",
+  "workOfferTitle": "Make an offer",
+  "workOfferPrice": "Price",
+  "workOfferEta": "Arrival time in minutes",
+  "workOfferSend": "Send offer",
+  "workOfferSent": "Offer sent",
+  "workFareRange": "Between {min} and {max}",
+  "workFareOutOfRange": "Price is outside the allowed range",
+  "workDistanceToPickup": "{km} to pickup",
+  "invitationIncoming": "Incoming invite",
+  "invitationAccept": "Accept",
+  "invitationReject": "Decline",
+  "invitationRejectReason": "Reason (optional)",
+  "invitationGone": "That invite is no longer valid",
+  "runArrived": "I've arrived",
+  "runStart": "Start ride",
+  "runComplete": "End ride",
+  "runTooFarPickup": "Get closer: you must be within {meters} m of the pickup point",
+  "runTooFarDropoff": "You must be within {meters} m of the destination",
+  "runRemaining": "{meters} m to go",
+  "runToPickup": "To pickup",
+  "runToDestination": "To destination",
+  "runPassenger": "Passenger",
+  "collectTitle": "Collect fare",
+  "collectConfirm": "I received the money",
+  "collectDone": "Collection recorded",
+  "collectNote": "Only you can confirm cash was received. The rider can't.",
+  "balanceTitle": "My balance",
+  "balanceTotal": "Total",
+  "publishTitle": "Publish a trip",
+  "publishCapacity": "Seats",
+  "publishPricePerSeat": "Price per seat",
+  "publishWhen": "When",
+  "publishSubmit": "Publish",
+  "publishDone": "Trip published",
+  "publishTitleField": "Trip title",
+  "sharedTitle": "Shared rides nearby",
+  "sharedNone": "No shared rides available right now",
+  "sharedJoin": "Join",
+  "sharedCompatibility": "{score}% match",
+  "sharedSeatsLeft": "{count,plural, =1{1 seat left} other{{count} seats left}}",
+  "sharedOnboard": "On board: {male} men · {female} women",
+  "sharedJoined": "You've joined the ride",
+  "sharedFull": "Seats filled up. Pick another ride.",
+  "catalogTitle": "Published trips",
+  "catalogEmpty": "No published trips right now",
+  "catalogBook": "Book a seat",
+  "catalogBooked": "Seat booked",
+  "catalogPricePerSeat": "per seat",
+  "catalogDeparts": "Departs {when}",
+  "catalogFilterAll": "All",
+  "notificationsTitle": "Notifications",
+  "notificationsEmpty": "No notifications",
+  "channelsTitle": "Alert channels",
+  "channelsHint": "The first channel that delivers stops the chain, so you won't hear it three times.",
+  "channelPush": "Push",
+  "channelTelegram": "Telegram",
+  "channelSms": "SMS",
+  "channelLink": "Link",
+  "channelUnlink": "Unlink",
+  "channelLinked": "Linked",
+  "channelNotLinked": "Not linked",
+  "channelTelegramOpening": "Opening Telegram… tap Start there.",
+  "channelTelegramLinked": "Telegram linked",
+  "channelPriority": "Priority",
+  "paymentDiscountFirstRide": "First-ride discount",
+  "paymentDiscountCredit": "Referral credit",
+  "paymentDiscount": "Discount",
+  "paymentSubtotal": "Fare",
+  "perksTitle": "Morning pass & invites",
+  "perksSubscriptionsSection": "Morning pass",
+  "perksSubscriptionsEmpty": "No pass yet. Add your daily ride and we send a car before the time every day.",
+  "perksSubscriptionAdd": "New pass",
+  "perksSubscriptionLabel": "Name (optional)",
+  "perksSubscriptionLabelHint": "To university",
+  "perksSubscriptionTime": "Departure time",
+  "perksSubscriptionDays": "Days",
+  "perksSubscriptionPickup": "Pickup: your current location",
+  "perksSubscriptionDestination": "Destination",
+  "perksSubscriptionPickDestination": "Pick destination on the map",
+  "perksSubscriptionDestinationSet": "Destination set",
+  "perksSubscriptionNext": "Next request: {when}",
+  "@perksSubscriptionNext": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "perksSubscriptionPaused": "Paused",
+  "perksSubscriptionCancel": "Cancel pass",
+  "perksSubscriptionCancelConfirm": "Cancel this pass? No more rides will be requested for it.",
+  "perksSubscriptionCreated": "Pass created. We'll request a car 30 minutes before the time.",
+  "perksSubscriptionNeedDestination": "Set a destination first.",
+  "perksReferralSection": "Refer a friend",
+  "perksReferralMyCode": "My invite code",
+  "perksReferralExplain": "Share your code. After your friend's first ride you both get credit off the next ride.",
+  "perksReferralShare": "Share code",
+  "perksReferralShareText": "Try Soom Taksi — enter my invite code {code} before your first ride and we both get credit.",
+  "@perksReferralShareText": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksReferralCopied": "Code copied",
+  "perksReferralEnter": "Enter a friend's code",
+  "perksReferralEnterHint": "e.g. ABC123",
+  "perksReferralApply": "Apply",
+  "perksReferralApplied": "Code {code} applied. Credit arrives after your first ride.",
+  "@perksReferralApplied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksReferralLinked": "Invited by: {code}",
+  "@perksReferralLinked": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksCreditBalance": "Your credit",
+  "perksFirstRideAvailable": "Your first ride is half price — applied automatically at payment.",
+  "perksFirstRideUsed": "First-ride discount used.",
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
+  "listSeparator": ", ",
+  "perksNextFormat": "EEEE d MMM, HH:mm",
+  "balanceOwedToYou": "Soum owes you this — discounts you covered for your customers",
+  "balanceYouOwe": "You owe the platform",
+  "balanceLifetimeEarned": "Lifetime earned",
+  "balanceLifetimeCommission": "Lifetime commission",
+  "balanceZero": "Nothing pending between you and the platform",
+  "collectDiscountNote": "The customer pays {customer} after Soum's discount; the remaining {rest} is added to your platform balance. Your full fare is {net}.",
+  "@collectDiscountNote": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      },
+      "rest": {
+        "type": "String"
+      },
+      "net": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleNow": "Now",
+  "scheduleLater": "Later",
+  "scheduleFormat": "EEEE d MMM, HH:mm",
+  "scheduleTooSoon": "Pick a time at least 10 minutes ahead — or request now.",
+  "requestScheduledRide": "Book the time",
+  "upcomingTitle": "Your booking: {when}",
+  "@upcomingTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "upcomingWaiting": "Waiting for driver offers — we'll tell you when one arrives.",
+  "upcomingConfirmed": "Your driver is confirmed. We'll remind you before the time.",
+  "historyStatusCancelled": "Cancelled",
+  "historyStatusDisputed": "Under review",
+  "historyStatusUpcoming": "Upcoming",
+  "driverBookingTitle": "Booking: {when}",
+  "@driverBookingTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "driverBookingOpen": "Go",
+  "dispatchOffers": "Offers",
+  "dispatchOffersHint": "Drivers send prices, you choose",
+  "dispatchNearest": "Nearest",
+  "dispatchNearestHint": "The closest driver is sent automatically",
+  "dispatchPick": "Pick a car",
+  "dispatchPickHint": "Tap the car you want on the map",
+  "pickTapCar": "Tap a car on the map to pick it",
+  "pickSelected": "{name} · {vehicle}",
+  "@pickSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "vehicle": {
+        "type": "String"
+      }
+    }
+  },
+  "searchRadiusLabel": "Search range",
+  "radiusKm": "{km} km",
+  "@radiusKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "radiusMeters": "{meters} m",
+  "@radiusMeters": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "nearestTitle": "Finding the nearest driver",
+  "nearestLooking": "Asking the closest drivers in turn…",
+  "nearestAsking": "Waiting for the nearest driver — a few seconds",
+  "nearestExhausted": "Nobody accepted yet — offers are open now",
+  "requestNearest": "Send nearest driver",
+  "requestPicked": "Request this car",
+  "moreOptions": "More options",
+  "serviceClass": "Class",
+  "carPassengers": "{count} riders",
+  "@carPassengers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "carNew": "New",
+  "runCancel": "Cancel trip",
+  "runCancelTitle": "Why are you cancelling?",
+  "runCancelWarning": "The request goes back to searching for the rider. Repeated cancellations pause your offers for a while.",
+  "cancelReasonCar": "Car problem",
+  "cancelReasonNoAnswer": "Rider not answering",
+  "cancelReasonFar": "Too far or road closed",
+  "cancelReasonOther": "Other reason",
+  "passengerChip": "{name} · {count} riders",
+  "@passengerChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lateCancelBadge": "Cancelled {count} times recently",
+  "@lateCancelBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelFreeNow": "Cancelling now is free.",
+  "cancelDriverLateFree": "The driver is late — cancelling is free.",
+  "cancelCountsStrike": "This cancellation counts as a strike. At {limit} strikes in a week, Nearest and Pick a car pause for a day.",
+  "@cancelCountsStrike": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "driverCancelledRequeued": "The driver cancelled — finding you another driver now.",
+  "shareRide": "Share the ride",
+  "shareRideHint": "Cheaper: share the car with riders on your way",
+  "callDriver": "Call driver",
+  "callCustomer": "Call rider",
+  "serviceSoon": "Soon",
+  "serviceComingSoon": "{name} is coming soon to Soum.",
+  "@serviceComingSoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "incentivesTitle": "Incentives",
+  "incentiveRemaining": "{count} more trips to earn {reward}",
+  "incentiveEarned": "You earned {reward} — collect it from the Soum office",
+  "incentiveDelivered": "Reward delivered — thank you",
+  "@incentiveRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
+  "@incentiveEarned": {
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  }
+}

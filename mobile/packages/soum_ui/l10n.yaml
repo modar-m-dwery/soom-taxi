@@ -1,0 +1,6 @@
+arb-dir: lib/src/l10n
+template-arb-file: app_ar.arb
+output-localization-file: soum_strings.dart
+output-class: SoumStrings
+output-dir: lib/src/l10n/generated
+nullable-getter: false

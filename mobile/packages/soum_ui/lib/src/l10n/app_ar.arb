@@ -1,0 +1,704 @@
+{
+  "@@locale": "ar",
+  "appNameCustomer": "سووم تكسي",
+  "appNameDriver": "سووم تكسي — سائق",
+  "actionRetry": "أعد المحاولة",
+  "actionCancel": "إلغاء",
+  "actionConfirm": "تأكيد",
+  "actionContinue": "متابعة",
+  "actionClose": "إغلاق",
+  "actionBack": "رجوع",
+  "actionEdit": "تعديل",
+  "bootLoadingConfig": "نقرأ إعدادات مدينتك…",
+  "bootLoadingSession": "نستعيد جلستك…",
+  "bootRestoringRide": "نعيدك إلى رحلتك…",
+  "bootNoConnection": "لا اتصال بالإنترنت",
+  "bootNoConnectionBody": "نحتاج اتصالًا مرّة واحدة لقراءة إعدادات مدينتك. تحقّق من شبكتك ثمّ أعد المحاولة.",
+  "bootOutsideServiceArea": "خارج مناطق الخدمة",
+  "bootOutsideServiceAreaBody": "لا نخدم موقعك الحالي بعد. تستطيع تصفّح التطبيق، لكن لن تجد سيارات قريبة.",
+  "authPhoneTitle": "أدخل رقم هاتفك",
+  "authPhoneSubtitle": "سنرسل لك رمزًا من أربعة إلى ستّة أرقام للتحقّق.",
+  "authPhoneLabel": "رقم الهاتف",
+  "authPhoneHint": "9XXXXXXXX",
+  "authPhoneInvalid": "أدخل رقمًا سوريًّا صحيحًا",
+  "authSendCode": "أرسل الرمز",
+  "authCodeTitle": "أدخل الرمز",
+  "authCodeSubtitle": "أرسلنا رمزًا إلى {phone}",
+  "@authCodeSubtitle": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "authCodeLabel": "رمز التحقّق",
+  "authCodeInvalid": "الرمز غير مكتمل",
+  "authVerify": "تحقّق",
+  "authResendIn": "إعادة الإرسال بعد {seconds} ثانية",
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authResend": "أعد إرسال الرمز",
+  "authChangePhone": "غيّر الرقم",
+  "authDevelopmentCode": "رمز التطوير: {code}",
+  "@authDevelopmentCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "authCodeExpiresIn": "ينتهي الرمز بعد {seconds} ثانية",
+  "@authCodeExpiresIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authThrottled": "تجاوزتَ عدد المحاولات. أعد المحاولة بعد {seconds} ثانية.",
+  "@authThrottled": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNetwork": "لا اتصال بالإنترنت",
+  "errorNetworkBody": "تحقّق من شبكتك ثمّ أعد المحاولة.",
+  "errorGeneric": "تعذّر إتمام العملية",
+  "errorSupportReference": "رقم المرجع: {requestId}",
+  "@errorSupportReference": {
+    "placeholders": {
+      "requestId": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionExpiredTitle": "انتهت جلستك",
+  "sessionExpiredBody": "سجّل الدخول مرّة أخرى للمتابعة.",
+  "logout": "تسجيل الخروج",
+  "logoutConfirm": "هل تريد تسجيل الخروج؟",
+  "currencySyp": "ل.س",
+  "fareApproximate": "سعر تقريبي",
+  "fareRouted": "سعر المسار",
+  "fareBreakdownTitle": "تفصيل الأجرة",
+  "fareBase": "الأجرة الأساسية",
+  "fareDistance": "المسافة",
+  "fareTime": "الزمن",
+  "fareGross": "الإجمالي",
+  "farePlatformFee": "عمولة المنصّة",
+  "fareCustomerTotal": "ما تدفعه",
+  "fareDriverNet": "ما يقبضه السائق",
+  "fareApproximateNote": "تعذّر حساب المسار الفعليّ، فهذا تقدير قد يختلف قليلًا.",
+  "homeWhereTo": "إلى أين؟",
+  "homePickup": "نقطة الانطلاق",
+  "homeDestination": "الوجهة",
+  "homeSetOnMap": "حدّد على الخريطة",
+  "homeMyLocation": "موقعي",
+  "homeCarsNearby": "{count,plural, =0{لا سيارات قريبة} =1{سيارة واحدة قريبة} =2{سيارتان قريبتان} few{{count} سيارات قريبة} other{{count} سيارة قريبة}}",
+  "@homeCarsNearby": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoCarsInRange": "لا سيارات ضمن {km} كم",
+  "@homeNoCarsInRange": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOutsideArea": "أنت خارج مناطق الخدمة",
+  "homeLocating": "نحدّد موقعك…",
+  "modeFast": "سريع",
+  "modeFastHint": "أقرب سائق، وخريطة حيّة ودعوة مباشرة",
+  "modeExpress": "فوري",
+  "modeExpressHint": "الأسرع، بدعوة مباشرة",
+  "modeStandard": "عادي",
+  "modeStandardHint": "التوازن المعتاد بين السعر والزمن",
+  "modeSaving": "اقتصادي",
+  "modeSavingHint": "الأرخص، بنطاق أوسع وانتظار أطول",
+  "modeShared": "مشترك",
+  "modeSharedHint": "تنضمّ إلى رحلة قائمة وتتقاسم الأجرة",
+  "categoryCity": "داخل المدينة",
+  "categoryIntercity": "بين المدينتين",
+  "categoryServiceLine": "خطّ سرفيس",
+  "categoryRecreational": "رحلة ترفيهية",
+  "cityOrigin": "مدينة الانطلاق",
+  "cityDestination": "مدينة الوصول",
+  "cityRequired": "مطلوبة لهذا النوع",
+  "passengers": "{count,plural, =1{راكب واحد} =2{راكبان} few{{count} ركّاب} other{{count} راكبًا}}",
+  "@passengers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vehicleAny": "أي سيارة",
+  "requestRide": "اطلب الرحلة",
+  "scheduleFor": "احجز لوقت لاحق",
+  "searchingTitle": "نبحث عن سائق",
+  "searchingSubtitle": "ضمن {km} كم من نقطة انطلاقك",
+  "@searchingSubtitle": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "searchingTimeLeft": "{seconds} ثانية",
+  "@searchingTimeLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "offersTitle": "{count,plural, =1{عرض واحد} =2{عرضان} few{{count} عروض} other{{count} عرضًا}}",
+  "@offersTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offersEmpty": "لم يصل عرض بعد",
+  "offerEta": "{minutes} دقيقة",
+  "@offerEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "offerChoose": "اختر",
+  "offerTaken": "هذه السيارة لم تعد متاحة. اختر غيرها.",
+  "rideExpired": "لم نجد سائقًا",
+  "rideExpiredBody": "انتهت مهلة البحث بلا عرض. جرّب نمطًا أوسع أو أعد المحاولة.",
+  "rideCancelled": "أُلغي الطلب",
+  "cancelRide": "ألغِ الطلب",
+  "inviteTitle": "ادعُ سيارة بعينها",
+  "inviteSend": "ادعُ",
+  "inviteWaiting": "بانتظار ردّ السائق",
+  "inviteTtl": "مهلة الردّ",
+  "inviteRejected": "اعتذر السائق. اختر سيارة أخرى.",
+  "inviteExpired": "انقضت المهلة بلا ردّ",
+  "inviteCancel": "ألغِ الدعوة",
+  "inviteSeatsAvailable": "{count} مقعد متاح",
+  "@inviteSeatsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inviteDistance": "{meters} متر تقريبًا",
+  "@inviteDistance": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "tripDriverAssigned": "تأكّدت رحلتك",
+  "tripDriverArriving": "السائق في الطريق إليك",
+  "tripDriverArrived": "سائقك بانتظارك",
+  "tripInProgress": "في الطريق إلى وجهتك",
+  "tripCompleted": "وصلت",
+  "tripCancelledBy": "أُلغيت الرحلة",
+  "tripCallDriver": "اتّصل بالسائق",
+  "tripCancelTrip": "ألغِ الرحلة",
+  "tripPlate": "اللوحة",
+  "paymentTitle": "الدفع",
+  "paymentCashWaiting": "بانتظار تأكيد السائق قبض المبلغ",
+  "paymentCashNote": "ادفع للسائق نقدًا. هو من يؤكّد القبض في تطبيقه.",
+  "paymentPaid": "تمّ الدفع",
+  "paymentAmount": "المبلغ",
+  "rateTitle": "كيف كانت رحلتك؟",
+  "rateSubmit": "أرسل التقييم",
+  "rateReasonRequired": "اختر سببًا أو اكتب تعليقًا",
+  "rateComment": "تعليق (اختياري)",
+  "rateThanks": "شكرًا لتقييمك",
+  "rateAlready": "قيّمتَ هذه الرحلة من قبل",
+  "complaintOpen": "قدّم شكوى",
+  "complaintDescription": "اشرح ما حدث",
+  "complaintSubmit": "أرسل الشكوى",
+  "historyTitle": "رحلاتي",
+  "historyEmpty": "لا رحلات بعد",
+  "historyViewPath": "اعرض المسار",
+  "skip": "تخطَّ",
+  "done": "تمّ",
+  "unitKm": "{value} كم",
+  "@unitKm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "unitMinutes": "{value} د",
+  "@unitMinutes": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "routeSummary": "{km} · {minutes}",
+  "@routeSummary": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "complaintCategory": "نوع الشكوى",
+  "complaintCatFare": "الأجرة",
+  "complaintCatDriver": "سلوك السائق",
+  "complaintCatSafety": "السلامة",
+  "complaintCatLostItem": "غرض منسيّ",
+  "complaintCatOther": "أخرى",
+  "complaintSent": "وصلت شكواك. سنتابعها.",
+  "complaintWindow": "تستطيع تقديم شكوى خلال ٣٠ يومًا من الرحلة.",
+  "driverGoOnline": "ابدأ العمل",
+  "driverGoOffline": "أنهِ العمل",
+  "driverConnecting": "نوصلك…",
+  "driverOffline": "متوقّف",
+  "driverOnlineNoHeartbeat": "متّصل — بانتظار أوّل نبضة موقع",
+  "driverOnlineNoHeartbeatHint": "لن تصلك طلبات حتّى يستقبل الخادم موقعك.",
+  "driverMatchable": "تعمل الآن",
+  "driverMatchableHint": "تظهر للزبائن وتصلك الطلبات.",
+  "driverStale": "انقطع النبض",
+  "driverStaleHint": "خرجت من الأسطول المرئي. نعيد الاتّصال…",
+  "driverLocationNeeded": "نحتاج إذن الموقع لتعمل",
+  "driverNotEligible": "لا تستطيع العمل بعد",
+  "onboardTitle": "لتبدأ العمل",
+  "onboardBecomeDriver": "حوّل حسابك إلى سائق",
+  "onboardAddVehicle": "سجّل مركبتك",
+  "onboardDocuments": "ارفع الوثائق الأربع",
+  "onboardPendingReview": "بانتظار مراجعة الإدارة",
+  "onboardStepDone": "اكتمل",
+  "vehicleTitle": "مركبتي",
+  "vehicleAdd": "سجّل مركبة",
+  "vehicleType": "الفئة",
+  "vehicleMake": "الصانع",
+  "vehicleModel": "الطراز",
+  "vehicleYear": "سنة الصنع",
+  "vehicleColor": "اللون",
+  "vehiclePlate": "رقم اللوحة",
+  "vehicleSeats": "عدد المقاعد",
+  "vehicleActive": "فعّالة",
+  "vehicleActivate": "فعّل",
+  "vehicleDeactivate": "عطّل",
+  "vehicleSaved": "حُفظت المركبة",
+  "docsTitle": "وثائقي",
+  "docNationalId": "الهويّة",
+  "docDriverLicense": "رخصة القيادة",
+  "docVehicleRegistration": "دفتر المركبة",
+  "docInsurance": "التأمين",
+  "docUpload": "ارفع",
+  "docReplace": "استبدل",
+  "docPending": "قيد المراجعة",
+  "docApproved": "مقبولة",
+  "docRejected": "مرفوضة",
+  "docExpired": "منتهية",
+  "docExpiresOn": "تنتهي في {date}",
+  "@docExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "docUploading": "يُرفع…",
+  "workCandidates": "الطلبات المتاحة",
+  "workNoCandidates": "لا طلبات الآن",
+  "workNoCandidatesHint": "ستظهر الطلبات القريبة منك هنا فور وصولها.",
+  "workOfferTitle": "قدّم عرضك",
+  "workOfferPrice": "السعر",
+  "workOfferEta": "زمن الوصول بالدقائق",
+  "workOfferSend": "أرسل العرض",
+  "workOfferSent": "أُرسل عرضك",
+  "workFareRange": "بين {min} و {max}",
+  "@workFareRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "workFareOutOfRange": "السعر خارج الممرّ المسموح",
+  "workDistanceToPickup": "{km} إلى نقطة الالتقاء",
+  "@workDistanceToPickup": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "invitationIncoming": "دعوة واردة",
+  "invitationAccept": "اقبل",
+  "invitationReject": "ارفض",
+  "invitationRejectReason": "سبب الرفض (اختياري)",
+  "invitationGone": "لم تعد الدعوة صالحة",
+  "runArrived": "وصلتُ",
+  "runStart": "ابدأ الرحلة",
+  "runComplete": "أنهِ الرحلة",
+  "runTooFarPickup": "اقترب أكثر: عليك أن تكون ضمن {meters} متر من نقطة الالتقاء",
+  "@runTooFarPickup": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "runTooFarDropoff": "عليك أن تكون ضمن {meters} متر من الوجهة",
+  "@runTooFarDropoff": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "runRemaining": "تبقّى {meters} متر",
+  "@runRemaining": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "runToPickup": "إلى نقطة الالتقاء",
+  "runToDestination": "إلى الوجهة",
+  "runPassenger": "الراكب",
+  "collectTitle": "تحصيل الأجرة",
+  "collectConfirm": "استلمتُ المبلغ",
+  "collectDone": "سُجّل التحصيل",
+  "collectNote": "أنت وحدك من يؤكّد قبض النقد. لا يستطيع الزبون ذلك.",
+  "balanceTitle": "رصيدي",
+  "balanceTotal": "الإجمالي",
+  "publishTitle": "انشر رحلة",
+  "publishCapacity": "المقاعد",
+  "publishPricePerSeat": "سعر المقعد",
+  "publishWhen": "الموعد",
+  "publishSubmit": "انشر",
+  "publishDone": "نُشرت الرحلة",
+  "publishTitleField": "عنوان الرحلة",
+  "sharedTitle": "رحلات مشتركة قريبة",
+  "sharedNone": "لا رحلات مشتركة متاحة الآن",
+  "sharedJoin": "انضمّ",
+  "sharedCompatibility": "توافق {score}٪",
+  "@sharedCompatibility": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedSeatsLeft": "{count,plural, =1{مقعد واحد متبقٍّ} =2{مقعدان متبقّيان} few{{count} مقاعد متبقّية} other{{count} مقعدًا متبقّيًا}}",
+  "@sharedSeatsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sharedOnboard": "على المتن: {male} رجل · {female} امرأة",
+  "@sharedOnboard": {
+    "placeholders": {
+      "male": {
+        "type": "int"
+      },
+      "female": {
+        "type": "int"
+      }
+    }
+  },
+  "sharedJoined": "انضممتَ إلى الرحلة",
+  "sharedFull": "امتلأت المقاعد. اختر رحلة أخرى.",
+  "catalogTitle": "سفريات ورحلات منشورة",
+  "catalogEmpty": "لا رحلات منشورة الآن",
+  "catalogBook": "احجز مقعدًا",
+  "catalogBooked": "حُجز مقعدك",
+  "catalogPricePerSeat": "للمقعد",
+  "catalogDeparts": "ينطلق {when}",
+  "@catalogDeparts": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogFilterAll": "الكلّ",
+  "notificationsTitle": "الإشعارات",
+  "notificationsEmpty": "لا إشعارات",
+  "channelsTitle": "قنوات التنبيه",
+  "channelsHint": "أوّل قناة تُسلّم توقف السلسلة، فلا يصلك الخبر ثلاث مرّات.",
+  "channelPush": "إشعار الدفع",
+  "channelTelegram": "تليغرام",
+  "channelSms": "رسالة نصّية",
+  "channelLink": "اربط",
+  "channelUnlink": "افصل",
+  "channelLinked": "مربوط",
+  "channelNotLinked": "غير مربوط",
+  "channelTelegramOpening": "نفتح تليغرام… اضغط «ابدأ» هناك.",
+  "channelTelegramLinked": "رُبط تليغرام",
+  "channelPriority": "الأولوية",
+  "paymentDiscountFirstRide": "خصم أوّل مشوار",
+  "paymentDiscountCredit": "رصيد الدعوات",
+  "paymentDiscount": "الخصم",
+  "paymentSubtotal": "الأجرة",
+  "perksTitle": "اشتراك الصباح والدعوات",
+  "perksSubscriptionsSection": "اشتراك الصباح",
+  "perksSubscriptionsEmpty": "لا اشتراك بعد. أضف مشوارك اليوميّ ونرسل السيارة كلّ يوم قبل الموعد.",
+  "perksSubscriptionAdd": "اشتراك جديد",
+  "perksSubscriptionLabel": "اسم الاشتراك (اختياريّ)",
+  "perksSubscriptionLabelHint": "إلى الجامعة",
+  "perksSubscriptionTime": "موعد الانطلاق",
+  "perksSubscriptionDays": "الأيام",
+  "perksSubscriptionPickup": "نقطة الانطلاق: موقعك الآن",
+  "perksSubscriptionDestination": "الوجهة",
+  "perksSubscriptionPickDestination": "اختر الوجهة من الخريطة",
+  "perksSubscriptionDestinationSet": "الوجهة محدّدة",
+  "perksSubscriptionNext": "الطلب القادم: {when}",
+  "@perksSubscriptionNext": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "perksSubscriptionPaused": "متوقّف",
+  "perksSubscriptionCancel": "إلغاء الاشتراك",
+  "perksSubscriptionCancelConfirm": "نلغي هذا الاشتراك؟ لن نُنشئ طلبًا له بعد الآن.",
+  "perksSubscriptionCreated": "أُنشئ الاشتراك. سنطلب لك سيارة قبل الموعد بنصف ساعة.",
+  "perksSubscriptionNeedDestination": "حدّد الوجهة أوّلًا.",
+  "perksReferralSection": "زبون يجلب زبونًا",
+  "perksReferralMyCode": "رمز دعوتي",
+  "perksReferralExplain": "شارك رمزك مع صديق. بعد أوّل مشوار له يحصل كلاكما على رصيد يُخصم من الرحلة التالية.",
+  "perksReferralShare": "مشاركة الرمز",
+  "perksReferralShareText": "جرّب سووم تكسي — أدخل رمز دعوتي {code} قبل أوّل مشوار لك ونحصل معًا على رصيد.",
+  "@perksReferralShareText": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksReferralCopied": "نُسخ الرمز",
+  "perksReferralEnter": "أدخل رمز صديق",
+  "perksReferralEnterHint": "مثل ABC123",
+  "perksReferralApply": "تفعيل",
+  "perksReferralApplied": "فُعّل رمز {code}. الرصيد يصلكما بعد أوّل مشوار.",
+  "@perksReferralApplied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksReferralLinked": "دعاك: {code}",
+  "@perksReferralLinked": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "perksCreditBalance": "رصيدك",
+  "perksFirstRideAvailable": "أوّل مشوار لك بنصف السعر — الخصم يُطبَّق تلقائيًّا عند الدفع.",
+  "perksFirstRideUsed": "استُخدم خصم أوّل مشوار.",
+  "dayMon": "الاثنين",
+  "dayTue": "الثلاثاء",
+  "dayWed": "الأربعاء",
+  "dayThu": "الخميس",
+  "dayFri": "الجمعة",
+  "daySat": "السبت",
+  "daySun": "الأحد",
+  "listSeparator": "، ",
+  "perksNextFormat": "EEEE d MMM، HH:mm",
+  "balanceOwedToYou": "تدين لك سووم بهذا المبلغ — خصوماتٌ تحمّلتها عن زبائنك",
+  "balanceYouOwe": "عليك للمنصّة",
+  "balanceLifetimeEarned": "مجموع ما كسبته",
+  "balanceLifetimeCommission": "مجموع العمولة",
+  "balanceZero": "لا شيء معلّق بينك وبين المنصّة",
+  "collectDiscountNote": "الزبون يدفع {customer} بعد خصم سووم، والباقي {rest} يُضاف إلى رصيدك عند المنصّة. أجرتك كاملة {net}.",
+  "@collectDiscountNote": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      },
+      "rest": {
+        "type": "String"
+      },
+      "net": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleNow": "الآن",
+  "scheduleLater": "في موعد",
+  "scheduleFormat": "EEEE d MMM، HH:mm",
+  "scheduleTooSoon": "اختر موعدًا بعد عشر دقائق على الأقلّ — وإلّا اطلب الآن.",
+  "requestScheduledRide": "احجز الموعد",
+  "upcomingTitle": "موعدك: {when}",
+  "@upcomingTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "upcomingWaiting": "بانتظار عروض السائقين — نخبرك حين يصل عرض.",
+  "upcomingConfirmed": "سائقك مؤكَّد. سنذكّرك قبل الموعد.",
+  "historyStatusCancelled": "أُلغيت",
+  "historyStatusDisputed": "قيد المراجعة",
+  "historyStatusUpcoming": "قادمة",
+  "driverBookingTitle": "حجز: {when}",
+  "@driverBookingTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "driverBookingOpen": "توجّه",
+  "dispatchOffers": "عروض",
+  "dispatchOffersHint": "السائقون يرسلون أسعارهم وأنت تختار",
+  "dispatchNearest": "الأقرب",
+  "dispatchNearestHint": "أقرب سائق يُرسَل إليك تلقائيًّا",
+  "dispatchPick": "اختر سيارتك",
+  "dispatchPickHint": "المس السيارة التي تريدها على الخريطة",
+  "pickTapCar": "المس سيارة على الخريطة لتختارها",
+  "pickSelected": "{name} · {vehicle}",
+  "@pickSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "vehicle": {
+        "type": "String"
+      }
+    }
+  },
+  "searchRadiusLabel": "نطاق البحث",
+  "radiusKm": "{km} كم",
+  "@radiusKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "radiusMeters": "{meters} م",
+  "@radiusMeters": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "nearestTitle": "نبحث عن أقرب سائق",
+  "nearestLooking": "نسأل أقرب السائقين بالترتيب…",
+  "nearestAsking": "ننتظر ردّ أقرب سائق — ثوانٍ قليلة",
+  "nearestExhausted": "لم يقبل أحدٌ بعد — العروض مفتوحة الآن",
+  "requestNearest": "أرسل أقرب سائق",
+  "requestPicked": "اطلب هذه السيارة",
+  "moreOptions": "خيارات أكثر",
+  "serviceClass": "الدرجة",
+  "carPassengers": "{count} ركّاب",
+  "@carPassengers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "carNew": "جديد",
+  "runCancel": "ألغِ الرحلة",
+  "runCancelTitle": "لماذا تلغي؟",
+  "runCancelWarning": "الطلب يعود للبحث عند الزبون. الإلغاء المتكرّر يوقف العروض عنك مؤقّتًا.",
+  "cancelReasonCar": "عطل بالسيارة",
+  "cancelReasonNoAnswer": "الزبون لا يردّ",
+  "cancelReasonFar": "المكان بعيد أو الطريق مغلق",
+  "cancelReasonOther": "سبب آخر",
+  "passengerChip": "{name} · {count} ركّاب",
+  "@passengerChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lateCancelBadge": "ألغى {count} مرّات مؤخرًا",
+  "@lateCancelBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelFreeNow": "الإلغاء الآن مجّاني.",
+  "cancelDriverLateFree": "السائق تأخّر عن موعده — الإلغاء مجّاني.",
+  "cancelCountsStrike": "سيُحسب هذا الإلغاء مخالفة. عند {limit} مخالفات خلال أسبوع يتوقّف «الأقرب» و«اختر سيارتك» عنك يومًا.",
+  "@cancelCountsStrike": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "driverCancelledRequeued": "السائق اعتذر — نبحث لك عن سائق آخر الآن.",
+  "shareRide": "شارك الرحلة",
+  "shareRideHint": "أرخص: تتقاسم السيارة مع ركّاب بطريقك",
+  "callDriver": "اتّصل بالسائق",
+  "callCustomer": "اتّصل بالزبون",
+  "serviceSoon": "قريبًا",
+  "serviceComingSoon": "«{name}» قريبًا في سووم — ترقّبها.",
+  "@serviceComingSoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "incentivesTitle": "الحوافز",
+  "incentiveRemaining": "بقي {count} مشوارًا لتحصل على {reward}",
+  "incentiveEarned": "استحققت {reward} — تُسلَّم من مكتب سووم",
+  "incentiveDelivered": "سُلّمت المكافأة — شكرًا لك",
+  "@incentiveRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
+  "@incentiveEarned": {
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  }
+}
