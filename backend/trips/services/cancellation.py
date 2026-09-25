@@ -72,7 +72,7 @@ class CancellationPolicy:
         return CancellationKind.LATE, 1
 
     @classmethod
-    def record(cls, trip, actor, kind, strikes, reason=""):
+    def record(cls, trip, actor, kind, strikes, reason="", reason_code=""):
         return CancellationRecord.objects.create(
             ride=trip.ride,
             trip=trip,
@@ -82,6 +82,7 @@ class CancellationPolicy:
             kind=kind,
             strikes=strikes,
             reason=(reason or "")[:255],
+            reason_code=reason_code or "",
         )
 
     # ------------------------------------------------------------------

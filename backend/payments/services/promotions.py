@@ -48,6 +48,13 @@ class PromotionService:
         if total <= ZERO:
             return ZERO, ""
 
+        # حسابٌ مقيّد بكشف الغش لا يحصد خصمًا ولا رصيدًا — الأرصدة تبقى له
+        # وتعود صالحة متى رُفع التقييد.
+        from integrity.services.scoring import IntegrityService
+
+        if IntegrityService.is_restricted(customer):
+            return ZERO, ""
+
         profile = getattr(customer, "customer_profile", None)
 
         discount = cls._first_ride_discount(customer, profile, service_area, total)

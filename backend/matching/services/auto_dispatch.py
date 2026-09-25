@@ -80,9 +80,16 @@ class AutoDispatchService:
             cls._exhaust(ride, reason="max_attempts")
             return None
 
+        # سائقٌ قيّده كشف الغش لا يُدعى آليًّا — يبقى له مزاد العروض.
+        from integrity.services.scoring import IntegrityService
+
+        restricted = IntegrityService.restricted_driver_ids()
+
         # مرتّبة بالأقرب — نفس القائمة التي يراها الزبون على خريطته.
         for vehicle in NearbyVehiclesService.for_ride(ride):
             driver_id = vehicle["driver_id"]
+            if driver_id in restricted:
+                continue
             # سيارةٌ فيها ركّاب تصلح لطلب مشترك وحده — والقائمة نفسها لا
             # تُرجعها لغيره أصلًا؛ الفحص هنا حزامُ أمان.
             if driver_id in tried or (

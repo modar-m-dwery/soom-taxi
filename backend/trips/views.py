@@ -251,6 +251,7 @@ class CustomerCancelTripView(APIView):
                 ride_id=ride_id,
                 actor="customer",
                 reason=serializer.validated_data.get("reason", ""),
+                reason_code=serializer.validated_data.get("reason_code", ""),
             )
         except TripError as exc:
             return Response(

@@ -80,6 +80,13 @@ class IncentiveService:
         from notifications.models import AppKind
         from notifications.services.dispatch import NotificationService
 
+        # مكافأةٌ على رحلاتٍ قد تكون وهميّة تُحجب حتّى يراجعها موظّف؛ التقييم
+        # اليوميّ يمنحها لاحقًا إن رُفع التقييد والفترة لم تنتهِ.
+        from integrity.services.scoring import IntegrityService
+
+        if IntegrityService.is_restricted(driver.user):
+            return []
+
         granted = []
         for program in cls.programs_for(driver):
             if program.min_rating is not None and (

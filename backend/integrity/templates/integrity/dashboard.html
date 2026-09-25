@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سووم — النزاهة</title>
+<style>
+  :root { --brand:#FFC800; --ink:#17150F; --paper:#F7F5EE; --card:#fff; --line:#E6E1D2; --muted:#6B675A; --bad:#B3261E; --warn:#B35C00; --watch:#8A6D00; --good:#2C6E49; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"IBM Plex Sans Arabic", Tahoma, sans-serif; background:var(--paper); color:var(--ink); }
+  header { background:var(--ink); color:var(--brand); padding:14px 20px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:20px; margin:0; }
+  header a { color:#fff; opacity:.85; font-size:14px; }
+  header form { margin-inline-start:auto; display:flex; gap:8px; }
+  header select, header button { font:inherit; padding:6px 10px; border-radius:8px; border:0; }
+  header button { background:var(--brand); color:var(--ink); font-weight:700; cursor:pointer; }
+  main { padding:16px; display:grid; gap:16px; max-width:1200px; margin:0 auto; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .kpi small { color:var(--muted); display:block; }
+  .kpi b { font-size:26px; font-variant-numeric:tabular-nums; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; overflow-x:auto; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .card p.hint { color:var(--muted); margin:0 0 12px; font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { padding:7px 6px; border-bottom:1px solid var(--line); text-align:start; }
+  th { color:var(--muted); font-weight:600; font-size:12.5px; white-space:nowrap; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .kind { display:grid; grid-template-columns:minmax(160px,1.2fr) 3fr auto; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); }
+  .kind .bar { height:10px; background:var(--line); border-radius:5px; overflow:hidden; }
+  .kind .bar i { display:block; height:10px; background:var(--ink); }
+  .kind small { color:var(--muted); display:block; font-size:12px; }
+  .lvl { font-weight:700; }
+  .lvl.restricted { color:var(--bad); } .lvl.review { color:var(--warn); } .lvl.watch { color:var(--watch); } .lvl.clear { color:var(--good); }
+  .phone { direction:ltr; unicode-bidi:embed; }
+  code { font-size:12px; color:var(--muted); }
+  a { color:var(--ink); }
+  .empty { color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>سووم · النزاهة</h1>
+  <a href="{% url 'admin:integrity_riskcase_changelist' %}?status__exact=open">القضايا المفتوحة</a>
+  <a href="{% url 'admin:integrity_riskprofile_changelist' %}">ملفّات الخطر</a>
+  <a href="{% url 'admin:integrity_risksignal_changelist' %}">الإشارات</a>
+  <a href="{% url 'growth-dashboard' %}">النموّ</a>
+  <form method="get">
+    <select name="days">
+      <option value="1" {% if days == 1 %}selected{% endif %}>اليوم</option>
+      <option value="7" {% if days == 7 %}selected{% endif %}>٧ أيّام</option>
+      <option value="30" {% if days == 30 %}selected{% endif %}>٣٠ يومًا</option>
+      <option value="90" {% if days == 90 %}selected{% endif %}>٩٠ يومًا</option>
+    </select>
+    <button type="submit">عرض</button>
+  </form>
+</header>
+<main>
+  <section class="kpis">
+    <div class="kpi"><small>قضايا مفتوحة</small><b>{{ kpis.open_cases }}</b></div>
+    <div class="kpi"><small>حسابات مقيّدة</small><b class="lvl restricted">{{ kpis.restricted }}</b></div>
+    <div class="kpi"><small>بحاجة مراجعة</small><b class="lvl review">{{ kpis.review }}</b></div>
+    <div class="kpi"><small>تحت المراقبة</small><b class="lvl watch">{{ kpis.watch }}</b></div>
+    <div class="kpi"><small>إشارات بالفترة</small><b>{{ kpis.signals }}</b></div>
+  </section>
+
+  <section class="card">
+    <h2>أنماط الغش بالفترة</h2>
+    <p class="hint">عدد الإشارات لكلّ نمط وعدد الحسابات. تحت كلّ نمط: ما الذي يجب فحصه قبل الحكم.</p>
+    {% for row in by_kind %}
+      <div class="kind">
+        <div>{{ row.label }}<small>{{ row.advice }}</small></div>
+        <div class="bar"><i style="width: {{ row.pct }}%"></i></div>
+        <div class="num">{{ row.n }} إشارة · {{ row.accounts }} حساب</div>
+      </div>
+    {% empty %}
+      <p class="empty">لا إشارات في هذه الفترة.</p>
+    {% endfor %}
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>أعلى الحسابات خطرًا</h2>
+      <p class="hint">النقاط تتلاشى بنصف وزنها كلّ أسبوعين — من توقّف عن الغش يعود سليمًا.</p>
+      <table>
+        <thead><tr><th>الحساب</th><th>الدور</th><th>النقاط</th><th>المستوى</th><th>إشارات</th></tr></thead>
+        <tbody>
+        {% for p in top_profiles %}
+          <tr>
+            <td><a href="{% url 'admin:integrity_riskprofile_change' p.pk %}">{{ p.user.name|default:"—" }}</a> <span class="phone">{{ p.user.phone }}</span></td>
+            <td>{{ p.user.get_role_display }}</td>
+            <td class="num">{{ p.score }}</td>
+            <td><span class="lvl {{ p.level }}">{{ p.get_level_display }}</span>{% if p.manual_level %} · قرار: {{ p.get_manual_level_display }}{% endif %}</td>
+            <td class="num">{{ p.signals_count }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty">لا حسابات فوق «سليم».</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>القضايا المفتوحة</h2>
+      <p class="hint">من الأدمن: «أكّد الغش» يبقي التقييد بقرار بشريّ، و«إنذار كاذب» يسقط الإشارات.</p>
+      <table>
+        <thead><tr><th>الحساب</th><th>النقاط</th><th>السبب</th><th>منذ</th></tr></thead>
+        <tbody>
+        {% for c in open_cases %}
+          <tr>
+            <td><a href="{% url 'admin:integrity_riskcase_change' c.pk %}">{{ c.user.name|default:"—" }}</a> <span class="phone">{{ c.user.phone }}</span></td>
+            <td class="num">{{ c.score_at_open }}</td>
+            <td>{{ c.reason }}</td>
+            <td class="num">{{ c.opened_at|timesince }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="empty">لا قضايا مفتوحة.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>آخر الإشارات</h2>
+    <table>
+      <thead><tr><th>الوقت</th><th>النمط</th><th>الحساب</th><th>الطرف الآخر</th><th>الوزن</th><th>الدليل</th></tr></thead>
+      <tbody>
+      {% for s in recent %}
+        <tr>
+          <td class="num">{{ s.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{{ s.kind_label }}</td>
+          <td>{{ s.user.name|default:"—" }} <span class="phone">{{ s.user.phone }}</span></td>
+          <td>{% if s.counterpart %}{{ s.counterpart.name|default:"—" }} <span class="phone">{{ s.counterpart.phone }}</span>{% else %}—{% endif %}</td>
+          <td class="num">{{ s.weight }}</td>
+          <td><code>{{ s.evidence }}</code></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="empty">لا إشارات.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

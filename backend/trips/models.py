@@ -225,6 +225,21 @@ class CancellationKind(models.TextChoices):
     DRIVER = "driver", "ألغاه السائق"
 
 
+class CancelReason(models.TextChoices):
+    """
+    لماذا ألغى الزبون — قائمة قصيرة يختار منها التطبيق. النصّ الحرّ يبقى
+    في `reason` للتفاصيل، والرمز هنا للعدّ والكشف: «السائق طلب منّي الإلغاء»
+    أشهر طريقة للتهرّب من العمولة، ولا تُعدّ من نصٍّ حرّ.
+    """
+    CHANGED_MIND = "changed_mind", "غيّرت رأيي"
+    DRIVER_LATE = "driver_late", "السائق تأخّر"
+    DRIVER_NOT_MOVING = "driver_not_moving", "السائق لا يتحرّك نحوي"
+    DRIVER_ASKED = "driver_asked", "السائق طلب منّي الإلغاء"
+    FOUND_OTHER = "found_other", "وجدت وسيلة أخرى"
+    WRONG_PICKUP = "wrong_pickup", "مكان الالتقاط خطأ"
+    OTHER = "other", "سبب آخر"
+
+
 class CancellationRecord(models.Model):
     """
     كلّ إلغاءٍ بعد تثبيت سائق، مصنَّفًا. منه تُعدّ المخالفات وتُقرّر
@@ -251,6 +266,9 @@ class CancellationRecord(models.Model):
     # 0 للمجّانيّ، 1 للمتأخّر، 2 بعد الانتظار، 1 لإلغاء السائق.
     strikes = models.PositiveSmallIntegerField(default=0)
     reason = models.CharField(max_length=255, blank=True)
+    reason_code = models.CharField(
+        max_length=20, choices=CancelReason.choices, blank=True, default="",
+    )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:

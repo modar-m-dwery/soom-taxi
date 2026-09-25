@@ -122,6 +122,14 @@ class InvitationService:
                     "مؤقّتًا لحسابك. اطلب بالعروض."
                 )
 
+            from integrity.services.scoring import IntegrityService
+
+            if IntegrityService.is_restricted(customer):
+                raise InvitationError(
+                    "اختيار سيارة بعينها متوقّف لحسابك حاليًّا بانتظار مراجعة. "
+                    "اطلب بالعروض."
+                )
+
         # -------------------------------------------------------------
         # المهلة: يختارها الزبون، لكن من قائمة يحددها الأدمن
         # -------------------------------------------------------------

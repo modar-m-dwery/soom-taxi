@@ -419,11 +419,25 @@ class DriverRoomConsumer(BaseAuthenticatedConsumer):
 
         from config.security import location_rejection
 
+        from integrity.services import hooks as integrity_hooks
+
         now_epoch = time.time()
-        reason = location_rejection(
-            lng, lat, getattr(self, "_last_point", None), now_epoch
-        )
+        previous_point = getattr(self, "_last_point", None)
+        reason = location_rejection(lng, lat, previous_point, now_epoch)
+
+        # أندرويد يعلن الموقع المُحاكى (Position.isMocked في Flutter). التطبيق
+        # يرسله `mocked`؛ الاسم الثاني لنسخٍ أرسلته `is_mock`.
+        mocked = bool(content.get("mocked") or content.get("is_mock"))
+        if reason is None and mocked:
+            await sync_to_async(integrity_hooks.on_mock_location)(self.driver_id, lng, lat)
+            if integrity_hooks.reject_mock_locations():
+                reason = "mock_location"
+
         if reason is not None:
+            if reason == "implausible_speed":
+                await sync_to_async(integrity_hooks.on_location_rejected)(
+                    self.driver_id, reason, lng, lat, previous_point
+                )
             # لا يُكتب ولا يُبثّ: موقعٌ مزيَّف يضع السائق قرب طلباتٍ ليس قربها.
             await self.send_json(
                 {"event_type": "location.rejected", "payload": {"reason": reason}}

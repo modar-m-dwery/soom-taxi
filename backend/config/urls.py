@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import admin
 
 from growth.views import GrowthDashboardView
+from integrity.views import IntegrityDashboardView
 from ops.views_console import OpsConsoleView
 from django.urls import include, path
 from django.conf.urls.static import static
@@ -20,6 +21,8 @@ urlpatterns = [
     path("ops/", OpsConsoleView.as_view(), name="ops-console"),
     # النموّ: الطلب والخاملون والعروض — للموظّفين (جلسة الأدمن).
     path("ops/growth/", GrowthDashboardView.as_view(), name="growth-dashboard"),
+    # النزاهة: كشف الغش، القضايا، والحسابات المقيّدة — للموظّفين.
+    path("ops/integrity/", IntegrityDashboardView.as_view(), name="integrity-dashboard"),
     path("api/v1/", include("growth.urls")),
     path("api/v1/", include("ads.urls")),
     path("api/v1/health/", include("health.urls")),

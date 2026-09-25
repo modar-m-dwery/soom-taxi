@@ -351,7 +351,7 @@ class TripService:
 
     @classmethod
     @transaction.atomic
-    def cancel(cls, ride_id, actor="customer", reason="", driver=None):
+    def cancel(cls, ride_id, actor="customer", reason="", driver=None, reason_code=""):
         ride, trip = cls._lock(ride_id, driver)
 
         if trip.status == TripStatus.CANCELLED:
@@ -389,7 +389,7 @@ class TripService:
         )
 
         if kind is not None:
-            CancellationPolicy.record(trip, actor, kind, strikes, reason)
+            CancellationPolicy.record(trip, actor, kind, strikes, reason, reason_code)
 
         if actor == "driver":
             cls._requeue_after_driver_cancel(ride, trip, now)

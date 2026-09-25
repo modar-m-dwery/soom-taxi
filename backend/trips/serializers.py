@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from trips.models import Trip, TripCompletionRecord, TripLocation
+from trips.models import CancelReason, Trip, TripCompletionRecord, TripLocation
 
 
 class TripLocationSerializer(serializers.ModelSerializer):
@@ -79,6 +79,10 @@ class TripSerializer(serializers.ModelSerializer):
 
 class CancelTripSerializer(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    # اختياريّ للتوافق مع النسخ القديمة من التطبيق.
+    reason_code = serializers.ChoiceField(
+        choices=CancelReason.choices, required=False, allow_blank=True,
+    )
 
 
 class DriverCancelTripSerializer(serializers.Serializer):

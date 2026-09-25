@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "notifications",
     "ops",
     "payments",
+    # كشف الغش والتلاعب: إشارات، نقاط خطر، قضايا مراجعة.
+    "integrity",
 ]
 
 MIDDLEWARE = [
@@ -301,6 +303,16 @@ CELERY_BEAT_SCHEDULE = {
     "audit-ledger": {
         "task": "payments.tasks.audit_ledger",
         "schedule": 3600.0,    # يجب أن يعيد صفرًا دائمًا — أي رقم آخر حادثة
+    },
+    # كشف الغش: أنماط لا تُرى إلّا من تجميع أيّام (أجهزة، ثنائيّات، رحلات قصيرة).
+    "integrity-detectors": {
+        "task": "integrity.tasks.run_integrity_detectors",
+        "schedule": 1800.0,
+    },
+    # التلاشي يحدث مع الوقت: من توقّف عن الغش يعود سليمًا وحده.
+    "integrity-recompute": {
+        "task": "integrity.tasks.recompute_risk_scores",
+        "schedule": 21600.0,
     },
 }
 # settings.py
@@ -752,6 +764,24 @@ if DEPLOYMENT_ENV == "production" and OTP_DELIVERY_BACKEND in (
 SMS_ENDPOINT = env("SMS_ENDPOINT", default="")
 SMS_API_KEY = env("SMS_API_KEY", default="")
 SMS_SENDER_ID = env("SMS_SENDER_ID", default="")
+
+
+# -----------------------------------------------------------------
+# النزاهة (كشف الغش) — راجع integrity/
+# -----------------------------------------------------------------
+# عمر النصف لوزن الإشارة: بعده تساوي نصف وزنها.
+INTEGRITY_HALF_LIFE_DAYS = env.float("INTEGRITY_HALF_LIFE_DAYS", default=14)
+# حدود المستويات بالنقاط (0–100). التقييد الآليّ لا يتجاوز «مقيّد» أبدًا:
+# لا حظر بلا إنسان.
+INTEGRITY_LEVEL_THRESHOLDS = {
+    "watch": env.int("INTEGRITY_WATCH_AT", default=20),
+    "review": env.int("INTEGRITY_REVIEW_AT", default=40),
+    "restricted": env.int("INTEGRITY_RESTRICT_AT", default=70),
+}
+# False = النظام يلاحظ ويفتح قضايا فقط، والتقييد قرار موظّف.
+INTEGRITY_AUTO_RESTRICT = env.bool("INTEGRITY_AUTO_RESTRICT", default=True)
+# موقعٌ أعلن أندرويد أنّه مُحاكى (تطبيق Fake GPS) لا يُكتب ولا يُبثّ.
+INTEGRITY_REJECT_MOCK_LOCATIONS = env.bool("INTEGRITY_REJECT_MOCK_LOCATIONS", default=True)
 
 
 # -----------------------------------------------------------------
