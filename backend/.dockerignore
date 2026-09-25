@@ -1,0 +1,53 @@
+# ---------------------------------------------------------------
+# لا تُدخل الأسرار ولا مخلفات التطوير إلى الصورة.
+# غياب هذا الملف كان يعني أن .env (وفيه SECRET_KEY ومسارات ويندوز)
+# ونتائج celerybeat والسجلات كلها تُنسخ داخل الصورة عبر `COPY . .`
+# ---------------------------------------------------------------
+
+# الأسرار — تُمرَّر عبر env_file/secrets وقت التشغيل لا وقت البناء
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.pem
+*.key
+*secrets*
+
+# بايثون
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# جانغو
+db.sqlite3
+staticfiles/
+media/
+logs/
+*.log
+
+# Celery beat state — يجب أن يُبنى داخل الحاوية لا أن يُنسخ من ويندوز
+celerybeat-schedule
+celerybeat-schedule.*
+
+# Git وأدوات المحرر
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ملفات دوكر نفسها
+Dockerfile
+.dockerignore
+compose*.yaml
+compose*.yml

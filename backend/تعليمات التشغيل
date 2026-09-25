@@ -1,0 +1,5 @@
+celery -A config worker -l info -P solo
+celery -A config beat -l info
+daphne -b 0.0.0.0 -p 8001 config.asgi:application
+python.exe .\manage.py runserver
+python manage.py test_sharing_presence_e2e --customer-phone "+96399819335875" --driver-id 5

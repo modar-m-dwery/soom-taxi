@@ -1,0 +1,22 @@
+# ---------------------------------------------------------------
+# تجاوز خاصّ ببيئة الاختبار السحابية — ليس جزءًا من إعداد المشروع.
+#
+# الحاويات هنا خلف بوّابة خروج تفحص TLS ولا تسمح بالخروج المباشر،
+# فتحتاج بروكسي كي تصل إلى مزوّد التوجيه (OSRM). على جهازك العادي
+# لا حاجة إلى هذا الملفّ إطلاقًا.
+#
+#   docker compose -f compose.dev.yaml -f compose.sandbox.yaml up -d
+# ---------------------------------------------------------------
+
+services:
+  web:
+    environment:
+      HTTPS_PROXY: http://172.18.0.1:35063
+      HTTP_PROXY: http://172.18.0.1:35063
+      NO_PROXY: localhost,127.0.0.1,postgres,redis,web
+
+  celery:
+    environment:
+      HTTPS_PROXY: http://172.18.0.1:35063
+      HTTP_PROXY: http://172.18.0.1:35063
+      NO_PROXY: localhost,127.0.0.1,postgres,redis,web

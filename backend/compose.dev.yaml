@@ -1,0 +1,181 @@
+# ---------------------------------------------------------------
+# بيئة التطوير الكاملة داخل دوكر — سوم تاكسي
+#
+#   docker compose -f compose.dev.yaml up -d --build
+#   → Swagger على http://localhost:8000/api/docs/
+#
+# الفرق عن compose.yaml الأصلي: هذا الملفّ يشغّل التطبيق نفسه أيضًا
+# (daphne + celery worker + beat) لا قاعدة البيانات وريديس فقط، ويضيف
+# فحوص جاهزية حقيقية بدل depends_on المجرّد الذي يضمن "بدأت" لا "جاهزة".
+# ---------------------------------------------------------------
+
+name: soum-taxi-dev
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: soum-taxi-backend:dev
+  env_file: .env.docker
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  volumes:
+    # تحميل حيّ للشيفرة: تعديل ملفّ على المضيف ينعكس فورًا بلا إعادة بناء
+    - .:/app
+    # المجلّدات الأربعة التالية أحجام مُسمّاة لا bind mounts، لسببين:
+    #   • الحاوية تعمل بمستخدم uid=10001، وملكية مجلّدات المضيف على لينكس
+    #     تختلف عنه فيفشل أوّل سطر سجلّ بـPermissionError عند الإقلاع
+    #   • /app/run غير موجود أصلًا على المضيف، والـbind mount يحجب ما
+    #     أنشأته الصورة — فلا يجد celery beat مكانًا يكتب فيه جدولته
+    - static_data:/app/staticfiles
+    - media_data:/app/media
+    - app_logs:/app/logs
+    - app_run:/app/run
+    # مفتاح خادم Firebase — للقراءة فقط، من مجلّد خارج المستودع. المسار على
+    # المضيف من FCM_SECRETS_DIR (الافتراض C:/secrets على جهاز التطوير).
+    - ${FCM_SECRETS_DIR:-C:/secrets}:/run/secrets/firebase:ro
+  restart: unless-stopped
+
+services:
+
+  # ------------------------- البنية التحتية -------------------------
+
+  postgres:
+    image: postgis/postgis:16-3.5
+    container_name: taxi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: taxi_backend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password
+    # سقف الاتصالات: الافتراضي 100، وهو ما نفد فعليًّا عند ثمانين مستخدمًا
+    # متزامنًا قبل إضافة تجمّع الاتصالات (1013 خطأ "too many clients").
+    # القاعدة: max_connections >= (عمليّات التطبيق × DB_POOL_MAX) + احتياطي
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+    ports:
+      # 5433 على المضيف حتى لا يصطدم بـPostgreSQL مثبّت محليًا
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d taxi_backend"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    container_name: taxi-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # --------------------------- التطبيق ---------------------------
+
+  web:
+    <<: *app
+    container_name: taxi-web
+    # هذه الخدمة وحدها تُرحِّل قاعدة البيانات — تشغيل migrate من ثلاث
+    # حاويات معًا يفتح سباقًا على جدول django_migrations
+    environment:
+      RUN_MIGRATIONS: "1"
+      SEED_DEMO: "${SEED_DEMO:-1}"
+      LOG_STREAM: web
+    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
+    ports:
+      - "8000:8000"
+
+  celery:
+    <<: *app
+    container_name: taxi-celery
+    environment:
+      LOG_STREAM: celery
+    command: celery -A config worker -l info
+    # فحص الصحّة في الصورة يطلب /api/v1/health/ عبر HTTP، وهو صحيح
+    # لـweb وحدها. العامل لا يرفع خادمًا، فيُستبدل بفحص خاصّ به.
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+  beat:
+    <<: *app
+    container_name: taxi-beat
+    environment:
+      LOG_STREAM: beat
+    # ملفّ الجدولة في /app/run لا في جذر المشروع، وإلا كتبت الحاوية
+    # celerybeat-schedule.* فوق ملفّات المضيف عبر الـbind mount
+    command: >
+      celery -A config beat -l info
+      --schedule /app/run/celerybeat-schedule
+    # beat جدولةٌ فقط: لا خادم ولا طابور يُسأل، فلا فحص صحّة له.
+    # تركُ فحص الصورة يجعله "unhealthy" دائمًا بلا معنى.
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+  # ---------------------- النسخ الاحتياطي ----------------------
+  #
+  # صورة postgres نفسها: pg_dump يجب أن يكون بنسخة الخادم أو أحدث،
+  # واستعمال صورة أقدم يُنتج ملفًّا لا يُستعاد.
+  #
+  #   docker compose -f compose.dev.yaml run --rm backup
+  #   docker compose -f compose.dev.yaml run --rm backup \
+  #       /usr/local/bin/restore.sh /backups/<الملفّ>.dump
+  backup:
+    image: postgis/postgis:16-3.5
+    profiles: ["tools"]          # لا يعمل مع `up` العادي
+    environment:
+      PGPASSWORD: postgres_dev_password
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: taxi_backend
+      DB_USER: postgres
+      BACKUP_RETENTION_DAYS: "7"
+    volumes:
+      - ./docker/backup.sh:/usr/local/bin/backup.sh:ro
+      - ./docker/restore.sh:/usr/local/bin/restore.sh:ro
+      - backups:/backups
+    entrypoint: ["/usr/local/bin/backup.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_data:
+  media_data:
+  app_logs:
+  app_run:
+  backups:

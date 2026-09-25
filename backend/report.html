@@ -1,0 +1,1173 @@
+<title>تدقيق باك إند سوم تاكسي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --paper:#F2F5F4;
+  --surface:#FFFFFF;
+  --surface-2:#EAF0EE;
+  --ink:#0C1A1B;
+  --ink-2:#294142;
+  --muted:#5D6F6E;
+  --rule:#D6E0DE;
+  --rule-2:#C2D2CF;
+  --accent:#0A6B62;
+  --accent-soft:#D5E8E4;
+  --pass:#17693F;
+  --pass-bg:#DFF0E6;
+  --warn:#8F5B06;
+  --warn-bg:#F8EBD4;
+  --fail:#9F2E2E;
+  --fail-bg:#F7E2E0;
+  --shadow:0 1px 2px rgba(12,26,27,.06), 0 8px 24px -16px rgba(12,26,27,.28);
+
+  --f-display:"Reem Kufi","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0A1213;
+    --surface:#111D1E;
+    --surface-2:#162426;
+    --ink:#E1EBE9;
+    --ink-2:#B7C8C6;
+    --muted:#8AA09E;
+    --rule:#223335;
+    --rule-2:#2E4244;
+    --accent:#4FC7B6;
+    --accent-soft:#16302E;
+    --pass:#63C98E;
+    --pass-bg:#12301F;
+    --warn:#E0A94B;
+    --warn-bg:#33260E;
+    --fail:#E58077;
+    --fail-bg:#331A18;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+
+:root[data-theme="dark"]{
+  --paper:#0A1213;
+  --surface:#111D1E;
+  --surface-2:#162426;
+  --ink:#E1EBE9;
+  --ink-2:#B7C8C6;
+  --muted:#8AA09E;
+  --rule:#223335;
+  --rule-2:#2E4244;
+  --accent:#4FC7B6;
+  --accent-soft:#16302E;
+  --pass:#63C98E;
+  --pass-bg:#12301F;
+  --warn:#E0A94B;
+  --warn-bg:#33260E;
+  --fail:#E58077;
+  --fail-bg:#331A18;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+
+html{direction:rtl}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{max-width:940px;margin:0 auto;padding:0 24px 96px}
+
+/* ---------------- masthead ---------------- */
+
+.masthead{
+  border-bottom:2px solid var(--ink);
+  padding:56px 0 26px;
+  margin-bottom:34px;
+}
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 18px;
+  direction:ltr;
+  text-align:right;
+}
+h1{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(34px,5.6vw,52px);
+  line-height:1.18;
+  letter-spacing:-.01em;
+  margin:0 0 14px;
+  text-wrap:balance;
+}
+.standfirst{
+  font-size:18.5px;
+  line-height:1.72;
+  color:var(--ink-2);
+  max-width:64ch;
+  margin:0;
+}
+.byline{
+  display:flex;flex-wrap:wrap;gap:8px 22px;
+  margin-top:24px;
+  font-family:var(--f-mono);
+  font-size:12px;
+  color:var(--muted);
+}
+.byline span{white-space:nowrap}
+
+/* ---------------- verdict ---------------- */
+
+.verdict{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-right:4px solid var(--warn);
+  border-radius:3px;
+  padding:22px 24px;
+  margin-bottom:34px;
+  box-shadow:var(--shadow);
+}
+.verdict.pass{border-right-color:var(--pass)}
+.verdict.pass h2{color:var(--pass)}
+.verdict h2{
+  font-family:var(--f-display);
+  font-size:19px;font-weight:600;
+  margin:0 0 8px;color:var(--warn);
+}
+.verdict p{margin:0 0 10px;max-width:70ch;color:var(--ink-2)}
+.verdict p:last-child{margin-bottom:0}
+
+/* ---------------- status strip ---------------- */
+
+.strip{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+  border-radius:3px;
+  overflow:hidden;
+  margin-bottom:52px;
+}
+.stat{background:var(--surface);padding:18px 20px}
+.stat .k{
+  font-family:var(--f-mono);
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px;
+}
+.stat .v{
+  font-family:var(--f-display);
+  font-size:26px;font-weight:600;line-height:1.1;margin:0;
+  font-variant-numeric:tabular-nums;
+}
+.stat .n{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.v.ok{color:var(--pass)}
+.v.no{color:var(--fail)}
+
+/* ---------------- sections ---------------- */
+
+section{margin-bottom:56px;scroll-margin-top:20px}
+
+h2.sec{
+  font-family:var(--f-display);
+  font-size:13px;font-weight:600;
+  letter-spacing:.14em;
+  color:var(--accent);
+  margin:0 0 6px;
+  display:flex;align-items:center;gap:12px;
+}
+h2.sec::after{
+  content:"";flex:1;height:1px;background:var(--rule-2);
+}
+h3.sec-title{
+  font-family:var(--f-display);
+  font-size:28px;font-weight:600;
+  margin:0 0 12px;line-height:1.3;text-wrap:balance;
+}
+.lede{color:var(--ink-2);max-width:70ch;margin:0 0 28px;font-size:16.5px}
+
+/* ---------------- blocker ---------------- */
+
+.hosts{
+  font-family:var(--f-mono);
+  font-size:13.5px;
+  direction:ltr;text-align:left;
+  background:var(--surface-2);
+  border:1px solid var(--rule);
+  border-radius:3px;
+  padding:16px 18px;
+  margin:20px 0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:4px 20px;
+  overflow-x:auto;
+}
+.hosts b{font-weight:500;color:var(--accent)}
+
+pre.term{
+  font-family:var(--f-mono);
+  font-size:12.5px;line-height:1.7;
+  direction:ltr;text-align:left;
+  background:var(--ink);
+  color:#CFE0DD;
+  border-radius:3px;
+  padding:14px 16px;
+  margin:16px 0;
+  overflow-x:auto;
+}
+:root[data-theme="dark"] pre.term,
+:root:not([data-theme="light"]) pre.term{background:#050C0D}
+pre.term .dim{color:#6E8785}
+
+/* ---------------- findings ---------------- */
+
+.finding{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:0 18px;
+  padding:22px 0;
+  border-top:1px solid var(--rule);
+}
+.finding:last-child{border-bottom:1px solid var(--rule)}
+.num{
+  font-family:var(--f-mono);
+  font-size:12px;color:var(--muted);
+  padding-top:5px;font-variant-numeric:tabular-nums;
+}
+.f-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:8px}
+.f-head h4{
+  font-family:var(--f-display);
+  font-size:19px;font-weight:600;margin:0;line-height:1.35;
+}
+.chip{
+  font-family:var(--f-mono);
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:2px;white-space:nowrap;
+  align-self:center;
+}
+.chip.crit{background:var(--fail-bg);color:var(--fail)}
+.chip.high{background:var(--warn-bg);color:var(--warn)}
+.chip.med{background:var(--surface-2);color:var(--muted)}
+.chip.ok{background:var(--pass-bg);color:var(--pass)}
+.f-body p{margin:0 0 8px;max-width:72ch;color:var(--ink-2)}
+.f-body p:last-child{margin-bottom:0}
+.f-body b{color:var(--ink);font-weight:600}
+code{
+  font-family:var(--f-mono);font-size:.88em;
+  background:var(--surface-2);
+  padding:1.5px 5px;border-radius:2px;
+  direction:ltr;display:inline-block;
+  color:var(--ink-2);
+}
+.fix{
+  margin-top:10px;padding-right:14px;
+  border-right:2px solid var(--accent);
+  color:var(--ink-2);font-size:15px;
+}
+.fix b{color:var(--accent);font-weight:600}
+
+/* ---------------- phase matrix ---------------- */
+
+.phases{border-top:1px solid var(--rule)}
+.phase{
+  display:grid;
+  grid-template-columns:44px 1fr auto;
+  gap:0 16px;
+  align-items:start;
+  padding:16px 0;
+  border-bottom:1px solid var(--rule);
+}
+.p-num{
+  font-family:var(--f-mono);
+  font-size:20px;font-weight:500;
+  color:var(--rule-2);
+  line-height:1.4;
+  font-variant-numeric:tabular-nums;
+}
+.p-main h4{
+  font-family:var(--f-display);
+  font-size:17px;font-weight:600;margin:0 0 4px;line-height:1.4;
+}
+.p-main p{margin:0;font-size:14.5px;color:var(--muted);line-height:1.65;max-width:62ch}
+.p-main p .miss{color:var(--fail);font-weight:500}
+.p-main p .dev{color:var(--warn);font-weight:500}
+.p-status{
+  display:flex;flex-direction:column;align-items:flex-end;gap:7px;
+  padding-top:2px;min-width:96px;
+}
+.bar{width:88px;height:4px;border-radius:2px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px}
+.bar i.full{background:var(--pass)}
+.bar i.part{background:var(--warn)}
+.bar i.thin{background:var(--fail)}
+
+/* ---------------- tables ---------------- */
+
+.tw{overflow-x:auto;margin:22px 0;border:1px solid var(--rule);border-radius:3px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--surface)}
+th,td{padding:11px 16px;text-align:right;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{
+  font-family:var(--f-mono);
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);background:var(--surface-2);font-weight:500;
+  white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:none}
+td.m{font-family:var(--f-mono);font-size:12.5px;direction:ltr;text-align:left;white-space:nowrap;color:var(--ink-2)}
+td .yes{color:var(--pass);font-weight:600}
+td .not{color:var(--fail);font-weight:600}
+td .par{color:var(--warn);font-weight:600}
+
+/* ---------------- next steps ---------------- */
+
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.steps li{
+  counter-increment:s;
+  position:relative;
+  padding:0 42px 20px 0;
+  border-right:1px solid var(--rule);
+  margin-right:11px;
+}
+ol.steps li:last-child{border-right-color:transparent;padding-bottom:0}
+ol.steps li::before{
+  content:counter(s);
+  position:absolute;right:-11px;top:2px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--accent);color:var(--paper);
+  font-family:var(--f-mono);font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+ol.steps h4{font-family:var(--f-display);font-size:17px;font-weight:600;margin:0 0 5px;line-height:1.4}
+ol.steps p{margin:0;color:var(--ink-2);font-size:15px;max-width:70ch}
+
+footer{
+  border-top:1px solid var(--rule);
+  padding-top:22px;margin-top:20px;
+  font-size:13.5px;color:var(--muted);
+  max-width:72ch;
+}
+
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+@media (max-width:640px){
+  .wrap{padding:0 18px 64px}
+  .phase{grid-template-columns:32px 1fr;row-gap:10px}
+  .p-status{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start}
+  .finding{grid-template-columns:1fr;gap:6px}
+  .num{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Backend Audit · Soum Taxi · Jableh</p>
+  <h1>تدقيق باك إند سوم تاكسي</h1>
+  <p class="standfirst">
+    البيئة أُقلعت فعليًا، وSwagger فُتح وعمل، ومرّت مجموعات الاختبار كلّها.
+    ثلاثة عشر عطلًا وُجد وأُصلح — سبعةٌ في إعداد دوكر، وستّةٌ في المشروع
+    نفسه كانت مختبئة خلف مجموعة اختبارات لا تعمل أصلًا.
+  </p>
+  <div class="byline">
+    <span>٦ أيلول ٢٠٢٦</span>
+    <span>Django 5.2 · DRF · Channels · Celery</span>
+    <span>PostgreSQL 16 + PostGIS 3.5</span>
+    <span>‏١٦ تطبيقًا · ‏٣٥٬٠٠٠ سطر</span>
+  </div>
+</header>
+
+<div class="verdict pass">
+  <h2>شُغِّل فعليًا — وكلّ شيء أخضر</h2>
+  <p>
+    بعد أن فتحتَ الشبكة: سُحبت الصور، وبُنيت الصورة، وأُقلعت الحاويات
+    الخمس، وطُبِّق ٤٧ ترحيلًا، وفُتحت واجهة Swagger وعملت.
+    <b>‏26/26</b> فحصًا دخانيًا، و<b>‏106/106</b> اختبارًا في مجموعة
+    جانغو، و<b>‏243/243</b> فحصًا في تسع مجموعات E2E.
+  </p>
+  <p>
+    والتشغيل الحيّ كشف ما لم تكشفه القراءة: <b>مجموعة الاختبارات كانت
+    معطّلة تمامًا</b> — سطرٌ واحد في ملفّ فارغ يمنع اكتشافها كلّها. وخلف
+    ذلك التعطّل كانت تختبئ حزمة ناقصة، وثلاثة اختبارات على عناوين قديمة،
+    وحساب عرضٍ عاجز عن تسجيل الدخول أصلًا.
+  </p>
+</div>
+
+<div class="strip">
+  <div class="stat">
+    <p class="k">Smoke Test</p>
+    <p class="v ok">26 / 26</p>
+    <p class="n">صحّة، Swagger، OTP، رحلة، WebSocket</p>
+  </div>
+  <div class="stat">
+    <p class="k">Django Tests</p>
+    <p class="v ok">106 / 106</p>
+    <p class="n">كانت لا تعمل إطلاقًا قبل الإصلاح</p>
+  </div>
+  <div class="stat">
+    <p class="k">E2E Suites</p>
+    <p class="v ok">243 / 243</p>
+    <p class="n">تسع مجموعات في ٣٦ ثانية</p>
+  </div>
+  <div class="stat">
+    <p class="k">Swagger UI</p>
+    <p class="v ok">71</p>
+    <p class="n">عملية، ١٧ وسمًا، صفر طلب فاشل</p>
+  </div>
+</div>
+
+<!-- ============ 1. البيئة ============ -->
+<section>
+  <h2 class="sec">القسم الأول</h2>
+  <h3 class="sec-title">ما أعطاه التشغيل الحقيقي</h3>
+  <p class="lede">
+    بعد فتح الشبكة أُقلعت البيئة كاملةً. هذا ما خرج منها — لا قراءةً بل
+    تنفيذًا:
+  </p>
+
+<pre class="term"><span class="dim">$</span> docker compose -f compose.dev.yaml ps
+NAME            STATUS
+taxi-postgres   Up (healthy)      <span class="dim"># PostGIS 3.5 USE_GEOS=1 USE_PROJ=1</span>
+taxi-redis      Up (healthy)      <span class="dim"># PONG</span>
+taxi-web        Up (healthy)      <span class="dim"># daphne :8000</span>
+taxi-celery     Up (healthy)      <span class="dim"># 90 مهمة نُفّذت</span>
+taxi-beat       Up                <span class="dim"># 13 مهمة مجدولة تُرسَل</span>
+
+<span class="dim">$</span> python scripts/smoke_test.py
+26 نجح   0 تحذير   0 فشل
+
+<span class="dim">$</span> manage.py test
+Ran 106 tests in 36.200s — OK
+
+<span class="dim">$</span> manage.py run_all_e2e --customer-phone +963990000101 --driver-id 1
+المجموع: 243/243 فحصًا في 36.5 ثانية</pre>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>ما فُحص</th><th>النتيجة</th><th>الدليل</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>واجهة Swagger</b></td>
+          <td class="m"><span class="yes">تعمل</span></td>
+          <td>‏71 عملية و17 وسمًا مرسومة، و<b>صفر طلب فاشل</b> في المتصفّح —
+              وهو ما يثبت أنّ العطل الأوّل أُصلح فعلًا لا نظريًا.</td>
+        </tr>
+        <tr>
+          <td><b>الملفّات الساكنة</b></td>
+          <td class="m"><span class="yes">200</span></td>
+          <td><code>swagger-ui.css</code> ‏178 ك.ب و<code>swagger-ui-bundle.js</code>
+              ‏1.5 م.ب تصل تحت daphne.</td>
+        </tr>
+        <tr>
+          <td><b>الترحيلات وPostGIS</b></td>
+          <td class="m"><span class="yes">47</span></td>
+          <td>الامتداد فُعِّل و47 ترحيلًا طُبِّق عند أوّل إقلاع بلا تدخّل.</td>
+        </tr>
+        <tr>
+          <td><b>دورة الرحلة كاملة</b></td>
+          <td class="m"><span class="yes">تعمل</span></td>
+          <td>‏OTP ← طلب ← مطابقة ← عرض ← اختيار ← وصل ← بدأ ← أنهى ←
+              تقييم ← دفعة <code>pending</code>.</td>
+        </tr>
+        <tr>
+          <td><b>‏WebSocket</b></td>
+          <td class="m"><span class="yes">101</span></td>
+          <td>ترقية صحيحة، و<code>driver.arrived</code> و<code>trip.started</code>
+              و<code>trip.completed</code> تصل للزبون فعلًا.</td>
+        </tr>
+        <tr>
+          <td><b>حزم <code>requirements.txt</code></b></td>
+          <td class="m"><span class="yes">تُحلّ</span></td>
+          <td>كلّ إصدار مثبَّت موجود ويُبنى — ولا تعارض في الاعتماديات.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="lede" style="margin-bottom:0">
+    ملاحظة على البناء: <code>apt</code> يخرج على <code>http://</code>
+    افتراضيًا، وبوّابتك تسمح بـ443 وحدها فسقط البناء. حوّلتُ مصادر ديبيان
+    إلى HTTPS وأضفتُ خطّاف شهادات في <code>docker/extra-ca/</code> —
+    وكلاهما تحسينٌ مفيد على أيّ شبكة مؤسّسية، لا التفافٌ على مشكلتك وحدها.
+  </p>
+</section>
+
+<!-- ============ 2. الأعطال ============ -->
+<section>
+  <h2 class="sec">القسم الثاني</h2>
+  <h3 class="sec-title">سبعة أعطال في إعداد دوكر</h3>
+  <p class="lede">
+    هذه ليست ملاحظات أسلوبية. كلّ واحد منها كان سيمنع الإقلاع، أو يكسر
+    Swagger، أو يُسرّب سرًّا. أُصلحت جميعها، والبيئة الآن تُقلع من
+    <code>up --build</code> واحد.
+  </p>
+
+  <div class="finding">
+    <div class="num">01</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>‏Swagger كان سيفتح صفحةً بيضاء</h4>
+        <span class="chip crit">حرج</span>
+        <span class="chip ok">مؤكَّد بالتشغيل</span>
+      </div>
+      <p>
+        <code>manage.py runserver</code> يلفّ التطبيق تلقائيًا بـ
+        <code>ASGIStaticFilesHandler</code>، أمّا <b>daphne — وهو أمر
+        التشغيل في <code>Dockerfile</code> — فلا يخدم <code>/static/</code>
+        إطلاقًا</b>.
+      </p>
+      <p>
+        النتيجة أنّ <code>/api/docs/</code> تُعيد <code>200</code> وHTML
+        سليمًا، بينما كلّ ملفّات Swagger UI القادمة من
+        <code>drf-spectacular-sidecar</code> تُعيد <code>404</code>. الصفحة
+        تفتح فارغة، والعطل يبدو وكأنه في <code>drf-spectacular</code> وليس فيه.
+      </p>
+      <p>
+        هذا بالضبط ما كنت ستصادفه — ولذلك لم يظهر لك على ويندوز: هناك تشغّل
+        <code>runserver</code>، وهو يخدم الملفّات الساكنة بنفسه.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>config/asgi.py</code> يلفّ تطبيق HTTP بـ
+        <code>ASGIStaticFilesHandler</code> حين
+        <code>SERVE_STATIC_FILES</code> (افتراضه <code>DEBUG</code>)،
+        و<code>collectstatic</code> صار خطوةً في بناء الصورة. في الإنتاج
+        يخدمها Nginx فيُضبَط المفتاح على <code>False</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">02</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>مسارات ويندوز في <code>.env</code> تُسقط GeoDjango</h4>
+        <span class="chip crit">حرج</span>
+      </div>
+      <p>
+        ملفّ <code>.env</code> يحوي
+        <code>GDAL_LIBRARY_PATH=C:\Users\ML\...\gdal313.dll</code>،
+        و<code>GEOS_LIBRARY_PATH</code> مثله،
+        و<code>FCM_SERVICE_ACCOUNT_FILE=C:\secrets\...</code>.
+      </p>
+      <p>
+        <code>settings.py</code> يقرأ <code>.env</code> داخل الحاوية أيضًا،
+        فأيّ مفتاح لا تضبطه بيئة دوكر صراحةً يرثه من الملفّ — ويصير لينكس
+        يبحث عن <code>.dll</code> على قرص <code>C:</code>.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>.env.docker</code> يضبط المفتاحين
+        <b>فارغَين صراحةً لا محذوفَين</b> — القيمة الفارغة falsy، فيبحث
+        GeoDjango عن المكتبات بنفسه ويجدها في <code>gdal-bin</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">03</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>لا <code>.dockerignore</code> — والأسرار تدخل الصورة</h4>
+        <span class="chip crit">حرج</span>
+      </div>
+      <p>
+        سطر <code>COPY . .</code> كان ينسخ إلى داخل الصورة:
+        <code>.env</code> وفيه <code>SECRET_KEY</code>، ومجلّد
+        <code>logs/</code>، و<code>media/</code>، وملفّات
+        <code>celerybeat-schedule.*</code> المبنيّة على ويندوز، وكلّ
+        <code>__pycache__</code>.
+      </p>
+      <p>
+        أيّ صورة تُرفع إلى مستودع بعد ذلك تحمل مفتاحك معها. وملفّ جدولة
+        beat المبنيّ على ويندوز داخل حاوية لينكس سلوكه غير معرَّف.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>.dockerignore</code> يستثني الأسرار
+        والمخلّفات، والإعدادات تصل وقت التشغيل عبر <code>env_file</code> لا
+        وقت البناء.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">04</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>لا ترحيل ولا تفعيل لـPostGIS عند الإقلاع</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        لا <code>compose.yaml</code> ولا <code>compose.production.yaml</code>
+        كان ينفّذ <code>migrate</code>. أوّل <code>up</code> يعطي قاعدةً
+        فارغة، وأوّل طلب يسقط بـ<code>relation does not exist</code>.
+      </p>
+      <p>
+        وامتداد <code>postgis</code> لا يُفعَّل تلقائيًا في قاعدة
+        <code>taxi_backend</code> رغم أنّ الصورة تحمله.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>docker/entrypoint.sh</code> ينفّذ
+        <code>CREATE EXTENSION IF NOT EXISTS postgis</code> ثم
+        <code>migrate</code> — <b>من خدمة <code>web</code> وحدها</b>
+        (<code>RUN_MIGRATIONS=1</code>)، لأنّ تشغيله من ثلاث حاويات معًا
+        يفتح سباقًا على جدول <code>django_migrations</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">05</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>‏<code>depends_on</code> لا يعني «جاهز»</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        يعني «بدأت الحاوية» فقط. PostgreSQL يستغرق ثوانيَ بعد ذلك قبل أن
+        يقبل أوّل اتصال، فيسقط التطبيق بـ<code>OperationalError</code> ثم
+        يعيد المحاولة — وهو أشهر انهيار عند أوّل <code>compose up</code>.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>healthcheck</code> حقيقي على postgres
+        (<code>pg_isready</code>) وredis (<code>redis-cli ping</code>)، مع
+        <code>condition: service_healthy</code>، وانتظار إضافي بـ
+        <code>nc -z</code> داخل entrypoint.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">06</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>‏compose الإنتاج لا يعرض أيّ منفذ</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        خدمة <code>web</code> بلا <code>ports</code> ولا خدمة Nginx: الخادم
+        يعمل داخل شبكة دوكر ولا يصله أحد من الخارج. والوثيقة نفسها تضع
+        Nginx في مقدّمة المعمارية (المرحلة ١٢).
+      </p>
+      <p>
+        ومعه: <code>env_file: .env</code> أي ملفّ التطوير
+        بـ<code>DEBUG=True</code> في الإنتاج، وريديس مكشوف بلا كلمة مرور،
+        ولا حدود ذاكرة ولا تدوير سجلات.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> خدمة Nginx مع <code>docker/nginx.conf</code> —
+        وفيها <code>proxy_set_header Upgrade/Connection</code> للـWebSocket
+        (بدونهما يفشل كلّ <code>/ws/</code> بصمت) ومهلة قراءة ٣٦٠٠ ثانية
+        حتى لا يُقطع اتصال الرحلة بعد دقيقة. وكلمة مرور لريديس، و
+        <code>.env.production</code> منفصل.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">07</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>‏beat بلا مكان يكتب فيه جدولته</h4>
+        <span class="chip med">متوسّط</span>
+      </div>
+      <p>
+        الحاوية تعمل بمستخدم <code>uid=10001</code>، وأيّ
+        <code>bind mount</code> لمجلّد المشروع يحمل ملكية المضيف — فيفشل
+        أوّل سطر سجلّ بـ<code>PermissionError</code>، ويكتب beat ملفّ
+        <code>celerybeat-schedule</code> فوق ملفّات مشروعك.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>logs/</code> و<code>run/</code> و
+        <code>media/</code> و<code>staticfiles/</code> أحجامٌ مُسمّاة
+        (named volumes) لا bind mounts، مع
+        <code>--schedule /app/run/celerybeat-schedule</code>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2ب. أعطال المشروع ============ -->
+<section>
+  <h2 class="sec">القسم الثالث</h2>
+  <h3 class="sec-title">ستّة أعطال كشفها التشغيل وحده</h3>
+  <p class="lede">
+    هذه لم تظهر في القراءة الأولى. ظهرت لحظة تشغيل مجموعة الاختبارات —
+    وكلّها كانت مختبئة خلف عطل واحد جعل المجموعة لا تعمل من الأساس، فلم
+    يكن هناك من يصرخ.
+  </p>
+
+  <div class="finding">
+    <div class="num">08</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>مجموعة الاختبارات كانت معطّلة بالكامل</h4>
+        <span class="chip crit">حرج</span>
+      </div>
+      <p>
+        <code>manage.py test</code> يسقط قبل تشغيل اختبار واحد:
+      </p>
+      <p>
+        <code>ImportError: 'tests' module incorrectly imported from
+        '/app/trips/tests'. Expected '/app/trips'.</code>
+      </p>
+      <p>
+        السبب أنّ <code>trips/</code> يحوي <b>الاثنين معًا</b>:
+        <code>tests.py</code> — ثلاثة أسطر من قالب جانغو بلا اختبار واحد —
+        ومجلّد <code>tests/</code> فيه ٤٣ اختبارًا حقيقيًا. بايثون لا يقبل
+        الاسمين، فينهار الاكتشاف عند أوّلهما ولا يصل إلى بقيّة التطبيقات.
+      </p>
+      <p>
+        <b>وهذا هو العطل الأمّ:</b> الثلاثة التالية كانت قائمةً منذ مدّة،
+        ولم يكن ممكنًا أن يراها أحد.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> حذف <code>trips/tests.py</code>. سطرٌ واحد أعاد
+        ‏106 اختبارات إلى الحياة.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">09</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>حزمة ناقصة من <code>requirements.txt</code></h4>
+        <span class="chip crit">حرج</span>
+      </div>
+      <p>
+        ستّة أوامر E2E تبدأ بـ<code>import websocket</code>، و
+        <code>websocket-client</code> ليست في <code>requirements.txt</code>.
+        النتيجة <code>ModuleNotFoundError</code> في كلّ واحد منها — ومن
+        بينها ما يشغّله <code>run_all_e2e</code>.
+      </p>
+      <p>
+        أي أنّ <b>نصف مجموعات E2E لم تكن قابلة للتشغيل على بيئة نظيفة</b>؛
+        كانت تعمل عندك فقط لأنّ الحزمة مثبَّتة يدويًا في بيئتك المحلّية —
+        وهذا بالضبط ما يجعل عطلًا كهذا ينجو حتى أوّل نشر.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> ‏<code>websocket-client==1.9.2</code> أُضيفت.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">10</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>ثلاثة اختبارات على عناوين لم تعد موجودة</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        <code>matching/tests/test_api_flow.py</code> يطلب
+        <code>/api/matching/driver/rides/candidates/</code>، والمسار الفعليّ
+        <code>/api/v1/driver/rides/candidates/</code>. ستّة عناوين لم تُحدَّث
+        حين نُقل كلّ شيء تحت <code>/api/v1/</code>، فكانت تُعيد 404 بينما
+        الاختبار ينتظر 200.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> العناوين الستّة صُحّحت، والاختبارات الثلاثة تمرّ.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">11</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>سائق العرض لا يستطيع الاتّصال أصلًا</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        <code>seed_mobile_demo</code> ينشئ سائقًا ومركبةً فعّالة، لكن
+        <code>DriverEligibilityService.is_eligible</code> يشترط أيضًا
+        <b>أربع وثائق مقبولة</b>: الهويّة والرخصة ودفتر المركبة والتأمين.
+        والأمر لا ينشئ أيًّا منها.
+      </p>
+      <p>
+        فيردّ <code>POST /drivers/me/go-online/</code> بـ400 «Driver is not
+        eligible»، ولا يظهر السائق في المطابقة، ولا يقدّم عرضًا. أي أنّ
+        <b>التدفّق الذي يصفه <code>MOBILE_API_GUIDE.md</code> يتوقّف عند
+        خطوته الثالثة</b> على بيئة جديدة.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> الأمر ينشئ الوثائق الأربع مقبولةً وصالحةً سنة،
+        ومربوطةً بحساب المدير كمراجِع. بعده تمرّ الدورة كاملة.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">12</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>فحوص أحداث WebSocket تسقط بصمت</h4>
+        <span class="chip high">عالٍ</span>
+      </div>
+      <p>
+        كلّ أوامر E2E الستّة تفترض
+        <code>--ws-url ws://localhost:8001</code> — منفذٌ موروث من تشغيل
+        يدوي على ويندوز. وdaphne في <code>Dockerfile</code> وفي التوثيق على
+        <b>8000</b>.
+      </p>
+      <p>
+        والأسوأ أنّ <code>run_all_e2e</code> <b>لا يملك خيار
+        <code>--ws-url</code> إطلاقًا</b>، فلا سبيل لتصحيحه من سطر الأوامر.
+        النتيجة أنّ الاتصال ينجح والأحداث لا تصل، فتقرأ
+        «<code>لم يصل driver.arrived</code>» وتظنّ العطل في Channels.
+      </p>
+      <p>
+        وهو ليس فيها: بتمرير المنفذ الصحيح صارت
+        <b>‏27/27</b> بدل 24/27، والأحداث الثلاثة تصل جميعها.
+      </p>
+      <div class="fix">
+        <b>الإصلاح ←</b> الافتراضي صار <code>ws://localhost:8000</code>
+        (ويُتجاوز بـ<code>E2E_WS_URL</code>)، وأُضيف
+        <code>--ws-url</code> إلى <code>run_all_e2e</code> مع تمريره
+        للمجموعات. المحصّلة: <b>243/243</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="num">13</div>
+    <div class="f-body">
+      <div class="f-head">
+        <h4>إعدادان معرَّفان لا يقرأهما أحد</h4>
+        <span class="chip high">تصميم</span>
+      </div>
+      <p>
+        <code>MAPS_ROUTING_ENABLED</code> و<code>MAPS_ROUTING_REQUIRED</code>
+        موجودان في <code>settings.py</code> و<b>لا يُقرآن في أيّ سطر آخر
+        من المشروع</b>. اسمهما يَعِد بأنّ التوجيه اختياري، والسلوك الفعليّ
+        غير ذلك:
+      </p>
+      <p>
+        <code>POST /rides/</code> يستدعي <code>RoutingService.route()</code>
+        بلا شرط، وأيّ إخفاق يتحوّل إلى
+        <code>RideRequestValidationError</code>. أي أنّ <b>انقطاع مزوّد
+        التوجيه يوقف حجز الرحلات كلّه</b> — وهو اليوم خادم OSRM التجريبي
+        العام، بلا عقد خدمة ولا ضمان.
+      </p>
+      <p>
+        والمسافة الهوائية محسوبة أصلًا في نفس الطلب
+        (<code>estimated_distance_km</code>) وصالحة كتراجع.
+      </p>
+      <div class="fix">
+        <b>لم أُصلحه ←</b> «يسقط الحجز أم يتراجع إلى تقدير أضعف؟» قرار
+        منتَج لا برمجة. تركته لك، وأشرتُ إليه في <code>APPLY.md</code>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. المطابقة ============ -->
+<section>
+  <h2 class="sec">القسم الرابع</h2>
+  <h3 class="sec-title">المطابقة مع الوثيقة — اثنتا عشرة مرحلة</h3>
+  <p class="lede">
+    قرأتُ «شرط الانتقال» لكلّ مرحلة في وثيقتك وقارنتُه بالشيفرة: النماذج،
+    نقاط النهاية، الخدمات، مهام Celery، ومسارات WebSocket. الحكم بالقراءة
+    لا بالتشغيل.
+  </p>
+
+  <div class="phases">
+
+    <div class="phase">
+      <div class="p-num">01</div>
+      <div class="p-main">
+        <h4>تأسيس المشروع والبنية</h4>
+        <p>‏health يفحص PostgreSQL وRedis فعلًا · ‏PostGIS وRedis وCelery وChannels موصولة · ‏‎/api/v1/‎ · سجلّات JSON مع request_id · ‏seed محلّي. أسماء التطبيقات تختلف عن الوثيقة (offers وpooling ضمن matching، وsupport وreviews ضمن feedback، وdashboard ضمن ops) — إعادة تجميع سليمة لا نقص.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">02</div>
+      <div class="p-main">
+        <h4>الهوية والمستخدمون</h4>
+        <p>‏<code>OTPChallenge</code> منفصل عن <code>User</code> ويخزّن hash لا نصًّا صريحًا، مع <code>expires_at</code> و<code>attempts</code> و<code>consumed_at</code> · تحديد معدّل ثلاثيّ: ٣ للهاتف و٥ للجهاز و١٠ للـIP كلّ عشر دقائق · ‏<code>DeviceToken</code> بمنصّة · صلاحيات role-based. <span class="dev">انحراف طفيف:</span> الوثيقة تكتب <code>GET /me/</code> والشيفرة <code>/api/v1/auth/me/</code>.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">03</div>
+      <div class="p-main">
+        <h4>المركبات وتوثيق السائق</h4>
+        <p>‏<code>Vehicle</code> بكلّ الحقول المطلوبة ومنها <code>seats</code> · ‏<code>DriverDocument</code> بحالة وانتهاء · مسارات الإدارة للقبول والرفض والتعليق · شرط الأهلية مطبَّق في <code>go-online</code> فلا يظهر سائق غير موثَّق في البحث.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">04</div>
+      <div class="p-main">
+        <h4>‏RideRequest والتسعير</h4>
+        <p>الأنماط الخمسة موجودة · ‏<code>PricingService</code> يعيد تفصيلًا قابلًا للتدقيق: base وdistance وtime وgross وplatform_fee وdriver_net · ‏<code>commission_cap_pct</code> في <code>ServiceArea</code> فارغ افتراضيًا أي <b>عمولة صفر</b> كما يشترط الـMVP. <span class="dev">انحراف:</span> الوثيقة تعدّ SCHEDULED نمطًا سادسًا، والشيفرة تنمذجه بـ<code>scheduled_at</code> + <code>TripCategory</code> — أنظف، لكنه يخالف نصّ الوثيقة.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">05</div>
+      <div class="p-main">
+        <h4>المطابقة والعروض</h4>
+        <p>نصف قطر لكلّ نمط (‏fast ‎5‎ · standard ‎7‎ · saving ‎10‎ · scheduled ‎15 كم) · بحث PostGIS · ‏<code>select_for_update</code> في ٦١ موضعًا · ‏TTL للعروض ٣٠ ثانية مع مهمة كنس كلّ ١٥ · واختبارات تزامن مخصّصة في <code>matching/tests/test_concurrency.py</code>.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">06</div>
+      <div class="p-main">
+        <h4>‏Geo وحضور السائق</h4>
+        <p>‏<code>PointField(geography=True, srid=4326)</code> — وDjango ينشئ فهرس GiST تلقائيًا لهذه الحقول، فشرط الفهرسة متحقّق ولو لم يُكتب صراحةً · تطبيق <code>presence</code> مستقلّ على Redis · ‏heartbeat منفصل عن تحديث الموقع · ‏<code>sweep_stale_driver_presence</code> كلّ ١٥ ثانية.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">07</div>
+      <div class="p-main">
+        <h4>‏Channels والتتبّع الحيّ</h4>
+        <p>‏<code>/ws/rides/{id}/</code> و<code>/ws/driver/{id}/</code> و<code>/ws/marketplace/{area}/</code> تعمل، والخنق مضبوط على ٥ ثوانٍ أو ٣٠ مترًا كما تشترط الوثيقة. <span class="miss">ناقص:</span> ‏<code>/ws/admin/live/</code> غير موجود — لوحة العمليّات تعتمد على استطلاع REST عبر <code>/ops/drivers/live/</code>.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip high">جزئي</span>
+        <span class="bar"><i class="part" style="width:80%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">08</div>
+      <div class="p-main">
+        <h4>خريطة السيارات و<code>RideInvitation</code></h4>
+        <p>‏<code>nearby-vehicles</code> يعيد موقعًا مقرَّبًا (~‏١١٠ م) لا GPS دقيقًا — الشرط الخصوصيّ محترم · دورة دعوة كاملة مع قبول ورفض وانتهاء · مهلة تهدئة ٦٠ ثانية بعد الرفض (إضافة فوق الوثيقة). <span class="dev">انحراف:</span> الوثيقة تحدّد TTL افتراضيًا ١٥ ثانية، والشيفرة ٢٠ مع خيارات ‎[20, 40, 60]‎ لكلّ منطقة خدمة.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">09</div>
+      <div class="p-main">
+        <h4>دورة الرحلة والتقييم والشكاوى</h4>
+        <p>‏<code>Trip</code> و<code>TripLocation</code> و<code>TripCompletionRecord</code> · ‏arrived وstart وcomplete بأنصاف أقطار تحقّق (٢٠٠ م للوصول و٣٠٠ م للإنزال) · تقييم للطرفين بوسوم ونافذة ١٤ يومًا · شكاوى بنافذة ٣٠ يومًا وتصعيد تلقائي بعد ٤٨ ساعة · علم <code>needs_review</code> للحالات الشاذّة.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip ok">مكتمل</span>
+        <span class="bar"><i class="full" style="width:100%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">10</div>
+      <div class="p-main">
+        <h4>الإشعارات وCelery</h4>
+        <p>‏١٣ مهمة مجدولة تعمل، ومنها expire_stale_rides وexpire_stale_offers وexpire_stale_invitations وcleanup_old_trip_locations وretry_pending_notifications. <span class="miss">ناقص أربعة من الوثيقة:</span> ‏<code>send_pending_sms</code> (لا يوجد باكيند SMS للإشعارات — الموجود هو console وfcm فقط، وSMS متاح لتوصيل OTP وحده)، و<code>refresh_driver_metrics</code>، و<code>generate_daily_reports</code>، و<code>flag_suspicious_accounts</code>.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip high">جزئي</span>
+        <span class="bar"><i class="part" style="width:65%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">11</div>
+      <div class="p-main">
+        <h4>الأمن والاختبار والمراقبة</h4>
+<p><b>بعد الإصلاح:</b> ‏106 اختبارات جانغو و243 فحص E2E تمرّ كلّها — وقبله كانت المجموعة لا تعمل إطلاقًا · ‏middleware مراقبة بـrequest_id وسجلّات JSON بلا أسرار · ‏HSTS وSSL redirect في الإنتاج. <span class="miss">ناقص:</span> لا نموذج <code>AuditLog</code> عامّ — الموجود <code>AdminAction</code> ويغطّي تدخّلات الإدارة وحدها، بينما الوثيقة تشترط سجلًّا لكلّ انتقال حالة. ولا أثر لمؤشّرات الوثيقة (<code>first_offer_time</code> و<code>driver_cancel_rate</code> و<code>rate_accept_invitation</code>…) — لوحة <code>ops/overview</code> تعطي عدّادات لحظية لا مؤشّرات تاريخية.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip high">جزئي</span>
+        <span class="bar"><i class="part" style="width:75%"></i></span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="p-num">12</div>
+      <div class="p-main">
+        <h4>النشر والتشغيل التجريبي</h4>
+        <p>‏Nginx كان مفقودًا وأُضيف، والحزمة كاملةً (daphne + worker + beat + Redis + PostGIS) تُقلع وتعمل معًا وقد جُرِّبت. <span class="miss">يبقى ناقصًا:</span> لا نسخ احتياطي مجدول ولا اختبار استعادة (<code>pg_dump</code> غير موجود في أيّ سكربت)، ووثائق السائقين تُخزَّن على قرص الحاوية لا في Object Storage، والتشغيل التجريبي في جبلة لم يبدأ.</p>
+      </div>
+      <div class="p-status">
+        <span class="chip crit">ناقص</span>
+        <span class="bar"><i class="thin" style="width:35%"></i></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 4. الفجوات ============ -->
+<section>
+  <h2 class="sec">القسم الخامس</h2>
+  <h3 class="sec-title">الفجوات مرتّبةً بما تُكلّفه</h3>
+  <p class="lede">
+    ستّ فجوات حقيقية بين الشيفرة والوثيقة. الترتيب بما يمنعه غيابها لا
+    بحجم العمل فيها.
+  </p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>الفجوة</th>
+          <th>المرجع</th>
+          <th>ما تمنعه</th>
+          <th>الحجم</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>نسخ احتياطي واستعادة</b><br><span style="color:var(--muted);font-size:13.5px">لا <code>pg_dump</code> مجدول ولا اختبار استعادة</span></td>
+          <td class="m">§12</td>
+          <td>الإطلاق. رحلة واحدة حقيقية تعني بياناتٍ لا تُعوَّض.</td>
+          <td><span class="not">مانع</span></td>
+        </tr>
+        <tr>
+          <td><b>‏AuditLog لكلّ انتقال حالة</b><br><span style="color:var(--muted);font-size:13.5px">الموجود <code>AdminAction</code> للتدخّل الإداري فقط</span></td>
+          <td class="m">§11 · §18</td>
+          <td>فضّ نزاع مالي. «من أنهى الرحلة ومتى» غير مسجَّل خارج تدخّلات الإدارة.</td>
+          <td><span class="par">متوسط</span></td>
+        </tr>
+        <tr>
+          <td><b>تخزين كائنات للوثائق</b><br><span style="color:var(--muted);font-size:13.5px">رخص السائقين على قرص الحاوية</span></td>
+          <td class="m">§12</td>
+          <td>إعادة النشر تفقد الوثائق ما لم يُثبَّت الحجم بعناية.</td>
+          <td><span class="par">صغير</span></td>
+        </tr>
+        <tr>
+          <td><b>مؤشّرات الأداء</b><br><span style="color:var(--muted);font-size:13.5px">‏first_offer_time · driver_cancel_rate · rate_accept_invitation</span></td>
+          <td class="m">§11</td>
+          <td>قياس نجاح التشغيل التجريبي. لا تعرف اليوم أنّ شيئًا ساء.</td>
+          <td><span class="par">متوسط</span></td>
+        </tr>
+        <tr>
+          <td><b>‏SMS احتياطي للإشعارات</b><br><span style="color:var(--muted);font-size:13.5px">‏SMS متاح لـOTP فقط لا كقناة إشعار</span></td>
+          <td class="m">§10</td>
+          <td>وصول الدعوة لسائق مغلَق عليه Push.</td>
+          <td><span class="par">صغير</span></td>
+        </tr>
+        <tr>
+          <td><b>‏<code>/ws/admin/live/</code></b><br><span style="color:var(--muted);font-size:13.5px">لوحة العمليّات تستطلع REST</span></td>
+          <td class="m">§7</td>
+          <td>لا شيء الآن — استبدال مقبول ما دام عدد المشغّلين صغيرًا.</td>
+          <td><span class="par">صغير</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="lede" style="margin-bottom:0">
+    وما هو خارج الفجوات: المشروع <b>يتجاوز</b> الوثيقة في مواضع — طبقة
+    مدفوعات كاملة بدفتر أستاذ ومحاولات واسترجاعات وأرصدة سائقين، ونظام
+    مناطق خدمة يضبط التعرفة والـTTL والأنماط المسموحة لكلّ منطقة، وسياسات
+    تسعير بممرّ أدنى وأعلى. لا شيء من هذا مطلوب في الـMVP.
+  </p>
+</section>
+
+<!-- ============ 5. الخطوات ============ -->
+<section>
+  <h2 class="sec">القسم السادس</h2>
+  <h3 class="sec-title">ما تفعله الآن</h3>
+  <p class="lede">
+    الحزمة المرفقة تُفكّ فوق جذر المشروع:
+    <code>asgi.py.patched</code> يستبدل <code>config/asgi.py</code>،
+    و<code>smoke_test.py</code> يذهب إلى <code>scripts/</code>، والبقية في
+    الجذر.
+  </p>
+
+<pre class="term"><span class="dim"># ١. ارفع البيئة كاملة — خمس حاويات</span>
+docker compose -f compose.dev.yaml up -d --build
+
+<span class="dim"># ٢. احسم كلّ ما في هذا التقرير من شكّ</span>
+python scripts/smoke_test.py</pre>
+
+  <ol class="steps">
+    <li>
+      <h4>احذف <code>trips/tests.py</code></h4>
+      <p>
+        ليس في الحزمة لأنّه حذف لا إضافة. ثلاثة أسطر فارغة، وحذفها يُعيد
+        ‏106 اختبارات إلى العمل — وهو أرخص إصلاح في هذا التقرير وأكبرها
+        أثرًا.
+      </p>
+    </li>
+    <li>
+      <h4>ارفع البيئة وشغّل الثلاثة</h4>
+      <p>
+        <code>smoke_test.py</code> ثم <code>manage.py test</code> ثم
+        <code>run_all_e2e</code>. المتوقّع 26/26 و106/106 و243/243 — وهي
+        الأرقام التي خرجت هنا، فأيّ اختلاف عندك فرقٌ في بيئتك يستحقّ النظر.
+      </p>
+    </li>
+    <li>
+      <h4>احسم مسألة مزوّد التوجيه</h4>
+      <p>
+        العطل رقم 13. اليوم انقطاع OSRM يوقف الحجز كلّه، والخادم المستخدَم
+        تجريبيٌّ عامّ بلا ضمان. إمّا أن تُشغّل OSRM خاصًّا بك، أو تجعل
+        الحجز يتراجع إلى المسافة الهوائية ويُعلّم الرحلة للمراجعة.
+      </p>
+    </li>
+    <li>
+      <h4>اكتب سكربت النسخ الاحتياطي قبل أوّل رحلة حقيقية</h4>
+      <p>
+        <code>pg_dump</code> يومي إلى وجهة خارج المضيف، واستعادة مُختبَرة
+        فعلًا لا مفترضة. لا تزال الفجوة الوحيدة المانعة للإطلاق.
+      </p>
+    </li>
+    <li>
+      <h4>وسّع <code>AdminAction</code> ليغطّي انتقالات الحالة</h4>
+      <p>
+        بنيته جاهزة — <code>actor</code> و<code>target</code> و
+        <code>before</code> و<code>after</code> — والخدمات التي تنقل
+        الحالات مركزيّة، فنقطة الكتابة واحدة. أرخص من نموذج جديد.
+      </p>
+    </li>
+  </ol>
+</section>
+
+<footer>
+  تقريرٌ مبنيّ على تشغيل فعليّ: خمس حاويات دوكر، و47 ترحيلًا، و26 فحصًا
+  دخانيًا، و106 اختبارات جانغو، و243 فحصًا في تسع مجموعات E2E — إضافةً
+  إلى قراءة 302 ملفّ بايثون ووثيقة «خطة بناء الباك إند لمنصة النقل الذكية
+  – جبلة» الإصدار 1.0. الأرقام أعلاه مأخوذة من مخرجات هذه التشغيلات لا من
+  تقدير.
+</footer>
+
+</div>

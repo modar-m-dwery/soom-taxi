@@ -1,0 +1,155 @@
+{% load humanize %}<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سووم — النموّ</title>
+<style>
+  :root { --brand:#FFC800; --ink:#17150F; --paper:#F7F5EE; --card:#fff; --line:#E6E1D2; --muted:#6B675A; --bad:#B3261E; --good:#2C6E49; --teal:#186063; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"IBM Plex Sans Arabic", Tahoma, sans-serif; background:var(--paper); color:var(--ink); }
+  header { background:var(--ink); color:var(--brand); padding:14px 20px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:20px; margin:0; }
+  header form { margin-inline-start:auto; display:flex; gap:8px; }
+  header select, header button { font:inherit; padding:6px 10px; border-radius:8px; border:0; }
+  header button { background:var(--brand); color:var(--ink); font-weight:700; cursor:pointer; }
+  header a { color:#fff; opacity:.8; font-size:14px; }
+  main { padding:16px; display:grid; gap:16px; max-width:1200px; margin:0 auto; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .kpi small { color:var(--muted); display:block; }
+  .kpi b { font-size:26px; font-variant-numeric:tabular-nums; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; overflow-x:auto; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .card p.hint { color:var(--muted); margin:0 0 12px; font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
+  .hours { display:grid; grid-template-columns:repeat(24,1fr); gap:3px; align-items:end; height:140px; }
+  .bar { position:relative; background:var(--line); border-radius:4px 4px 0 0; }
+  .bar .fill { position:absolute; inset:auto 0 0 0; background:var(--ink); border-radius:4px 4px 0 0; }
+  .bar .miss { position:absolute; inset:auto 0 0 0; background:var(--bad); opacity:.85; border-radius:4px 4px 0 0; }
+  .hlabels { display:grid; grid-template-columns:repeat(24,1fr); font-size:10px; color:var(--muted); text-align:center; direction:ltr; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { padding:7px 6px; border-bottom:1px solid var(--line); text-align:start; white-space:nowrap; }
+  th { color:var(--muted); font-weight:600; font-size:12.5px; }
+  td.num { font-variant-numeric:tabular-nums; }
+  .bad { color:var(--bad); font-weight:700; }
+  .score { display:inline-block; min-width:38px; text-align:center; padding:2px 6px; border-radius:6px; background:var(--paper); font-weight:700; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .btn { display:inline-block; background:var(--brand); color:var(--ink); padding:8px 12px; border-radius:10px; text-decoration:none; font-weight:700; font-size:14px; }
+  .btn.dark { background:var(--ink); color:var(--brand); }
+  .legend { font-size:12px; color:var(--muted); display:flex; gap:12px; margin-bottom:6px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:middle; margin-inline-end:4px; }
+  .phone { direction:ltr; unicode-bidi:embed; }
+</style>
+</head>
+<body>
+<header>
+  <h1>سووم · النموّ</h1>
+  <a href="{% url 'admin:index' %}">الإدارة</a>
+  <a href="{% url 'admin:growth_campaign_changelist' %}">العروض</a>
+  <a href="{% url 'admin:growth_commissionrule_changelist' %}">العمولات</a>
+  <a href="{% url 'admin:growth_incentiveprogram_changelist' %}">الحوافز</a>
+  <a href="{% url 'admin:catalog_service_changelist' %}">الخدمات</a>
+  <form method="get">
+    <select name="area">
+      <option value="">كلّ المدن</option>
+      {% for a in areas %}<option value="{{ a.code }}" {% if area and area.code == a.code %}selected{% endif %}>{{ a.name }}</option>{% endfor %}
+    </select>
+    <select name="days">
+      <option value="1" {% if days == 1 %}selected{% endif %}>اليوم</option>
+      <option value="7" {% if days == 7 %}selected{% endif %}>٧ أيّام</option>
+      <option value="30" {% if days == 30 %}selected{% endif %}>٣٠ يومًا</option>
+      <option value="90" {% if days == 90 %}selected{% endif %}>٩٠ يومًا</option>
+    </select>
+    <button>عرض</button>
+  </form>
+</header>
+<main>
+  <section class="kpis">
+    <div class="kpi"><small>طلبات</small><b>{{ summary.requests|intcomma }}</b></div>
+    <div class="kpi"><small>اكتملت</small><b>{{ summary.completed|intcomma }}</b></div>
+    <div class="kpi"><small>نسبة الإتمام</small><b>{{ summary.completion_rate }}٪</b></div>
+    <div class="kpi"><small>لم تجد سيارة</small><b class="bad">{{ summary.unmatched|intcomma }}</b></div>
+    <div class="kpi"><small>نسبة الضياع</small><b class="bad">{{ summary.unmatched_rate }}٪</b></div>
+  </section>
+
+  <section class="card">
+    <h2>الطلب على مدار اليوم</h2>
+    <p class="hint">الأحمر: طلباتٌ لم تجد سائقًا — ساعاتٌ تستحقّ حافزًا للسائقين.</p>
+    <div class="legend"><span><i style="background:var(--ink)"></i>طلبات</span><span><i style="background:var(--bad)"></i>بلا سيارة</span></div>
+    <div class="hours">
+      {% for h in hours %}<div class="bar" style="height:100%" title="{{ h.hour }}:00 — {{ h.requests }} طلبًا، {{ h.unmatched }} بلا سيارة"><div class="fill" style="height:{{ h.pct }}%"></div><div class="miss" style="height:{{ h.unmatched_pct }}%"></div></div>{% endfor %}
+    </div>
+    <div class="hlabels">{% for h in hours %}<span>{{ h.hour }}</span>{% endfor %}</div>
+  </section>
+
+  <section class="card">
+    <h2>أين يطلب الناس</h2>
+    <p class="hint">خلايا بحجم كيلومتر تقريبًا. «بلا سيارة» العالية = سائقون ناقصون هناك.</p>
+    <table>
+      <tr><th>الموقع</th><th>طلبات</th><th>بلا سيارة</th><th></th></tr>
+      {% for s in hotspots %}
+      <tr><td class="num">{{ s.lat }}, {{ s.lng }}</td><td class="num">{{ s.requests }}</td><td class="num {% if s.unmatched %}bad{% endif %}">{{ s.unmatched }}</td>
+        <td><a href="https://www.openstreetmap.org/?mlat={{ s.lat }}&mlon={{ s.lng }}#map=16/{{ s.lat }}/{{ s.lng }}" target="_blank" rel="noopener">الخريطة</a></td></tr>
+      {% empty %}<tr><td colspan="4">لا طلبات في هذه الفترة.</td></tr>{% endfor %}
+    </table>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>أنشط الزبائن</h2>
+      <p class="hint">آخر ٣٠ يومًا على الأقل.</p>
+      <table>
+        <tr><th>الاسم</th><th>الهاتف</th><th>رحلات</th><th>أنفق</th></tr>
+        {% for c in top_customers %}<tr><td>{{ c.name|default:"—" }}</td><td class="phone">{{ c.phone }}</td><td class="num">{{ c.rides }}</td><td class="num">{{ c.spent|floatformat:0|intcomma }}</td></tr>
+        {% empty %}<tr><td colspan="4">لا بيانات بعد.</td></tr>{% endfor %}
+      </table>
+      <div class="actions"><a class="btn" href="{% url 'admin:growth_campaign_add' %}?audience=top_customers&top_count=50">اعمل عرضًا لأنشط الزبائن</a></div>
+    </section>
+
+    <section class="card">
+      <h2>السائقون ودرجة السلوك</h2>
+      <p class="hint">الدرجة من ١٠٠: التقييم ٥٠٪، قبول الدعوات ٢٥٪، الالتزام بعد القبول ٢٥٪.</p>
+      <table>
+        <tr><th>الاسم</th><th>رحلات</th><th>تقييم</th><th>قبول</th><th>إلغاءات</th><th>الدرجة</th></tr>
+        {% for d in top_drivers %}<tr><td>{{ d.name|default:d.phone }}</td><td class="num">{{ d.trips }}</td><td class="num">{{ d.rating|default:"—" }}</td>
+          <td class="num">{% if d.acceptance_pct is not None %}{{ d.acceptance_pct }}٪{% else %}—{% endif %}</td>
+          <td class="num {% if d.cancellations %}bad{% endif %}">{{ d.cancellations }}</td><td><span class="score">{{ d.score }}</span></td></tr>
+        {% empty %}<tr><td colspan="6">لا بيانات بعد.</td></tr>{% endfor %}
+      </table>
+      <div class="actions"><a class="btn dark" href="{% url 'admin:growth_campaign_add' %}?audience=top_drivers&top_count=20">رسالة شكر لأنشط السائقين</a></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>زبائن خاملون</h2>
+      <p class="hint">ركبوا من قبل ولم يركبوا منذ ١٤ يومًا.</p>
+      <table>
+        <tr><th>الاسم</th><th>الهاتف</th><th>رحلاتهم</th><th>آخر طلب</th></tr>
+        {% for c in idle_customers %}<tr><td>{{ c.name|default:"—" }}</td><td class="phone">{{ c.phone }}</td><td class="num">{{ c.completed }}</td><td>{{ c.last_ride|date:"Y-m-d" }}</td></tr>
+        {% empty %}<tr><td colspan="4">لا أحد — جيّد.</td></tr>{% endfor %}
+      </table>
+      <div class="actions">
+        <a class="btn" href="{% url 'admin:growth_campaign_add' %}?audience=idle_customers&idle_days=14&credit_amount=5000">أرجعهم برصيد ٥٬٠٠٠</a>
+        <a class="btn dark" href="{% url 'admin:growth_campaign_add' %}?audience=new_customers">سجّلوا ولم يركبوا ({{ new_customers|length }})</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>سائقون خاملون</h2>
+      <p class="hint">موثَّقون ولم يُنجزوا رحلة منذ ٧ أيّام.</p>
+      <table>
+        <tr><th>الاسم</th><th>الهاتف</th><th>آخر رحلة</th><th>آخر ظهور</th></tr>
+        {% for d in idle_drivers %}<tr><td>{{ d.user__name|default:"—" }}</td><td class="phone">{{ d.user__phone }}</td><td>{{ d.last_trip|date:"Y-m-d"|default:"—" }}</td><td>{{ d.last_location_at|date:"Y-m-d"|default:"—" }}</td></tr>
+        {% empty %}<tr><td colspan="4">لا أحد.</td></tr>{% endfor %}
+      </table>
+      <div class="actions">
+        <a class="btn dark" href="{% url 'admin:growth_campaign_add' %}?audience=idle_drivers&idle_days=7">نبّههم بإشعار</a>
+        <a class="btn" href="{% url 'admin:growth_incentiveprogram_add' %}">أطلق حافزًا</a>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

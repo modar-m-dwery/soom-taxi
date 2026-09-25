@@ -1,0 +1,23 @@
+Django==5.2.17
+django-environ==0.14.0
+djangorestframework==3.18.0
+drf-spectacular==0.30.0
+drf-spectacular-sidecar==2026.3.1
+channels==4.3.2
+channels-redis==4.3.0
+daphne==4.2.3
+celery==5.6.3
+redis==8.1.0
+# [pool] لا [binary] وحده: بدون تجمّع اتصالات يفتح جانغو اتصالًا لكلّ
+# خيط ولا يعيد استعماله، فينفد حدّ PostgreSQL (100 افتراضيًا) عند ثمانين
+# مستخدمًا متزامنًا ويعود الخادم بـ500 على كلّ شيء — بما فيه GET /auth/me/.
+# قيس ذلك فعليًّا: 1013 "too many clients already" في تشغيل واحد.
+psycopg[binary,pool]==3.3.4
+psycopg-pool==3.3.1
+requests==2.34.2
+google-auth==2.57.0
+
+# يستورده كلّ أمر E2E يتحدّث مع WebSocket (ستّة أوامر، ومنها ما يشغّله
+# run_all_e2e). كان ناقصًا، فكانت تلك الأوامر تسقط بـModuleNotFoundError
+# — ويسقط معها اكتشاف الاختبارات كلّه لأنّ أسماء ملفّاتها تبدأ بـtest_
+websocket-client==1.9.2

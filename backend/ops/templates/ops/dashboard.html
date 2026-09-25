@@ -1,0 +1,395 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سووم تكسي — لوحة التشغيل</title>
+<link rel="icon" type="image/png" href="{% static 'ops/logo.png' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--ground:#f7f5ee;--surface:#fff;--surface-2:#efece2;--line:#e6e1d2;--ink:#17150f;--muted:#6b675a;
+  --brand:#FFC800;--brand-ink:#1a1500;--gold:#8a6500;
+  --teal:#186063;--teal-soft:#d9ebea;--amber:#8a6500;--amber-soft:#fff1b8;--red:#b23a2c;--red-soft:#f5dcd8;
+  --sans:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;--mono:"IBM Plex Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.6}
+/* الترويسة لوحة تاكسي: حبرٌ داكن ونصٌّ أصفر — الهويّة نفسها في التطبيقين. */
+header{display:flex;align-items:center;gap:18px;padding:10px 20px;background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
+header h1{font-size:17px;margin:0;font-weight:700;color:var(--brand)}
+header .who{color:rgba(255,255,255,.7);font-size:13px;margin-inline-start:auto}
+header button.act{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+header button{font:inherit}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:none;border:1px solid transparent;border-radius:10px;padding:6px 12px;cursor:pointer;color:rgba(255,255,255,.75);font-weight:600}
+nav button.on{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+main{padding:18px 20px;max-width:1400px;margin:0 auto}
+section[hidden]{display:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.tile .n{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile .l{color:var(--muted);font-size:12.5px;margin-top:2px}
+.tile.warn .n{color:var(--amber)} .tile.bad .n{color:var(--red)} .tile.ok .n{color:var(--teal)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+/* هاتف المشغّل: العنوان سطر، والتبويبات شريط يُمرَّر أفقيًّا لا أعمدة. */
+@media (max-width:720px){
+  header{flex-wrap:wrap;gap:8px 12px;padding:8px 12px}
+  header h1{font-size:15px;white-space:nowrap}
+  header .who{font-size:12px;margin-inline-start:0;flex-basis:100%;order:3}
+  nav{flex-wrap:nowrap;overflow-x:auto;flex-basis:100%;order:2;scrollbar-width:none;padding-bottom:2px}
+  nav button{white-space:nowrap;padding:5px 10px}
+}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:700}
+.card h2 .cnt{display:inline-block;min-width:22px;padding:0 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:12px;text-align:center;margin-inline-start:6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:12.5px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px;direction:ltr;text-align:right}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--teal-soft);color:var(--teal)} .chip.warn{background:var(--amber-soft);color:var(--amber)} .chip.bad{background:var(--red-soft);color:var(--red)} .chip.mute{background:var(--surface-2);color:var(--muted)}
+button.act{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--ink)}
+button.act.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:700}
+button.act.danger{color:var(--red);border-color:var(--red)}
+button.act:disabled{opacity:.5;cursor:default}
+.empty{color:var(--muted);padding:6px 0;font-size:13px}
+#map{height:460px;border-radius:10px;border:1px solid var(--line)}
+.login{max-width:380px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+.login label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.login input{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;direction:ltr;text-align:left}
+.login button{margin-top:14px;width:100%;font:inherit;padding:11px;border-radius:12px;border:0;background:var(--brand);color:var(--brand-ink);font-weight:700;cursor:pointer}
+.hint{font-size:12.5px;color:var(--muted);margin-top:8px}
+.err{color:var(--red);font-size:13px;margin-top:8px;min-height:1.2em}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:8px;font-size:13.5px;opacity:0;transition:opacity .2s;z-index:50}
+.toast.show{opacity:1}
+input.q{font:inherit;padding:6px 9px;border:1px solid var(--line);border-radius:7px;direction:ltr;width:130px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.small{font-size:12.5px;color:var(--muted)}
+pre{font-family:var(--mono);font-size:12px;background:var(--surface-2);padding:8px;border-radius:6px;overflow:auto;direction:ltr;text-align:left;margin:0}
+.ts{font-family:var(--mono);font-size:12px;color:var(--muted);direction:ltr;display:inline-block}
+header h1 .logo{width:34px;height:34px;border-radius:9px;vertical-align:middle;margin-inline-end:10px}
+a{color:var(--gold)}
+</style>
+</head>
+<body>
+<header>
+  <h1><img src="{% static 'ops/logo.png' %}" alt="" class="logo">سووم تكسي · لوحة التشغيل</h1>
+  <nav id="nav" hidden>
+    <button data-tab="now" class="on">الآن</button>
+    <button data-tab="attention">يحتاج إنسانًا</button>
+    <button data-tab="map">الأسطول</button>
+    <button data-tab="drivers">التوثيق</button>
+    <button data-tab="metrics">المؤشّرات</button>
+    <button data-tab="audit">سجلّ رحلة</button>
+  </nav>
+  <span class="who" id="who"></span>
+  <button id="logout" class="act" hidden>خروج</button>
+</header>
+
+<main>
+<section id="login">
+  <div class="login">
+    <h2 style="margin:0 0 4px;font-size:18px">دخول المشغّل</h2>
+    <div class="hint">بحساب دوره <b>admin</b>. الرمز يظهر هنا في وضع التطوير.</div>
+    <label for="phone">رقم الهاتف</label>
+    <input id="phone" placeholder="+963990000103" value="+963990000103" autocomplete="tel">
+    <div id="codeWrap" hidden>
+      <label for="code">رمز التحقّق</label>
+      <input id="code" placeholder="123456" inputmode="numeric">
+      <div class="hint" id="devCode"></div>
+    </div>
+    <button id="loginBtn">أرسل الرمز</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</section>
+
+<section id="tab-now" hidden>
+  <div class="tiles" id="tiles"></div>
+  <div class="grid2">
+    <div class="card"><h2>السائقون الآن</h2><div id="driversNow"></div></div>
+    <div class="card"><h2>آخر التدخّلات الإدارية <span class="cnt" id="actionsCnt">0</span></h2><div id="actions"></div></div>
+  </div>
+</section>
+
+<section id="tab-attention" hidden>
+  <div class="row"><span class="small">يتجدّد كلّ 15 ثانية · كلّ صفّ هنا يحتاج قرارًا بشريًّا</span></div>
+  <div class="grid2" id="attention"></div>
+</section>
+
+<section id="tab-map" hidden>
+  <div class="row"><span class="small" id="mapStatus">جارٍ الاتصال بالبثّ الحيّ…</span></div>
+  <div id="map"></div>
+  <div class="card" style="margin-top:14px"><h2>السائقون المتّصلون <span class="cnt" id="liveCnt">0</span></h2><div id="liveList"></div></div>
+</section>
+
+<section id="tab-drivers" hidden>
+  <div class="grid2">
+    <div class="card"><h2>سائقون بانتظار التوثيق <span class="cnt" id="pendCnt">0</span></h2><div id="pendingDrivers"></div></div>
+    <div class="card"><h2>وثائق بانتظار المراجعة <span class="cnt" id="docCnt">0</span></h2><div id="pendingDocs"></div></div>
+  </div>
+</section>
+
+<section id="tab-metrics" hidden>
+  <div class="row">
+    <label class="small">النافذة</label>
+    <select id="hours" class="q" style="direction:rtl;width:auto">
+      <option value="24">24 ساعة</option><option value="168">7 أيام</option><option value="720">30 يومًا</option>
+    </select>
+    <button class="act" id="metricsReload">حدّث</button>
+  </div>
+  <div id="metrics" class="grid2"></div>
+</section>
+
+<section id="tab-audit" hidden>
+  <div class="row">
+    <label class="small">رقم الطلب</label>
+    <input id="rideId" class="q" placeholder="147" inputmode="numeric">
+    <button class="act primary" id="auditBtn">اعرض القصّة</button>
+  </div>
+  <div class="card"><div id="audit" class="empty">أدخل رقم الطلب — تظهر كلّ انتقالاته بالترتيب: من فعله ومتى.</div></div>
+</section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const API = "/api/v1";
+const $ = (s) => document.querySelector(s);
+const state = { token: localStorage.getItem("soum.ops.token") || "", me: null, map: null, markers: {}, ws: null, timers: [] };
+
+// ------------------------------------------------------------- helpers
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2600); }
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function when(iso) { if (!iso) return "—"; const d = new Date(iso); return `<span class="ts">${d.toLocaleDateString("ar-SY", { month: "2-digit", day: "2-digit" })} ${d.toLocaleTimeString("ar-SY", { hour: "2-digit", minute: "2-digit" })}</span>`; }
+function n(v) { return v == null ? "—" : Number(v).toLocaleString("ar-SY"); }
+function pct(v) { return v == null ? "—" : `${Number(v).toFixed(0)}٪`; }
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", ...(state.token ? { Authorization: "Token " + state.token } : {}), ...(opts.headers || {}) } });
+  if (res.status === 401) { logout(); throw new Error("انتهت الجلسة"); }
+  const text = await res.text(); let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!res.ok) { throw new Error((data && data.detail) || `خطأ ${res.status}`); }
+  return data;
+}
+function chip(text, kind = "mute") { return `<span class="chip ${kind}">${esc(text)}</span>`; }
+function table(headers, rows) {
+  if (!rows.length) return `<div class="empty">لا شيء هنا.</div>`;
+  return `<table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+async function act(btn, path, body, ok) {
+  const reason = prompt("السبب (يُكتب في سجلّ التدقيق):", ""); if (reason === null) return;
+  btn.disabled = true;
+  try { await api(path, { method: "POST", body: JSON.stringify({ reason, ...(body || {}) }) }); toast(ok); refreshAll(); }
+  catch (e) { toast(e.message); btn.disabled = false; }
+}
+
+// ------------------------------------------------------------- auth
+let pendingPhone = null;
+$("#loginBtn").onclick = async () => {
+  const err = $("#loginErr"); err.textContent = "";
+  try {
+    if (!pendingPhone) {
+      const phone = $("#phone").value.trim();
+      const r = await api("/auth/request-otp/", { method: "POST", body: JSON.stringify({ phone, device_id: "ops-console" }) });
+      pendingPhone = phone; $("#codeWrap").hidden = false; $("#loginBtn").textContent = "ادخل";
+      if (r.development_code) { $("#devCode").textContent = "رمز التطوير: " + r.development_code; $("#code").value = r.development_code; }
+      $("#code").focus(); return;
+    }
+    const r = await api("/auth/verify-otp/", { method: "POST", body: JSON.stringify({ phone: pendingPhone, code: $("#code").value.trim(), device_id: "ops-console" }) });
+    state.token = r.token; localStorage.setItem("soum.ops.token", r.token);
+    await boot();
+  } catch (e) { err.textContent = e.message; }
+};
+function logout() { state.token = ""; localStorage.removeItem("soum.ops.token"); state.timers.forEach(clearInterval); state.timers = []; if (state.ws) { state.ws.close(); state.ws = null; } $("#login").hidden = false; $("#nav").hidden = true; $("#logout").hidden = true; $("#who").textContent = ""; document.querySelectorAll("main section[id^=tab-]").forEach((s) => (s.hidden = true)); }
+$("#logout").onclick = logout;
+
+async function boot() {
+  if (!state.token) return;
+  try { state.me = await api("/auth/me/"); } catch { return logout(); }
+  if (state.me.role !== "admin") { $("#loginErr").textContent = "هذا الحساب ليس مشغّلًا (admin)."; return logout(); }
+  $("#login").hidden = true; $("#nav").hidden = false; $("#logout").hidden = false;
+  $("#who").textContent = `${state.me.name || ""} · ${state.me.phone}`;
+  showTab("now"); refreshAll();
+  state.timers.push(setInterval(refreshAll, 15000));
+}
+
+// ------------------------------------------------------------- tabs
+document.querySelectorAll("#nav button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+function showTab(name) {
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  document.querySelectorAll("main section[id^=tab-]").forEach((s) => (s.hidden = s.id !== "tab-" + name));
+  if (name === "map") { setTimeout(initMap, 50); }
+  if (name === "metrics") loadMetrics();
+  if (name === "drivers") loadDrivers();
+}
+
+// ------------------------------------------------------------- now
+async function refreshAll() {
+  try {
+    const [ov, att, actions] = await Promise.all([api("/ops/overview/"), api("/ops/attention/"), api("/ops/actions/?page_size=8")]);
+    renderOverview(ov); renderAttention(att); renderActions(actions);
+  } catch (e) { console.warn(e); }
+}
+function renderOverview(o) {
+  const d = o.drivers, t = o.trips, r = o.rides, c = o.complaints;
+  $("#tiles").innerHTML = [
+    ["ok", d.present + d.sharing, "سائق متاح الآن"],
+    ["", d.busy, "في رحلة"],
+    [d.stale ? "warn" : "", d.stale, "انقطع نبضه"],
+    ["", r.searching, "طلب يبحث الآن"],
+    ["", t.active, "رحلة جارية"],
+    ["ok", t.completed_today, "اكتملت اليوم"],
+    [t.cancelled_today ? "warn" : "", t.cancelled_today, "ألغيت اليوم"],
+    [t.needs_review ? "warn" : "", t.needs_review, "تحتاج مراجعة"],
+    [c.critical ? "bad" : c.open ? "warn" : "", c.open, "شكوى مفتوحة"],
+    ["", o.pending_offers, "عرض معلّق"],
+  ].map(([k, v, l]) => `<div class="tile ${k}"><div class="n">${n(v)}</div><div class="l">${l}</div></div>`).join("");
+  $("#driversNow").innerHTML = table(["الحالة", "العدد"], [
+    [chip("متاح", "ok"), n(d.present)], [chip("مشاركة", "ok"), n(d.sharing)], [chip("مشغول", "warn"), n(d.busy)],
+    [chip("نبضه منقطع", "bad"), n(d.stale)], [chip("غير متاح", "mute"), n(d.unavailable)], [chip("خارج الخدمة", "mute"), n(d.offline)],
+    ["حسابات فعّالة", n(d.total_active_accounts)],
+  ]);
+}
+function renderActions(res) {
+  const rows = (res.results || res || []).map((a) => [when(a.created_at), chip(a.kind, "mute"), `${esc(a.target_type)} #${a.target_id}`, esc(a.actor_phone || ""), esc(a.reason || "")]);
+  $("#actionsCnt").textContent = rows.length;
+  $("#actions").innerHTML = table(["متى", "الإجراء", "الهدف", "من", "السبب"], rows);
+}
+
+// ------------------------------------------------------------- attention
+function renderAttention(a) {
+  const cards = [];
+  const add = (title, rows, headers) => cards.push(`<div class="card"><h2>${title} <span class="cnt">${rows.length}</span></h2>${table(headers, rows)}</div>`);
+  add("رحلات عالقة", (a.stuck_trips || []).map((t) => [`#${t.trip_id} / طلب ${t.ride_id}`, chip(t.status || "", "warn"), n(t.stuck_minutes) + " د",
+    `<button class="act" onclick="act(this,'/ops/rides/${t.ride_id}/force-complete/',null,'أُنهيت')">أنهِ</button> <button class="act danger" onclick="act(this,'/ops/rides/${t.ride_id}/force-cancel/',null,'أُلغيت')">ألغِ</button>`]),
+    ["الرحلة", "الحالة", "عالقة منذ", "إجراء"]);
+  add("سائقون أشباح (مشغول بلا رحلة)", (a.ghost_busy_drivers || []).map((d) => [`${esc(d.name || "")} <span class="ts">${esc(d.phone || "")}</span>`, chip(d.state || d.presence_state || "", "warn"),
+    `<button class="act" onclick="act(this,'/ops/drivers/${d.driver_id}/release/',null,'حُرِّر')">حرّر</button>`]), ["السائق", "الحالة", "إجراء"]);
+  add("رحلات تحتاج مراجعة", (a.trips_needing_review || []).map((t) => [`#${t.trip_id} / طلب ${t.ride_id}`, esc(t.reason), n(t.final_fare), when(t.completed_at),
+    `<button class="act" onclick="showTab('audit');$('#rideId').value=${t.ride_id};loadAudit()">القصّة</button>`]), ["الرحلة", "السبب", "الأجرة", "اكتملت", ""]);
+  add("شكاوى عاجلة", (a.urgent_complaints || []).map((c) => [`#${c.complaint_id}`, chip(c.severity || "", "bad"), esc(c.category || ""), esc(c.complainant_phone || ""), n(c.age_hours) + " س"]), ["الشكوى", "الخطورة", "الفئة", "من", "منذ"]);
+  add("طلبات تبحث طويلًا", (a.stale_searches || []).map((r) => [`#${r.ride_id}`, esc(r.mode || ""), esc(r.customer_phone || ""), n(r.waiting_minutes) + " د",
+    `<button class="act danger" onclick="act(this,'/ops/rides/${r.ride_id}/force-cancel/',null,'أُلغي')">ألغِ</button>`]), ["الطلب", "النمط", "الزبون", "ينتظر", ""]);
+  add("إشعارات فاشلة", (a.failed_notifications || []).map((x) => [`#${x.notification_id}`, esc(x.type || ""), esc(x.phone || ""), n(x.attempts), esc(x.error || "")]), ["الإشعار", "النوع", "إلى", "محاولات", "الخطأ"]);
+  add("توثيق معلّق", (a.pending_driver_verifications || []).map((d) => [`${esc(d.name || "")} <span class="ts">${esc(d.phone || "")}</span>`, when(d.at), `<button class="act" onclick="showTab('drivers')">افتح التوثيق</button>`]), ["السائق", "منذ", ""]);
+  $("#attention").innerHTML = cards.join("");
+}
+
+// ------------------------------------------------------------- map
+function initMap() {
+  if (state.map) { state.map.invalidateSize(); return; }
+  state.map = L.map("map").setView([35.3617, 35.9275], 13);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(state.map);
+  loadLive(); connectLive();
+}
+const stateColor = { present: "#1f6b6b", sharing: "#1f6b6b", busy: "#b8701c", stale: "#b23a2c" };
+function upsertMarker(d) {
+  if (d.lat == null || d.lng == null) return;
+  const color = stateColor[d.state || d.presence_state] || "#5b6a67";
+  const label = `${esc(d.name || "سائق")} · ${esc(d.plate || "")} · ${esc(d.state || d.presence_state || "")}`;
+  let m = state.markers[d.driver_id];
+  if (!m) { m = L.circleMarker([d.lat, d.lng], { radius: 8, color, fillColor: color, fillOpacity: .85, weight: 2 }).addTo(state.map); state.markers[d.driver_id] = m; }
+  else { m.setLatLng([d.lat, d.lng]); m.setStyle({ color, fillColor: color }); }
+  m.bindTooltip(label);
+}
+async function loadLive() {
+  try {
+    const rows = await api("/ops/drivers/live/");
+    rows.forEach(upsertMarker);
+    $("#liveCnt").textContent = rows.length;
+    $("#liveList").innerHTML = table(["السائق", "الحالة", "المركبة", "الخليّة", "مقاعد حرّة"], rows.map((d) => [`${esc(d.name || "")} <span class="ts">${esc(d.phone || "")}</span>`, chip(d.state || d.presence_state || "", (d.state || "") === "busy" ? "warn" : "ok"), `${esc(d.category || "")} ${esc(d.plate || "")}`, esc(d.cell || ""), n(d.free_seats)]));
+  } catch (e) { $("#mapStatus").textContent = e.message; }
+}
+function connectLive() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const ws = new WebSocket(`${proto}://${location.host}/ws/admin/live/?token=${state.token}`);
+  state.ws = ws;
+  ws.onopen = () => { $("#mapStatus").textContent = "بثّ حيّ متّصل — السيارات تتحرّك لحظيًّا."; };
+  ws.onclose = () => { $("#mapStatus").textContent = "انقطع البثّ — إعادة الاتصال خلال 5 ث"; setTimeout(() => state.token && connectLive(), 5000); };
+  ws.onmessage = (ev) => {
+    let f; try { f = JSON.parse(ev.data); } catch { return; }
+    const p = f.payload || {};
+    if (f.event_type === "admin.driver_location") upsertMarker({ driver_id: p.driver_id, lat: p.lat, lng: p.lng, state: p.state });
+    else if (f.event_type && f.event_type.startsWith("admin.")) { refreshAll(); if (document.querySelector("#tab-map:not([hidden])")) loadLive(); }
+  };
+}
+
+// ------------------------------------------------------------- drivers
+async function loadDrivers() {
+  try {
+    const [pending, docs] = await Promise.all([api("/drivers/admin/pending/"), api("/drivers/admin/documents/pending/")]);
+    $("#pendCnt").textContent = pending.length; $("#docCnt").textContent = docs.length;
+    $("#pendingDrivers").innerHTML = table(["السائق", "الحالة", "ملاحظة", "إجراء"], pending.map((d) => [`${esc(d.name || "")} <span class="ts">${esc(d.phone)}</span>`, chip(d.status, "warn"), esc(d.verification_note || ""),
+      `<button class="act primary" onclick="verify(this,${d.id},true)">وثّق</button> <button class="act danger" onclick="verify(this,${d.id},false)">ارفض</button>`]));
+    $("#pendingDocs").innerHTML = table(["الوثيقة", "النوع", "تنتهي", "إجراء"], docs.map((x) => [`<a href="${esc(x.file_url)}" target="_blank">#${x.id} افتح</a>`, esc(x.type), when(x.expires_at),
+      `<button class="act primary" onclick="reviewDoc(this,${x.id},true)">اقبل</button> <button class="act danger" onclick="reviewDoc(this,${x.id},false)">ارفض</button>`]));
+  } catch (e) { toast(e.message); }
+}
+async function verify(btn, id, approve) {
+  const note = prompt(approve ? "ملاحظة التوثيق (اختياري):" : "سبب الرفض:", ""); if (note === null) return;
+  btn.disabled = true;
+  try { await api(`/drivers/admin/${id}/verify/`, { method: "POST", body: JSON.stringify({ approve, verification_note: note }) }); toast(approve ? "وُثِّق" : "رُفض"); loadDrivers(); }
+  catch (e) { toast(e.message); btn.disabled = false; }
+}
+async function reviewDoc(btn, id, approve) {
+  const reason = approve ? "" : prompt("سبب الرفض:", ""); if (reason === null) return;
+  btn.disabled = true;
+  try { await api(`/drivers/admin/documents/${id}/review/`, { method: "POST", body: JSON.stringify({ approve, rejection_reason: reason }) }); toast(approve ? "قُبلت" : "رُفضت"); loadDrivers(); }
+  catch (e) { toast(e.message); btn.disabled = false; }
+}
+
+// ------------------------------------------------------------- metrics
+$("#metricsReload").onclick = loadMetrics;
+async function loadMetrics() {
+  try {
+    const m = await api(`/ops/metrics/?hours=${$("#hours").value}`);
+    const card = (title, rows) => `<div class="card"><h2>${title}</h2>${table(["المؤشّر", "القيمة", "ماذا يعني"], rows)}</div>`;
+    const mt = m.matching || {}, inv = m.invitations || {}, tr = m.trips || {};
+    $("#metrics").innerHTML = [
+      card("المطابقة", [
+        ["طلبات أُنشئت", n(mt.rides_created), "الطلب على الخدمة"],
+        ["وجدت سائقًا", pct(mt.rate_success_match_pct), "المؤشّر الأوّل لصحّة السوق"],
+        ["وصلها عرض", pct(mt.offer_coverage_pct), "هل يرى السائقون الطلبات"],
+        ["الزمن حتّى أوّل عرض (وسيط)", mt.first_offer_seconds && mt.first_offer_seconds.p50 != null ? n(mt.first_offer_seconds.p50) + " ث" : "—", "أطول ما يشعر به الزبون قبل أن يرى شيئًا"],
+        ["…(p90)", mt.first_offer_seconds && mt.first_offer_seconds.p90 != null ? n(mt.first_offer_seconds.p90) + " ث" : "—", "أسوأ ما يحتمله الناس"],
+        ["عروض لكلّ طلب", mt.offers_per_ride == null ? "—" : Number(mt.offers_per_ride).toFixed(1), "قوّة المنافسة"],
+        ["انقضت بلا سائق", n(mt.rides_expired), "سيارات لا تكفي"],
+      ]),
+      card("الدعوة المباشرة والخريطة الحيّة", [
+        ["دعوات أُرسلت", n(inv.invitations_sent), ""],
+        ["قبول الدعوات", pct(inv.rate_accept_invitation_pct), "قياس نجاح الخريطة الحيّة"],
+        ["بلا ردّ", pct(inv.no_response_rate_pct), "مهلة قصيرة أو تنبيه لا يصل"],
+        ["زمن ردّ السائق (وسيط)", inv.response_seconds && inv.response_seconds.p50 != null ? n(inv.response_seconds.p50) + " ث" : "—", ""],
+        ["من رأى الخريطة وركب", pct(inv.conversion_trip_to_map_pct), "قيمة الميزة الأساسية"],
+      ]),
+      card("الرحلات", [
+        ["اكتملت", n(tr.completed), ""],
+        ["نسبة الإتمام", pct(tr.completion_rate_pct), "الصحّة العامّة — الهدف فوق 85٪"],
+        ["إلغاء السائقين", pct(tr.driver_cancel_rate_pct), "ارتفاعه = تسعير غير جاذب أو مسافات بعيدة"],
+        ["إلغاء الزبائن", pct(tr.customer_cancel_rate_pct), "ارتفاعه = انتظار طويل"],
+        ["معلَّمة للمراجعة", n(tr.needs_review), "مؤشّر احتيال أو خلل جغرافيّ"],
+        ["نسبة المراجعة", pct(tr.review_flag_rate_pct), ""],
+      ]),
+      `<div class="card"><h2>الخام</h2><pre>${esc(JSON.stringify(m, null, 1))}</pre></div>`,
+    ].join("");
+  } catch (e) { toast(e.message); }
+}
+
+// ------------------------------------------------------------- audit
+$("#auditBtn").onclick = loadAudit;
+$("#rideId").addEventListener("keydown", (e) => { if (e.key === "Enter") loadAudit(); });
+async function loadAudit() {
+  const id = $("#rideId").value.trim(); if (!id) return;
+  try {
+    const rows = await api(`/ops/audit/ride/${id}/`);
+    $("#audit").innerHTML = rows.length ? table(["متى", "الكيان", "الإجراء", "من → إلى", "من فعله", "السبب"], rows.map((x) => [when(x.created_at), `${esc(x.entity_type)} #${x.entity_id}`, chip(x.action, "mute"), `${esc(x.from_state || "—")} ← ${esc(x.to_state || "—")}`, `${esc(x.actor_label || "")} ${chip(x.actor_role || "", "mute")}`, esc(x.reason || "")])) : `<div class="empty">لا أثر لهذا الطلب.</div>`;
+  } catch (e) { $("#audit").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+boot();
+</script>
+</body>
+</html>
