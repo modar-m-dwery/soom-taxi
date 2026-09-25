@@ -21,6 +21,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from trips.serializers import CancelTripSerializer
 from users.permissions import IsCustomer
 
 from rides.models import (
@@ -165,7 +166,7 @@ class CustomerCancelRideView(APIView):
             "Cancels the customer's ride and performs the correct cleanup "
             "for normal, instant shared and scheduled shared rides."
         ),
-        request=None,
+        request=CancelTripSerializer,
         responses={
             200: CancelRideResponse,
             400: ErrorResponse,
@@ -174,11 +175,19 @@ class CustomerCancelRideView(APIView):
     )
     def post(self, request, ride_id):
 
+        # السبب والرمز اختياريّان (نسخٌ قديمة من التطبيق ترسل جسمًا فارغًا)،
+        # لكنّهما يصلان الآن إلى سجلّ الإلغاء: قبلها كانا يسقطان هنا فلا
+        # تعرف الإدارة لماذا أُلغيت رحلةٌ بعد تثبيت سائقها.
+        serializer = CancelTripSerializer(data=request.data or {})
+        serializer.is_valid(raise_exception=True)
+
         try:
 
             ride = MatchingService.cancel_ride(
                 ride_id=ride_id,
                 customer=request.user,
+                reason=serializer.validated_data.get("reason", ""),
+                reason_code=serializer.validated_data.get("reason_code", ""),
             )
 
         except RideRequest.DoesNotExist:

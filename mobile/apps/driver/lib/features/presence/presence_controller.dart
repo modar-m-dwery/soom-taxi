@@ -28,6 +28,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:soum_core/soum_core.dart';
 
 import '../../providers.dart';
+import 'location_fix.dart';
 import 'presence_state.dart';
 
 final presenceControllerProvider =
@@ -42,7 +43,12 @@ class PresenceController extends Notifier<PresenceState>
   Timer? _staleWatch;
 
   int? _profileId;
-  GeoPoint? _latest;
+  LocationFix? _latest;
+
+  /// الخادم رفض آخر موقع لأنّه مزيّف. ما دام قائمًا لا يُعدّ `presence.ack`
+  /// دخولًا في المطابقة: الإقرار يصل على `heartbeat` حتّى والموقع مرفوض،
+  /// و`last_location_at` لم يتحدّث — فالسائق غير مرئيّ للزبائن.
+  bool _mockRejected = false;
 
   @override
   PresenceState build() {
@@ -67,8 +73,8 @@ class PresenceController extends Notifier<PresenceState>
       clearFailure: true,
     );
 
-    final position = await _readPosition();
-    if (position == null) {
+    final fix = await _readPosition();
+    if (fix == null) {
       // سببٌ مصنَّف لا نصّ: وحدة التحكّم لا تعرف لغة المستخدم، والنصّ
       // المكتوب هنا يخرج من ملفّ الترجمة فلا يُترجَم أبدًا.
       state = state.copyWith(
@@ -78,6 +84,7 @@ class PresenceController extends Notifier<PresenceState>
       return;
     }
 
+    final position = fix.point;
     try {
       await _soum.driver.goOnline(lat: position.lat, lng: position.lng);
     } on ApiException catch (error) {
@@ -92,7 +99,7 @@ class PresenceController extends Notifier<PresenceState>
       return;
     }
 
-    _latest = position;
+    _latest = fix;
 
     // الغرفة تُنشأ **قبل** إعلان الاتّصال. وحدة العمل تشترك في غرفة السائق
     // لحظة انقلاب `isOnline`، فإن أُعلن قبل وجود الغرفة اشتركت في لا شيء
@@ -228,7 +235,7 @@ class PresenceController extends Notifier<PresenceState>
     final fresh = await _readPosition();
     if (fresh != null) {
       _latest = fresh;
-      state = state.copyWith(lastPosition: fresh);
+      state = state.copyWith(lastPosition: fresh.point);
     }
 
     final before = state.lastAck;
@@ -252,15 +259,14 @@ class PresenceController extends Notifier<PresenceState>
   static const serverDbSyncWindow = Duration(seconds: 5);
 
   void _sendHeartbeat() {
-    final position = _latest;
+    final fix = _latest;
     final room = _room;
-    if (position == null || room == null || !room.isConnected) return;
+    if (fix == null || room == null || !room.isConnected) return;
 
-    room.send({
-      'type': 'location.update',
-      'lat': position.lat,
-      'lng': position.lng,
-    });
+    // موقعٌ حقيقيّ بعد رفضٍ سابق يُقبل: نرفع المانع متفائلين، وإن بقي
+    // الخادم يرفض فحدثه يصل قبل إقرار `heartbeat` التالي فيعيده.
+    if (!fix.mocked) _mockRejected = false;
+    room.send(fix.toFrame());
 
     // `location.update` لا يردّ بإقرار — انظر رأس `pushLocationNow`. ولأنّ
     // `PresenceStage.matchable` لا يُبلَغ إلّا بـ`presence.ack`، فنبضٌ
@@ -290,11 +296,30 @@ class PresenceController extends Notifier<PresenceState>
 
     switch (guarded.event.type) {
       case RealtimeEventType.presenceAck:
+        if (_mockRejected) {
+          // القناة حيّة لكنّ الموقع مرفوض: متّصل وخارج المطابقة.
+          state = state.copyWith(
+            stage: PresenceStage.onlineNoHeartbeat,
+            lastAck: DateTime.now(),
+            blocker: PresenceBlocker.mockLocation,
+          );
+          return;
+        }
         // أوّل ack هو لحظة دخول المطابقة فعلًا — لا لحظة نجاح go-online.
         state = state.copyWith(
           stage: PresenceStage.matchable,
           lastAck: DateTime.now(),
           clearFailure: true,
+        );
+
+      case RealtimeEventType.locationRejected:
+        // بقيّة الأسباب (قفزة مستحيلة، إحداثيّات خارج النطاق) نقطةٌ واحدة
+        // سيئة تصحّحها النقطة التالية — لا تستحقّ إزعاج السائق.
+        if (readString(guarded.event.data, 'reason') != 'mock_location') return;
+        _mockRejected = true;
+        state = state.copyWith(
+          stage: PresenceStage.onlineNoHeartbeat,
+          blocker: PresenceBlocker.mockLocation,
         );
 
       case RealtimeEventType.presenceOffline:
@@ -322,8 +347,9 @@ class PresenceController extends Notifier<PresenceState>
       ),
     ).listen(
       (position) {
-        _latest = GeoPoint(position.latitude, position.longitude);
-        state = state.copyWith(lastPosition: _latest);
+        final fix = LocationFix.fromPosition(position);
+        _latest = fix;
+        state = state.copyWith(lastPosition: fix.point);
       },
       onError: (Object _) {
         // فقدان إشارة GPS لا يُخرج السائق: آخر موقع معروف يبقى صالحًا
@@ -332,7 +358,7 @@ class PresenceController extends Notifier<PresenceState>
     );
   }
 
-  Future<GeoPoint?> _readPosition() async {
+  Future<LocationFix?> _readPosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
 
@@ -351,13 +377,14 @@ class PresenceController extends Notifier<PresenceState>
           timeLimit: Duration(seconds: 10),
         ),
       );
-      return GeoPoint(position.latitude, position.longitude);
+      return LocationFix.fromPosition(position);
     } on Object {
       return null;
     }
   }
 
   void _teardown() {
+    _mockRejected = false;
     _heartbeat?.cancel();
     _heartbeat = null;
     _staleWatch?.cancel();

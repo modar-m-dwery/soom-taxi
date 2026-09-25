@@ -1084,10 +1084,10 @@ class SoumStringsAr extends SoumStrings {
   String get driverBookingOpen => 'توجّه';
 
   @override
-  String get dispatchOffers => 'عروض';
+  String get dispatchOffers => 'سوم';
 
   @override
-  String get dispatchOffersHint => 'السائقون يرسلون أسعارهم وأنت تختار';
+  String get dispatchOffersHint => 'السائقون يعرضون أسعارهم وأنت تختار الأنسب';
 
   @override
   String get dispatchNearest => 'الأقرب';
@@ -1236,4 +1236,32 @@ class SoumStringsAr extends SoumStrings {
 
   @override
   String get incentiveDelivered => 'سُلّمت المكافأة — شكرًا لك';
+
+  @override
+  String get tripCancelWhy => 'لماذا تلغي الرحلة؟';
+
+  @override
+  String get riderCancelChangedMind => 'غيّرت رأيي';
+
+  @override
+  String get riderCancelDriverLate => 'السائق تأخّر';
+
+  @override
+  String get riderCancelDriverNotMoving => 'السائق لا يتحرّك نحوي';
+
+  @override
+  String get riderCancelDriverAsked => 'السائق طلب منّي أن ألغي';
+
+  @override
+  String get riderCancelFoundOther => 'وجدت وسيلة أخرى';
+
+  @override
+  String get riderCancelWrongPickup => 'مكان الالتقاط خاطئ';
+
+  @override
+  String get riderCancelOther => 'سبب آخر';
+
+  @override
+  String get driverMockLocation =>
+      'هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد.';
 }

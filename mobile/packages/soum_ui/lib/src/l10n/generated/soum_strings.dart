@@ -2009,13 +2009,13 @@ abstract class SoumStrings {
   /// No description provided for @dispatchOffers.
   ///
   /// In ar, this message translates to:
-  /// **'عروض'**
+  /// **'سوم'**
   String get dispatchOffers;
 
   /// No description provided for @dispatchOffersHint.
   ///
   /// In ar, this message translates to:
-  /// **'السائقون يرسلون أسعارهم وأنت تختار'**
+  /// **'السائقون يعرضون أسعارهم وأنت تختار الأنسب'**
   String get dispatchOffersHint;
 
   /// No description provided for @dispatchNearest.
@@ -2269,6 +2269,60 @@ abstract class SoumStrings {
   /// In ar, this message translates to:
   /// **'سُلّمت المكافأة — شكرًا لك'**
   String get incentiveDelivered;
+
+  /// No description provided for @tripCancelWhy.
+  ///
+  /// In ar, this message translates to:
+  /// **'لماذا تلغي الرحلة؟'**
+  String get tripCancelWhy;
+
+  /// No description provided for @riderCancelChangedMind.
+  ///
+  /// In ar, this message translates to:
+  /// **'غيّرت رأيي'**
+  String get riderCancelChangedMind;
+
+  /// No description provided for @riderCancelDriverLate.
+  ///
+  /// In ar, this message translates to:
+  /// **'السائق تأخّر'**
+  String get riderCancelDriverLate;
+
+  /// No description provided for @riderCancelDriverNotMoving.
+  ///
+  /// In ar, this message translates to:
+  /// **'السائق لا يتحرّك نحوي'**
+  String get riderCancelDriverNotMoving;
+
+  /// No description provided for @riderCancelDriverAsked.
+  ///
+  /// In ar, this message translates to:
+  /// **'السائق طلب منّي أن ألغي'**
+  String get riderCancelDriverAsked;
+
+  /// No description provided for @riderCancelFoundOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'وجدت وسيلة أخرى'**
+  String get riderCancelFoundOther;
+
+  /// No description provided for @riderCancelWrongPickup.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكان الالتقاط خاطئ'**
+  String get riderCancelWrongPickup;
+
+  /// No description provided for @riderCancelOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب آخر'**
+  String get riderCancelOther;
+
+  /// No description provided for @driverMockLocation.
+  ///
+  /// In ar, this message translates to:
+  /// **'هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد.'**
+  String get driverMockLocation;
 }
 
 class _SoumStringsDelegate extends LocalizationsDelegate<SoumStrings> {

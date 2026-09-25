@@ -874,7 +874,7 @@ class MatchingService:
 
     @classmethod
     @transaction.atomic
-    def cancel_ride(cls, ride_id, customer):
+    def cancel_ride(cls, ride_id, customer, reason="", reason_code=""):
 
         ride = (
             RideRequest.objects
@@ -986,7 +986,10 @@ class MatchingService:
 
         if Trip.objects.filter(ride=ride).exists():
             try:
-                TripService.cancel(ride_id=ride.id, actor="customer")
+                TripService.cancel(
+                    ride_id=ride.id, actor="customer",
+                    reason=reason, reason_code=reason_code,
+                )
             except TripError:
                 # رحلة جارية لا تُلغى إلا كنزاع — والفحص في الأعلى منعها أصلًا
                 pass

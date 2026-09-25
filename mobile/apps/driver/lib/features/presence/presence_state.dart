@@ -48,6 +48,10 @@ enum PresenceBlocker {
   /// الخادم رفض: وثيقة ناقصة أو منتهية أو حساب موقوف. التفصيل في
   /// `failure.detail` بنصّه العربيّ الجاهز للعرض.
   serverRefused,
+
+  /// الخادم رفض الموقع لأنّه من تطبيق تزييف (`location.rejected` بالسبب
+  /// `mock_location`). السائق متّصل لكنّه خارج المطابقة حتّى يطفئه.
+  mockLocation,
 }
 
 class PresenceState {

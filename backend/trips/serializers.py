@@ -80,9 +80,7 @@ class TripSerializer(serializers.ModelSerializer):
 class CancelTripSerializer(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True, max_length=255)
     # اختياريّ للتوافق مع النسخ القديمة من التطبيق.
-    reason_code = serializers.ChoiceField(
-        choices=CancelReason.choices, required=False, allow_blank=True,
-    )
+    reason_code = serializers.ChoiceField(choices=CancelReason.choices, required=False)
 
 
 class DriverCancelTripSerializer(serializers.Serializer):

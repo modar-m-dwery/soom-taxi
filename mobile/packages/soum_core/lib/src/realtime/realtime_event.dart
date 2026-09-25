@@ -196,6 +196,11 @@ abstract final class RealtimeEventType {
   static const presenceAck = 'presence.ack';
   static const presenceOffline = 'presence.offline';
 
+  /// الخادم رفض نبضة موقع: `payload.reason` =
+  /// `mock_location` (تطبيق تزييف) أو `implausible_speed` (قفزة مستحيلة)
+  /// أو خطأ صيغة. الموقع لم يُكتب ولم يُبثّ.
+  static const locationRejected = 'location.rejected';
+
   // السوق
   static const marketplaceSnapshot = 'marketplace.snapshot';
   static const vehicleEnteredArea = 'vehicle.entered_area';

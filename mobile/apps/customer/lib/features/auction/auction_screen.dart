@@ -377,7 +377,7 @@ class OfferCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(offer.driverName, style: theme.textTheme.titleMedium),
+                  Text(driverShortName(offer.driverName), style: theme.textTheme.titleMedium),
                   const SizedBox(height: 2),
                   Row(
                     children: [

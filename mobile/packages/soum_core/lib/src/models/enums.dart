@@ -239,3 +239,21 @@ enum RouteSource {
 
   bool get isApproximate => this != RouteSource.provider;
 }
+
+/// لماذا ألغى الزبون رحلةً ثُبّت سائقها — `CancelReasonEnum` في الخادم.
+///
+/// الرمز يُرسل مع الإلغاء فيُعدّ ويُكشف منه: «السائق طلب منّي الإلغاء»
+/// أشهر طريقة للتهرّب من العمولة، ولا تُعدّ من نصٍّ حرّ. بلا `unknown`
+/// عمدًا: هذا تعدادٌ يُرسَل لا يُقرأ، والخادم يرفض رمزًا لا يعرفه.
+enum CancelReason {
+  changedMind('changed_mind'),
+  driverLate('driver_late'),
+  driverNotMoving('driver_not_moving'),
+  driverAsked('driver_asked'),
+  foundOther('found_other'),
+  wrongPickup('wrong_pickup'),
+  other('other');
+
+  const CancelReason(this.code);
+  final String code;
+}

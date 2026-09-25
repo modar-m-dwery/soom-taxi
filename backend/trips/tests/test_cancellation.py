@@ -231,3 +231,39 @@ class SharedMemberTripTests(TestCase):
         snapshot = ResumeService.snapshot(driver.user)
         ids = {snapshot["ride"].id} | {e["ride"].id for e in snapshot["other_trips"]}
         self.assertIn(member.id, ids)
+
+
+class CancelReasonThroughRideEndpointTests(TestCase):
+    """
+    تطبيق الزبون يلغي من شاشة الرحلة عبر /rides/{id}/cancel/ لا عبر
+    cancel-trip. السبب ورمزه كانا يسقطان في ذلك المسار فلا يصلان إلى سجلّ
+    الإلغاء — ولا إلى كشف الغش.
+    """
+
+    def test_reason_code_reaches_cancellation_record(self):
+        from django.urls import reverse
+        from rest_framework.test import APIClient
+
+        ride, trip, driver = _assigned(minutes_ago=4, eta=3)
+        client = APIClient()
+        auth(client, ride.customer)
+        response = client.post(
+            reverse("ride-cancel", args=[ride.id]),
+            {"reason": "قال لي ألغي", "reason_code": "driver_asked"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        record = CancellationRecord.objects.get(ride=ride)
+        self.assertEqual(record.reason_code, "driver_asked")
+        self.assertEqual(record.reason, "قال لي ألغي")
+
+    def test_empty_body_still_cancels(self):
+        from django.urls import reverse
+        from rest_framework.test import APIClient
+
+        ride, trip, driver = _assigned(minutes_ago=1)
+        client = APIClient()
+        auth(client, ride.customer)
+        response = client.post(reverse("ride-cancel", args=[ride.id]))
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(CancellationRecord.objects.get(ride=ride).reason_code, "")

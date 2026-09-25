@@ -58,11 +58,14 @@
 | `INTEGRITY_AUTO_RESTRICT` | True | False = النظام بيلاحظ وبيفتح قضايا بس، والتقييد قرار موظف |
 | `INTEGRITY_REJECT_MOCK_LOCATIONS` | True | رفض المواقع المحاكاة |
 
-## مطلوب من تطبيق الفلاتر (مهم)
-1. **الموقع:** مع كل `location.update` بالـWebSocket ابعت `"mocked": position.isMocked` (من حزمة `geolocator`). بدونها كشف تطبيقات Fake GPS ما بيشتغل. ولازم التطبيق يتعامل مع حدث `location.rejected` بالسبب `mock_location` ويعرض رسالة: «أطفئ تطبيق تزييف الموقع».
-2. **إلغاء الزبون:** `POST /api/v1/customer/rides/{id}/cancel-trip/` صار بيقبل `reason_code` اختياري من هالقائمة:
-   `changed_mind` غيّرت رأيي · `driver_late` السائق تأخر · `driver_not_moving` السائق ما عم يتحرك · `driver_asked` **السائق طلب مني ألغي** · `found_other` لقيت وسيلة تانية · `wrong_pickup` مكان الالتقاط غلط · `other` سبب تاني.
-3. **قنوات الإشعارات بأندرويد:** الباك إند بيبعت على `soum_urgent` و`soum_general` — التطبيق لازم ينشئهن عند أول تشغيل.
+## ربط تطبيقَي الفلاتر ✅ (منفّذ)
+1. **الموقع (تطبيق السائق):** كل `location.update` بالـWebSocket بيحمل `mocked` (من `position.isMocked`) ومعه السرعة (م/ث) والاتجاه والدقة — `apps/driver/lib/features/presence/location_fix.dart`.
+   لمّا الخادم يرفض الموقع بحدث `location.rejected` بالسبب `mock_location`، السائق بيضل «متصل» بس **خارج المطابقة**، وبيطلعله: «هاتفك يرسل موقعًا مزيّفًا… أطفئ تطبيق تزييف الموقع». أول ما يطفيه ويوصل موقع حقيقي بيرجع للمطابقة لحاله.
+2. **إلغاء الزبون (تطبيق الزبون):** زر «ألغِ الرحلة» صار بيفتح قائمة أسباب — اختيار السبب هو التأكيد. الرمز بينبعت كـ`reason_code` على المسارين:
+   `POST /api/v1/rides/{id}/cancel/` (اللي بيستعمله التطبيق) و`POST /api/v1/customer/rides/{id}/cancel-trip/`.
+   الرموز: `driver_late` السائق تأخر · `driver_not_moving` السائق ما عم يتحرك · `driver_asked` **السائق طلب مني ألغي** · `wrong_pickup` مكان الالتقاط غلط · `found_other` لقيت وسيلة تانية · `changed_mind` غيّرت رأيي · `other` سبب تاني.
+   اختبار عقد بيتأكد إنو رموز التطبيق = رموز الخادم بالاتجاهين.
+3. **قنوات الإشعارات بأندرويد:** `soum_urgent` و`soum_general` بتنشأ بـ`MainActivity.kt` بالتطبيقين.
 
 ## المحاكاة
 ```bash

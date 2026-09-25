@@ -104,28 +104,72 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final timings = ref.read(configProvider).timings;
     final notice = _cancelNotice(strings, arc.trip, timings);
 
-    final confirmed = await showDialog<bool>(
+    // اختيار السبب هو التأكيد نفسه، والرجوع (السحب أو زرّ الرجوع) تراجع.
+    // السبب رمزٌ لا نصّ: كاشف الغش يقرأ الرمز، و«السائق طلب منّي أن ألغي»
+    // يُحسب على السائق لا على الزبون.
+    final reason = await showModalBottomSheet<CancelReason>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(strings.tripCancelTrip),
-        content: Text(notice),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(strings.actionBack),
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(strings.tripCancelWhy, style: theme.textTheme.titleLarge),
+                const SizedBox(height: 6),
+                Text(notice, style: theme.textTheme.bodySmall),
+                const SizedBox(height: 8),
+                for (final option in _reasonOrder)
+                  ListTile(
+                    title: Text(_reasonLabel(strings, option)),
+                    trailing: const Icon(Icons.chevron_left_rounded),
+                    onTap: () => Navigator.pop(sheetContext, option),
+                  ),
+                const SizedBox(height: 4),
+                TextButton(
+                  onPressed: () => Navigator.pop(sheetContext),
+                  child: Text(strings.actionBack),
+                ),
+              ],
+            ),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(strings.actionConfirm),
-          ),
-        ],
-      ),
+        );
+      },
     );
 
-    if (confirmed != true) return;
-    await ref.read(rideControllerProvider.notifier).cancelRide();
+    if (reason == null) return;
+    await ref
+        .read(rideControllerProvider.notifier)
+        .cancelRide(reasonCode: reason);
   }
 }
+
+/// أسباب السائق أوّلًا: هي الأكثر حين يلغي زبونٌ رحلةً لها سائق.
+const _reasonOrder = [
+  CancelReason.driverLate,
+  CancelReason.driverNotMoving,
+  CancelReason.driverAsked,
+  CancelReason.wrongPickup,
+  CancelReason.foundOther,
+  CancelReason.changedMind,
+  CancelReason.other,
+];
+
+String _reasonLabel(SoumStrings strings, CancelReason reason) =>
+    switch (reason) {
+      CancelReason.changedMind => strings.riderCancelChangedMind,
+      CancelReason.driverLate => strings.riderCancelDriverLate,
+      CancelReason.driverNotMoving => strings.riderCancelDriverNotMoving,
+      CancelReason.driverAsked => strings.riderCancelDriverAsked,
+      CancelReason.foundOther => strings.riderCancelFoundOther,
+      CancelReason.wrongPickup => strings.riderCancelWrongPickup,
+      CancelReason.other => strings.riderCancelOther,
+    };
 
 class _TripSheet extends StatelessWidget {
   const _TripSheet({

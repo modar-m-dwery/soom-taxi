@@ -373,8 +373,8 @@
     }
   },
   "driverBookingOpen": "Go",
-  "dispatchOffers": "Offers",
-  "dispatchOffersHint": "Drivers send prices, you choose",
+  "dispatchOffers": "Soum",
+  "dispatchOffersHint": "Drivers bid their prices, you pick the best",
   "dispatchNearest": "Nearest",
   "dispatchNearestHint": "The closest driver is sent automatically",
   "dispatchPick": "Pick a car",
@@ -495,5 +495,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tripCancelWhy": "Why are you cancelling the trip?",
+  "riderCancelChangedMind": "I changed my mind",
+  "riderCancelDriverLate": "The driver is late",
+  "riderCancelDriverNotMoving": "The driver isn't moving towards me",
+  "riderCancelDriverAsked": "The driver asked me to cancel",
+  "riderCancelFoundOther": "I found another ride",
+  "riderCancelWrongPickup": "Wrong pickup spot",
+  "riderCancelOther": "Other reason",
+  "driverMockLocation": "Your phone is sending a fake (mock) location, so we can't send you riders. Turn off the fake-location app in Developer options, then go online again."
 }

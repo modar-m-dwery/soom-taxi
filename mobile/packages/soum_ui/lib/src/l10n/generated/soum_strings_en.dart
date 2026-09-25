@@ -1082,10 +1082,11 @@ class SoumStringsEn extends SoumStrings {
   String get driverBookingOpen => 'Go';
 
   @override
-  String get dispatchOffers => 'Offers';
+  String get dispatchOffers => 'Soum';
 
   @override
-  String get dispatchOffersHint => 'Drivers send prices, you choose';
+  String get dispatchOffersHint =>
+      'Drivers bid their prices, you pick the best';
 
   @override
   String get dispatchNearest => 'Nearest';
@@ -1234,4 +1235,33 @@ class SoumStringsEn extends SoumStrings {
 
   @override
   String get incentiveDelivered => 'Reward delivered — thank you';
+
+  @override
+  String get tripCancelWhy => 'Why are you cancelling the trip?';
+
+  @override
+  String get riderCancelChangedMind => 'I changed my mind';
+
+  @override
+  String get riderCancelDriverLate => 'The driver is late';
+
+  @override
+  String get riderCancelDriverNotMoving =>
+      'The driver isn\'t moving towards me';
+
+  @override
+  String get riderCancelDriverAsked => 'The driver asked me to cancel';
+
+  @override
+  String get riderCancelFoundOther => 'I found another ride';
+
+  @override
+  String get riderCancelWrongPickup => 'Wrong pickup spot';
+
+  @override
+  String get riderCancelOther => 'Other reason';
+
+  @override
+  String get driverMockLocation =>
+      'Your phone is sending a fake (mock) location, so we can\'t send you riders. Turn off the fake-location app in Developer options, then go online again.';
 }

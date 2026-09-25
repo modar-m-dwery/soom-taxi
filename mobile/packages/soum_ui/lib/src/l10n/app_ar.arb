@@ -578,8 +578,8 @@
     }
   },
   "driverBookingOpen": "توجّه",
-  "dispatchOffers": "عروض",
-  "dispatchOffersHint": "السائقون يرسلون أسعارهم وأنت تختار",
+  "dispatchOffers": "سوم",
+  "dispatchOffersHint": "السائقون يعرضون أسعارهم وأنت تختار الأنسب",
   "dispatchNearest": "الأقرب",
   "dispatchNearestHint": "أقرب سائق يُرسَل إليك تلقائيًّا",
   "dispatchPick": "اختر سيارتك",
@@ -700,5 +700,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tripCancelWhy": "لماذا تلغي الرحلة؟",
+  "riderCancelChangedMind": "غيّرت رأيي",
+  "riderCancelDriverLate": "السائق تأخّر",
+  "riderCancelDriverNotMoving": "السائق لا يتحرّك نحوي",
+  "riderCancelDriverAsked": "السائق طلب منّي أن ألغي",
+  "riderCancelFoundOther": "وجدت وسيلة أخرى",
+  "riderCancelWrongPickup": "مكان الالتقاط خاطئ",
+  "riderCancelOther": "سبب آخر",
+  "driverMockLocation": "هاتفك يرسل موقعًا مزيّفًا (Mock location)، فلا نستطيع إرسالك إلى الزبائن. أطفئ تطبيق تزييف الموقع من «خيارات المطوّر» ثمّ شغّل العمل من جديد."
 }

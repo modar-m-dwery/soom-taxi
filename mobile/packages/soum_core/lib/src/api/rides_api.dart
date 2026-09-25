@@ -49,10 +49,18 @@ class RidesApi {
     return RideRequest.fromJson(asJson(body));
   }
 
-  Future<void> cancel(int rideId, {String? reason}) => _client.post<dynamic>(
+  /// [reasonCode] يصل إلى سجلّ الإلغاء حين كان للطلب سائقٌ مثبَّت — منه
+  /// تُعدّ أسباب الإلغاء ويُكشف «السائق طلب منّي الإلغاء».
+  Future<void> cancel(int rideId, {String? reason, CancelReason? reasonCode}) =>
+      _client.post<dynamic>(
         '/rides/$rideId/cancel/',
-        body: {if (reason != null && reason.isNotEmpty) 'reason': reason},
+        body: _cancelBody(reason, reasonCode),
       );
+
+  static Json _cancelBody(String? reason, CancelReason? reasonCode) => {
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+        'reason_code': ?reasonCode?.code,
+      };
 
   Future<List<RideRequest>> mine({String? status}) async {
     final body = await _client.get<dynamic>(
@@ -90,9 +98,10 @@ class RidesApi {
         .toList(growable: false);
   }
 
-  Future<void> cancelTrip(int rideId, {String? reason}) => _client.post<dynamic>(
+  Future<void> cancelTrip(int rideId, {String? reason, CancelReason? reasonCode}) =>
+      _client.post<dynamic>(
         '/customer/rides/$rideId/cancel-trip/',
-        body: {if (reason != null && reason.isNotEmpty) 'reason': reason},
+        body: _cancelBody(reason, reasonCode),
       );
 
   // -----------------------------------------------------------------

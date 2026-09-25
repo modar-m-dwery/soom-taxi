@@ -21,6 +21,7 @@ import 'package:soum_core/soum_core.dart';
 import 'package:soum_ui/soum_ui.dart';
 
 import '../../providers.dart';
+import '../map/vehicle_marker.dart';
 
 enum DispatchStyle { offers, nearest, pick }
 
@@ -706,7 +707,7 @@ class _PickedCar extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    strings.pickSelected(car.driverName, car.vehicleLabel),
+                    strings.pickSelected(driverShortName(car.driverName), car.vehicleLabel),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelLarge,

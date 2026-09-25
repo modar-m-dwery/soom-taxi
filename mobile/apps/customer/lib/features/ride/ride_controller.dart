@@ -99,13 +99,15 @@ class RideController extends Notifier<RideArc> {
     }
   }
 
-  Future<void> cancelRide({String? reason}) async {
+  /// `reasonCode` يُرسل مع إلغاء رحلةٍ لها سائق: «السائق طلب منّي أن ألغي»
+  /// بالذات إشارةٌ على سائقٍ يُكمل المشوار خارج التطبيق.
+  Future<void> cancelRide({String? reason, CancelReason? reasonCode}) async {
     final ride = state.ride;
     if (ride == null) return;
 
     state = state.copyWith(isBusy: true);
     try {
-      await _soum.rides.cancel(ride.id, reason: reason);
+      await _soum.rides.cancel(ride.id, reason: reason, reasonCode: reasonCode);
       // لا نصفّر محلّيًّا: الخادم يبثّ `ride.cancelled` فتُصفّر من الحدث.
       // التصفير هنا يجعل الشاشة تسبق الخادم، فيختلفان إن فشل الإلغاء.
       state = state.copyWith(isBusy: false);

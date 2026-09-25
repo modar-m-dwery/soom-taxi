@@ -4,8 +4,8 @@ import 'package:soum_maps/soum_maps.dart';
 import 'package:soum_ui/soum_ui.dart';
 
 /// علامة السيارة على الخريطة: سيارةٌ من فوق تدور مع اتجاه سيرها، وبطاقةٌ
-/// صغيرة فوقها بما يحتاجه الزبون ليختار — التقييم والسيارة، وعدد الركّاب
-/// إن كانت في رحلة مشتركة.
+/// صغيرة فوقها بما يحتاجه الزبون ليختار — التقييم، واسم السائق الأوّل،
+/// ودقائق الوصول، ومقاعدها نقاطًا إن كانت في رحلة مشتركة.
 ///
 /// سيارةٌ فيها ركّاب تُميَّز بصريًّا عن الفارغة: `is_sharing` يعني مقعدًا
 /// شاغرًا في رحلة قائمة، وهو خيارٌ مختلف تمامًا عن استئجار السيارة كاملةً.
@@ -51,7 +51,7 @@ MapMarker driverCarMarker(GeoPoint position) => MapMarker(
 
 const _carBox = 44.0;
 const _labelHeight = 26.0;
-const _boxWidth = 150.0;
+const _boxWidth = 176.0;
 const _boxHeight = _carBox + 2 * (_labelHeight + 4);
 
 class _VehiclePin extends StatelessWidget {
@@ -120,26 +120,46 @@ class _Label extends StatelessWidget {
     final style = SoumTheme.tabular(theme.textTheme.labelSmall!)
         .copyWith(color: ink, fontWeight: FontWeight.w600, height: 1.1);
 
+    final name = driverFirstName(vehicle.driverName);
+    final soft = isSelected ? ink : scheme.secondary;
+
     final parts = <Widget>[
       // صفرٌ يعني «لم يُقيَّم بعد» لا «أسوأ سائق»: نقول «جديد».
       if (vehicle.rating case final rating? when rating > 0) ...[
         Icon(Icons.star_rounded, size: 12, color: isSelected ? ink : scheme.tertiary),
         Text(rating.toStringAsFixed(1), style: style),
       ] else
-        Text(strings.carNew, style: style.copyWith(color: isSelected ? ink : scheme.secondary)),
-      const SizedBox(width: 4),
+        Text(strings.carNew, style: style.copyWith(color: soft)),
+      const SizedBox(width: 5),
+      // الاسم الأوّل وحده: يكفي ليعرف الزبون من سيأتيه، والاسم الكامل لا
+      // يظهر إلّا بعد القبول.
       Flexible(
         child: Text(
-          isSelected ? vehicle.driverName : vehicle.vehicleLabel,
+          name.isEmpty ? vehicle.vehicleLabel : name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: style,
         ),
       ),
-      if (vehicle.isSharing && vehicle.onboardPassengers != null) ...[
-        const SizedBox(width: 4),
-        Icon(Icons.groups_rounded, size: 12, color: isSelected ? ink : scheme.secondary),
-        Text(strings.carPassengers(vehicle.onboardPassengers!), style: style),
+      const SizedBox(width: 5),
+      // «0 د» يقرأها الزبون «لن يأتي»؛ السيارة التي بجانبه دقيقة.
+      Text(
+        strings.unitMinutes(vehicle.etaMinutes < 1 ? 1 : vehicle.etaMinutes),
+        style: style.copyWith(color: soft),
+      ),
+      if (vehicle.isSharing) ...[
+        const SizedBox(width: 5),
+        SeatDots(
+          occupied: vehicle.onboardPassengers ?? vehicle.currentOccupancy,
+          total: vehicle.seats > 0
+              ? vehicle.seats
+              : (vehicle.onboardPassengers ?? vehicle.currentOccupancy) +
+                  vehicle.availableSeats,
+          color: isSelected ? ink : scheme.onSurface,
+          semanticLabel: strings.carPassengers(
+            vehicle.onboardPassengers ?? vehicle.currentOccupancy,
+          ),
+        ),
       ],
     ];
 
@@ -159,6 +179,74 @@ class _Label extends StatelessWidget {
         ],
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: parts),
+    );
+  }
+}
+
+/// الاسم الأوّل من اسم السائق — `driver_name` يصل كاملًا من الخادم.
+String driverFirstName(String fullName) {
+  final trimmed = fullName.trim();
+  if (trimmed.isEmpty) return '';
+  return trimmed.split(RegExp(r'\s+')).first;
+}
+
+/// «محمد ع.» — الاسم الأوّل وأوّل حرف من الثاني.
+///
+/// قبل القبول لا يُعرض اسم السائق كاملًا (قرار الخصوصية في وثيقة المنتج):
+/// الاسم الكامل مع نوع السيارة ولونها يكفي لتعقّب السائق خارج العمل.
+String driverShortName(String fullName) {
+  final words = fullName.trim().split(RegExp(r'\s+'))
+    ..removeWhere((w) => w.isEmpty);
+  if (words.isEmpty) return '';
+  if (words.length == 1) return words.first;
+  return '${words.first} ${words[1].characters.first}.';
+}
+
+/// مقاعد السيارة المشتركة نقاطًا: الممتلئة مصمتة والشاغرة مفرّغة.
+///
+/// نقاطٌ لا نصّ: «●●○○» تُقرأ من نظرة على خريطة مزدحمة، و«2 ركّاب من 4»
+/// لا تتّسع في البطاقة. النصّ نفسه يبقى لقارئ الشاشة.
+class SeatDots extends StatelessWidget {
+  const SeatDots({
+    super.key,
+    required this.occupied,
+    required this.total,
+    required this.color,
+    this.semanticLabel,
+  });
+
+  /// أكثر من ثمانية مقاعد (سرفيس) تُختصر: النقاط للمح لا للعدّ.
+  static const maxDots = 8;
+
+  final int occupied;
+  final int total;
+  final Color color;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = total.clamp(0, maxDots);
+    final filled = occupied.clamp(0, count);
+
+    return Semantics(
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < count; i++)
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsetsDirectional.only(end: 1.5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: i < filled ? color : null,
+                border: Border.all(color: color, width: 1),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

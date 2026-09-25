@@ -139,6 +139,21 @@ void main() {
     check('DocumentStatusEnum', DocumentStatus.values,
         (e) => (e as DocumentStatus).code,
         clientOnly: const {'unknown', 'expired'});
+    check('CancelReasonEnum', CancelReason.values,
+        (e) => (e as CancelReason).code, clientOnly: const {});
+
+    // الاتجاه المعاكس لأسباب الإلغاء وحدها: التطبيق يعرض قائمةً ثابتة،
+    // فسببٌ يضيفه الخادم ولا يعرفه التطبيق لا يختاره زبونٌ أبدًا.
+    test('CancelReasonEnum ← كلّ رموز الخادم معروضة', () {
+      final schemas = spec['components']['schemas'] as Map<String, dynamic>;
+      final allowed = ((schemas['CancelReasonEnum'] as Map<String, dynamic>)
+              ['enum'] as List)
+          .cast<String>()
+          .toSet();
+      final ours = CancelReason.values.map((e) => e.code).toSet();
+      expect(allowed.difference(ours), isEmpty,
+          reason: 'أسبابٌ في الخادم لا يعرضها التطبيق');
+    });
   });
 
   group('أجسام الطلبات تطابق المخطّط', () {
@@ -178,6 +193,27 @@ void main() {
     check('OpenComplaintRequest', 'feedback_api.dart', "'/complaints/', body");
     check('RideSubscriptionRequest', 'rides_api.dart', "'/rides/subscriptions/', body");
     check('ApplyReferralCodeRequest', 'payments_api.dart', 'applyReferralCode');
+
+    // الإلغاءان يبنيان جسمهما في دالّة واحدة — `_cancelBody`.
+    test('_cancelBody ← CancelTripRequest', () {
+      final source = File('lib/src/api/rides_api.dart').readAsStringSync();
+      final start = source.indexOf('static Json _cancelBody(');
+      expect(start, greaterThan(-1));
+      final body = source.substring(start, source.indexOf('};', start));
+      final keys = RegExp(r"'([a-z_]+)':")
+          .allMatches(body)
+          .map((m) => m.group(1)!)
+          .toSet();
+      expect(keys, containsAll(['reason', 'reason_code']));
+
+      final schemas = spec['components']['schemas'] as Map<String, dynamic>;
+      final allowed =
+          ((schemas['CancelTripRequest'] as Map<String, dynamic>)['properties']
+                  as Map<String, dynamic>)
+              .keys
+              .toSet();
+      expect(keys.difference(allowed), isEmpty);
+    });
   });
 
   group('معاملات الاستعلام تطابق المخطّط', () {

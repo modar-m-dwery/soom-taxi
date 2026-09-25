@@ -3893,6 +3893,25 @@
                 "tags": [
                     "Rides"
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelTripRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelTripRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelTripRequest"
+                            }
+                        }
+                    }
+                },
                 "security": [
                     {
                         "tokenAuth": []
@@ -5481,6 +5500,19 @@
                     }
                 }
             },
+            "CancelReasonEnum": {
+                "enum": [
+                    "changed_mind",
+                    "driver_late",
+                    "driver_not_moving",
+                    "driver_asked",
+                    "found_other",
+                    "wrong_pickup",
+                    "other"
+                ],
+                "type": "string",
+                "description": "* `changed_mind` - غيّرت رأيي\n* `driver_late` - السائق تأخّر\n* `driver_not_moving` - السائق لا يتحرّك نحوي\n* `driver_asked` - السائق طلب منّي الإلغاء\n* `found_other` - وجدت وسيلة أخرى\n* `wrong_pickup` - مكان الالتقاط خطأ\n* `other` - سبب آخر"
+            },
             "CancelRideResponse": {
                 "type": "object",
                 "properties": {
@@ -5502,6 +5534,9 @@
                     "reason": {
                         "type": "string",
                         "maxLength": 255
+                    },
+                    "reason_code": {
+                        "$ref": "#/components/schemas/CancelReasonEnum"
                     }
                 }
             },

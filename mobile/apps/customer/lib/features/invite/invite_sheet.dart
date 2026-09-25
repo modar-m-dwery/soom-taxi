@@ -20,6 +20,7 @@ import 'package:soum_ui/soum_ui.dart';
 
 import '../../providers.dart';
 import '../ride/ride_controller.dart';
+import '../map/vehicle_marker.dart';
 
 Future<void> showInviteSheet(BuildContext context, WidgetRef ref) {
   return showModalBottomSheet<void>(
@@ -245,7 +246,7 @@ class _VehicleRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(vehicle.driverName, style: theme.textTheme.titleMedium),
+                  Text(driverShortName(vehicle.driverName), style: theme.textTheme.titleMedium),
                   const SizedBox(height: 2),
                   Text(
                     // المسافة تقريبية بحكم التصميم: ~110 أمتار من الدقّة.
@@ -317,7 +318,7 @@ class _PendingInvitation extends ConsumerWidget {
         const SizedBox(height: 14),
         Text(strings.inviteWaiting, style: theme.textTheme.titleMedium),
         const SizedBox(height: 4),
-        Text(invitation.driverName, style: theme.textTheme.bodyMedium),
+        Text(driverShortName(invitation.driverName), style: theme.textTheme.bodyMedium),
         Text(
           '${invitation.vehicleMake} ${invitation.vehicleModel}',
           style: theme.textTheme.bodySmall,

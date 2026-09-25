@@ -276,6 +276,14 @@ class World:
         rng = self.rng
         seq = iter(range(1, 10 ** 5))
 
+        # فئة «تكسي» يزرعها ترحيلٌ في القاعدة العاديّة؛ قاعدةٌ فُرِّغت (اختبارات
+        # TransactionTestCase) تفقدها، فتسقط كلّ مركبة على مفتاحٍ أجنبيّ.
+        from vehicles.models import VehicleCategory
+
+        VehicleCategory.objects.get_or_create(
+            code="taxi", defaults={"name": "تكسي", "name_en": "Taxi", "seats": 4},
+        )
+
         # ---------------------------------------------------- السائقون
         cheat_names = list(DRIVER_CHEATS)
         n_cheat = max(len(cheat_names), round(self.n_drivers * self.cheat_ratio))

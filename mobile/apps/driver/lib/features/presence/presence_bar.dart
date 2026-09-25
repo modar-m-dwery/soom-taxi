@@ -146,6 +146,7 @@ class _Blocker extends StatelessWidget {
       PresenceBlocker.locationUnavailable => strings.driverLocationNeeded,
       PresenceBlocker.serverRefused =>
         presence.failure?.detail ?? strings.driverNotEligible,
+      PresenceBlocker.mockLocation => strings.driverMockLocation,
       PresenceBlocker.none => '',
     };
 

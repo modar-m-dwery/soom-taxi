@@ -70,7 +70,14 @@ void main() {
     final end = source.indexOf(RegExp(r'\n  \}\n'), start);
     final body = source.substring(start, end);
 
-    expect(body, contains("'type': 'location.update'"));
+    // إطار الموقع يبنيه `LocationFix.toFrame` (ومعه علامة التزييف).
+    expect(body, contains('.toFrame()'));
+    final frame = File(
+      'lib/features/presence/location_fix.dart',
+    ).readAsStringSync();
+    expect(frame, contains("'type': 'location.update'"));
+    expect(frame, contains("'mocked': mocked"),
+        reason: 'بلا mocked لا يرى الخادم تطبيقات تزييف الموقع');
     expect(body, contains("'type': 'heartbeat'"),
         reason: 'بلا heartbeat لا إقرار، وبلا إقرار لا مطابقة في الواجهة');
   });

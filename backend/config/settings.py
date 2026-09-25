@@ -638,6 +638,7 @@ SPECTACULAR_SETTINGS = {
         "ComplaintCategoryEnum": "feedback.models.ComplaintCategory.choices",
         "ComplaintSeverityEnum": "feedback.models.ComplaintSeverity.choices",
         "RefundStatusEnum": "payments.models.RefundStatus.choices",
+        "CancelReasonEnum": "trips.models.CancelReason.choices",
     },
 
     "SORT_OPERATIONS": True,
