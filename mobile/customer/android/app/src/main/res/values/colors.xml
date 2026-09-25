@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- أصفر الشعار — خلفيّة الأيقونة التكيّفية وشاشة الإقلاع الأصلية. -->
+    <color name="ic_launcher_background">#FFC800</color>
+</resources>
