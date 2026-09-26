@@ -1,0 +1,726 @@
+<title>دليل رحلات سووم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root {
+  --paper: #F7F5EE;
+  --surface: #FFFFFF;
+  --ink: #17150F;
+  --ink-soft: #5E594B;
+  --line: #E6E1D2;
+  --brand: #FFC800;
+  --brand-soft: #FFF1B8;
+  --on-brand: #1A1500;
+  --gold: #8A6500;
+  --teal: #186063;
+  --teal-soft: #E3EFEF;
+  --danger: #B3261E;
+  --frame: #17150F;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #121109;
+    --surface: #1B1912;
+    --ink: #EFEBE0;
+    --ink-soft: #B3AC98;
+    --line: #34301F;
+    --brand: #FFD23F;
+    --brand-soft: #3D3100;
+    --on-brand: #1A1500;
+    --gold: #E7C35A;
+    --teal: #6FB4B6;
+    --teal-soft: #1C2A2A;
+    --danger: #E79189;
+    --frame: #34301F;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121109;
+  --surface: #1B1912;
+  --ink: #EFEBE0;
+  --ink-soft: #B3AC98;
+  --line: #34301F;
+  --brand: #FFD23F;
+  --brand-soft: #3D3100;
+  --on-brand: #1A1500;
+  --gold: #E7C35A;
+  --teal: #6FB4B6;
+  --teal-soft: #1C2A2A;
+  --danger: #E79189;
+  --frame: #34301F;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  padding-inline: 16px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1040px; margin-inline: auto; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.3; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.86em; direction: ltr; unicode-bidi: isolate; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* الرأس */
+header.top { padding-block: 40px 28px; display: grid; gap: 14px; }
+.sign {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+  background: var(--brand); color: var(--on-brand); font-weight: 700;
+  padding: 4px 14px; border-radius: 8px 8px 3px 3px; font-size: 14px; letter-spacing: 0.02em;
+}
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 700; }
+.lead { font-size: 18px; color: var(--ink-soft); max-width: 62ch; }
+.checker {
+  height: 10px; border-radius: 3px; margin-top: 6px;
+  background-image:
+    linear-gradient(45deg, var(--ink) 25%, transparent 25%, transparent 75%, var(--ink) 75%),
+    linear-gradient(45deg, var(--ink) 25%, transparent 25%, transparent 75%, var(--ink) 75%);
+  background-size: 10px 10px; background-position: 0 0, 5px 5px; background-color: var(--brand);
+  opacity: 0.9;
+}
+.note {
+  background: var(--teal-soft); color: var(--ink); border-radius: 12px;
+  padding: 12px 16px; font-size: 14.5px; max-width: 78ch;
+}
+.note b { color: var(--teal); }
+
+/* التنقّل */
+nav.toc {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-block-end: 1px solid var(--line);
+  margin-inline: -16px; padding: 10px 16px;
+}
+nav.toc ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; max-width: 1040px; margin-inline: auto; }
+nav.toc a {
+  display: inline-block; padding: 5px 12px; border-radius: 999px; color: var(--ink);
+  text-decoration: none; font-size: 14px; font-weight: 500; border: 1px solid var(--line); background: var(--surface);
+}
+nav.toc a:hover, nav.toc a:focus-visible { border-color: var(--ink); outline: none; }
+
+section.block { padding-block: 44px 8px; display: grid; gap: 22px; scroll-margin-top: 64px; }
+.block-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+.block-head h2 { font-size: clamp(24px, 3.6vw, 32px); }
+.block-head p { color: var(--ink-soft); max-width: 60ch; }
+.eyebrow { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.04em; }
+
+button.copy {
+  font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 14px; white-space: nowrap;
+}
+button.copy:hover, button.copy:focus-visible { border-color: var(--ink); outline: none; }
+button.copy[data-done] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+
+/* شريط المراحل */
+ol.stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; counter-reset: stage; }
+ol.stages li {
+  counter-increment: stage; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; align-content: start;
+}
+ol.stages li::before {
+  content: counter(stage); display: inline-grid; place-items: center; width: 28px; height: 22px;
+  background: var(--brand); color: var(--on-brand); font-weight: 700; font-size: 13px;
+  border-radius: 6px 6px 2px 2px; margin-block-end: 4px;
+}
+ol.stages b { font-size: 15.5px; }
+ol.stages span { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
+
+/* الطرق الثلاث */
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.mode { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+.mode h3 { font-size: 19px; }
+.mode .tag { font-size: 12.5px; font-weight: 600; color: var(--teal); }
+.mode p { font-size: 14.5px; color: var(--ink-soft); }
+
+/* الخطوات */
+.steps { display: grid; gap: 18px; }
+.step {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 22px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px;
+}
+.step-text { display: grid; gap: 10px; align-content: start; }
+.step-text h3 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.step-text h3 .n {
+  display: inline-grid; place-items: center; min-width: 30px; height: 24px; padding-inline: 6px;
+  background: var(--brand); color: var(--on-brand); font-size: 13.5px; font-weight: 700;
+  border-radius: 6px 6px 2px 2px; flex: none;
+}
+.step-text ul { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; }
+.step-text li { font-size: 15px; }
+.rule {
+  font-size: 14px; background: var(--brand-soft); border-radius: 10px; padding: 8px 12px;
+}
+.rule b { color: var(--gold); }
+.shots { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-start; }
+figure.phone { margin: 0; display: grid; gap: 6px; justify-items: center; width: 190px; max-width: 100%; }
+figure.phone img {
+  display: block; width: 100%; height: auto; aspect-ratio: 390 / 844;
+  border: 5px solid var(--frame); border-radius: 26px; background: var(--paper);
+  box-shadow: 0 6px 18px rgba(23, 21, 15, 0.12);
+}
+figure.phone figcaption { font-size: 12.5px; color: var(--ink-soft); text-align: center; line-height: 1.5; }
+
+/* السيناريوهات */
+.scenario { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+.scenario h3 { font-size: 20px; }
+.scenario .who { font-size: 13px; font-weight: 600; color: var(--teal); }
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.strip figure.phone { width: 100%; }
+.plain { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.plain .scenario p { font-size: 14.5px; color: var(--ink-soft); }
+.msg {
+  font-size: 14px; background: var(--ink); color: var(--paper); border-radius: 10px;
+  padding: 8px 12px; width: fit-content; max-width: 100%;
+}
+
+/* القواعد */
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14.5px; }
+th, td { text-align: start; padding: 10px 14px; border-block-end: 1px solid var(--line); vertical-align: top; }
+th { font-size: 13px; color: var(--gold); font-weight: 600; }
+tr:last-child td { border-block-end: none; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+footer { padding-block: 40px 0; color: var(--ink-soft); font-size: 13.5px; display: grid; gap: 6px; }
+
+@media (max-width: 720px) {
+  .step { grid-template-columns: 1fr; padding: 16px; }
+  .shots { justify-content: center; }
+  figure.phone { width: calc(50% - 6px); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+
+<header class="top">
+  <span class="sign">سووم تكسي</span>
+  <h1>دليل رحلات سووم</h1>
+  <p class="lead">كيف يطلب الزبون، وكيف يعمل السائق، وما يحدث في كلّ حالة: عرض سعر، إلغاء، زبون لم يحضر، دعوة سيارة بعينها. كلّ خطوة معها صورتها من التطبيق نفسه.</p>
+  <div class="checker" aria-hidden="true"></div>
+  <p class="note"><b>عن الصور:</b> كلّها من التطبيقين الحقيقيّين يعملان على خادم حقيقيّ، لا تصاميم. الخريطة في الصور خلفيّة محايدة لأنّ بيئة التصوير حجبت خوادم الخرائط؛ على الهاتف تظهر الشوارع. وقصّرنا للتصوير بعض المهل (انتظار «الزبون لم يحضر» دقيقة بدل خمس).</p>
+</header>
+
+<nav class="toc" aria-label="أقسام الدليل">
+  <ul>
+    <li><a href="#stages">مراحل الرحلة</a></li>
+    <li><a href="#modes">طرق الطلب</a></li>
+    <li><a href="#customer">تطبيق الزبون</a></li>
+    <li><a href="#driver">تطبيق السائق</a></li>
+    <li><a href="#scenarios">السيناريوهات</a></li>
+    <li><a href="#rules">القواعد والأرقام</a></li>
+  </ul>
+</nav>
+
+<section class="block" id="stages">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">الصورة الكاملة</div>
+      <h2>مراحل الرحلة</h2>
+    </div>
+    <button class="copy" type="button" data-copy="stages">انسخ القسم</button>
+  </div>
+  <ol class="stages" data-text="stages">
+    <li><b>الطلب</b><span>الزبون يحدّد الوجهة ويختار طريقة الطلب.</span></li>
+    <li><b>البحث</b><span>عروض من السائقين، أو دعوة لسائق.</span></li>
+    <li><b>التثبيت</b><span>الزبون يختار عرضًا فيثبت السعر.</span></li>
+    <li><b>في الطريق</b><span>السائق يتّجه للالتقاء والزبون يرى سيارته تتحرّك.</span></li>
+    <li><b>الوصول</b><span>الخادم يتأكّد أنّ السائق ضمن 200 م.</span></li>
+    <li><b>الرحلة</b><span>من نقطة الالتقاء إلى الوجهة.</span></li>
+    <li><b>النهاية</b><span>السائق يُنهي ضمن نطاق الوجهة.</span></li>
+    <li><b>الدفع</b><span>نقدًا، والسائق وحده يؤكّد القبض.</span></li>
+    <li><b>التقييم</b><span>نجوم وأوسمة، أو شكوى.</span></li>
+  </ol>
+</section>
+
+<section class="block" id="modes">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">ثلاث طرق</div>
+      <h2>طرق الطلب</h2>
+    </div>
+    <button class="copy" type="button" data-copy="modes">انسخ القسم</button>
+  </div>
+  <div class="modes" data-text="modes">
+    <div class="mode">
+      <span class="tag">الطريقة الأساسيّة</span>
+      <h3>سوم</h3>
+      <p>السائقون القريبون يعرضون أسعارهم وأنت تختار. وتستطيع أن تعرض سعرك أنت: السائق يقبله كما هو أو يعرض أعلى منه.</p>
+    </div>
+    <div class="mode">
+      <span class="tag">الأسرع</span>
+      <h3>الأقرب</h3>
+      <p>الخادم يسأل أقرب سائق، وإن لم يقبل خلال ثوانٍ ينتقل للتالي. بسعر المنصّة.</p>
+    </div>
+    <div class="mode">
+      <span class="tag">من الخريطة</span>
+      <h3>اختر سيارتك</h3>
+      <p>تلمس سيارة على الخريطة وتدعو سائقها بالذات، ومهلة الردّ 20 أو 40 أو 60 ثانية. بسعر المنصّة.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="customer">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">خطوة بخطوة</div>
+      <h2>تطبيق الزبون</h2>
+    </div>
+    <button class="copy" type="button" data-copy="customer">انسخ القسم</button>
+  </div>
+  <div class="steps" data-text="customer">
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">1</span>تسجيل الدخول</h3>
+        <ul>
+          <li>رقم الهاتف السوريّ، ثمّ رمز من 4 إلى 6 أرقام يصل برسالة.</li>
+          <li>الرمز ينتهي بعد 5 دقائق، ويمكن إعادة إرساله أو تغيير الرقم.</li>
+        </ul>
+        <p class="rule"><b>ملاحظة:</b> سطر «رمز التطوير» في الصورة يظهر في نسخة التطوير فقط. الخادم لا يرسله أبدًا في الإنتاج.</p>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c01_login_phone.webp" alt="شاشة إدخال رقم الهاتف" loading="lazy"><figcaption>رقم الهاتف</figcaption></figure>
+        <figure class="phone"><img src="img/c02_login_code.webp" alt="شاشة إدخال رمز التحقّق" loading="lazy"><figcaption>رمز التحقّق</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">2</span>الخريطة والسيارات حولك</h3>
+        <ul>
+          <li>فوق كلّ سيارة: التقييم (أو «جديد» لمن لم يُقيَّم)، والاسم الأوّل للسائق، ودقائق الوصول.</li>
+          <li>السيارة المشتركة تُظهر مقاعدها نقاطًا: ●●○○ تعني راكبَين من أربعة.</li>
+          <li>السيارات تتحرّك حيّةً وتدور مع اتجاه سيرها.</li>
+          <li>الشريط العلويّ: كم سيارة ضمن نطاق البحث.</li>
+          <li>في الأعلى: رحلاتي، والدعوات والاشتراك، والإشعارات.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c03_home.webp" alt="الشاشة الرئيسية مع السيارات القريبة" loading="lazy"><figcaption>الرئيسية</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">3</span>الوجهة وطريقة الطلب</h3>
+        <ul>
+          <li>«حدّد على الخريطة» ثمّ لمسة واحدة على الوجهة.</li>
+          <li>تظهر المسافة والمدّة، و«سعر تقريبي» حين يكون المسار مقدَّرًا.</li>
+          <li>اختر: سوم، أو الأقرب، أو اختر سيارتك.</li>
+          <li>«شارك الرحلة» أرخص: تتقاسم السيارة مع ركّاب في طريقك.</li>
+          <li>«خيارات أكثر»: نطاق البحث، الحجز لموعد لاحق، عدد الركّاب.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c05_destination_set.webp" alt="تحديد الوجهة واختيار سوم" loading="lazy"><figcaption>الوجهة محدّدة</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">4</span>سوم: اعرض سعرك</h3>
+        <ul>
+          <li>بعد الطلب تظهر تسعيرة المنصّة وبطاقة «سعرك» بزرّي − و+.</li>
+          <li>«اعرض سعري» يرسل السعر للسائقين القريبين.</li>
+          <li>بعد العرض تستطيع رفعه فقط، ولا تستطيع إنزاله.</li>
+          <li>العدّاد في الأعلى: الوقت المتبقّي للبحث.</li>
+        </ul>
+        <p class="rule"><b>الحدود:</b> أدنى سعر 70٪ من تسعيرة المنصّة، والخطوة 500 ل.س. الرقمان من لوحة الإدارة لكلّ مدينة.</p>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c07_searching_with_price.webp" alt="البحث مع بطاقة سعرك" loading="lazy"><figcaption>قبل عرض السعر</figcaption></figure>
+        <figure class="phone"><img src="img/c09_price_offered.webp" alt="السعر معروض على السائقين" loading="lazy"><figcaption>بعد عرضه: ارفعه فقط</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">5</span>العروض تصل</h3>
+        <ul>
+          <li>لكلّ عرض: اسم السائق مختصرًا (سامر خ.)، والسيارة، ودقائق الوصول، والتقييم، والسعر.</li>
+          <li>الحلقة حول كلّ عرض: مهلته قبل أن يسقط.</li>
+          <li>«اختر» تثبّت الرحلة بهذا السعر، وهو ما تدفعه.</li>
+        </ul>
+        <p class="rule"><b>الخصوصيّة:</b> الاسم الكامل ورقم الهاتف واللوحة لا تظهر إلّا بعد أن تختار السائق.</p>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c10_offers.webp" alt="ثلاثة عروض من السائقين" loading="lazy"><figcaption>ثلاثة عروض</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">6</span>السائق في الطريق إليك</h3>
+        <ul>
+          <li>الاسم الكامل، والسيارة ولونها، ورقم اللوحة، وزرّ الاتّصال.</li>
+          <li>السيارة تتحرّك على الخريطة نحوك مع كلّ تحديث لموقعها.</li>
+          <li>المبلغ الذي ستدفعه ثابت أسفل الشاشة.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c11_trip_assigned.webp" alt="تأكّدت الرحلة والسائق في الطريق" loading="lazy"><figcaption>في الطريق إليك</figcaption></figure>
+        <figure class="phone"><img src="img/c15_driver_arrived.webp" alt="سائقك بانتظارك" loading="lazy"><figcaption>سائقك بانتظارك</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">7</span>إلغاء الرحلة</h3>
+        <ul>
+          <li>«ألغِ الرحلة» يفتح قائمة أسباب، واختيار السبب هو تأكيد الإلغاء.</li>
+          <li>فوق القائمة: هل الإلغاء الآن مجّانيّ أم يُحسب مخالفة.</li>
+          <li>«رجوع» يُبقي الرحلة كما هي.</li>
+        </ul>
+        <p class="rule"><b>مهمّ:</b> سبب «السائق طلب منّي أن ألغي» يُسجَّل على السائق، لأنّه أشهر طريقة لإكمال المشوار خارج التطبيق.</p>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c13_cancel_reasons.webp" alt="قائمة أسباب الإلغاء" loading="lazy"><figcaption>لماذا تلغي؟</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">8</span>الوصول والدفع والتقييم</h3>
+        <ul>
+          <li>عند الوصول: المبلغ المتّفق عليه، و«بانتظار تأكيد السائق قبض المبلغ».</li>
+          <li>تتحوّل إلى «تمّ الدفع» وحدها حين يؤكّد السائق.</li>
+          <li>التقييم: نجوم، ثمّ أوسمة جاهزة (سيارة نظيفة، قيادة آمنة…)، وتعليق اختياريّ.</li>
+          <li>«قدّم شكوى» متاحة هنا ومن سجلّ الرحلات.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c17_finish.webp" alt="وصلت: بانتظار تأكيد الدفع" loading="lazy"><figcaption>بانتظار التأكيد</figcaption></figure>
+        <figure class="phone"><img src="img/c19_rating_five.webp" alt="تمّ الدفع والتقييم بخمس نجوم" loading="lazy"><figcaption>تمّ الدفع والتقييم</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">9</span>رحلاتي</h3>
+        <ul>
+          <li>كلّ الرحلات مع التاريخ والمبلغ، والملغاة بشارة «أُلغيت».</li>
+          <li>«اعرض المسار» للرحلات المكتملة.</li>
+          <li>علم الشكوى بجانب كلّ رحلة.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/c30_history.webp" alt="سجلّ الرحلات" loading="lazy"><figcaption>سجلّ الرحلات</figcaption></figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="block" id="driver">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">خطوة بخطوة</div>
+      <h2>تطبيق السائق</h2>
+    </div>
+    <button class="copy" type="button" data-copy="driver">انسخ القسم</button>
+  </div>
+  <div class="steps" data-text="driver">
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">1</span>ابدأ العمل</h3>
+        <ul>
+          <li>المفتاح في الأعلى: «تعمل الآن» تعني أنّك ظاهر للزبائن فعلًا، أي أنّ موقعك وصل للخادم.</li>
+          <li>الشاشة تبقى مضاءة ما دمت تعمل (أندرويد)، لأنّ قفلها يوقف إرسال موقعك.</li>
+          <li>إن كان في الهاتف تطبيق لتزييف الموقع يُرفض الموقع وتظهر رسالة: أطفئ تطبيق التزييف.</li>
+          <li>في الأعلى: رصيدي، ونشر رحلة (سفريات بين المدن).</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d02_online.webp" alt="السائق يعمل الآن" loading="lazy"><figcaption>تعمل الآن</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">2</span>الطلبات المتاحة</h3>
+        <ul>
+          <li>سعر الزبون إن عرض سعرًا، وإلّا تسعيرة المنصّة.</li>
+          <li>«الالتقاط على بعد 70 م منك»، وطول المشوار ومدّته.</li>
+          <li>شارة حمراء إن ألغى الزبون مؤخرًا («ألغى مرّتين مؤخرًا»).</li>
+          <li>العدّاد: الوقت المتبقّي لهذا الطلب.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d03_request_list.webp" alt="قائمة الطلبات المتاحة" loading="lazy"><figcaption>طلب بسعر الزبون</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">3</span>قدّم عرضك</h3>
+        <ul>
+          <li>على سعر زبون: «اقبل بسعر الزبون» بلمسة، أو عرض أعلى بلمسة (+5٪، +10٪، +15٪ مقرَّبة).</li>
+          <li>السقف ظاهر: «أو اعرض أعلى — حتّى 6,000».</li>
+          <li>بلا سعر زبون: تسعيرة المنصّة تُكتب تلقائيًّا ويمكن تعديلها ضمن الحدود.</li>
+          <li>زمن الوصول بالدقائق، ثمّ «أرسل العرض».</li>
+        </ul>
+        <p class="rule"><b>لا تخفيض:</b> لا يقبل الخادم عرضًا أقلّ من سعر الزبون، حتّى لا يصير سباقًا نحو الأرخص.</p>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d04_offer_sheet.webp" alt="تقديم عرض على سعر الزبون" loading="lazy"><figcaption>على سعر الزبون</figcaption></figure>
+        <figure class="phone"><img src="img/d04b_offer_sheet_platform_price.webp" alt="تقديم عرض بتسعيرة المنصّة" loading="lazy"><figcaption>بتسعيرة المنصّة</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">4</span>إلى نقطة الالتقاء</h3>
+        <ul>
+          <li>المسافة المتبقّية بالأمتار، ودائرة نطاق الوصول على الخريطة.</li>
+          <li>«وصلتُ» معطَّل حتّى تدخل الدائرة (200 م)، ورسالة تقول ذلك.</li>
+          <li>الخادم نفسه يتحقّق من الموقع، فلا يمكن ادّعاء الوصول من البيت.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d06_to_pickup.webp" alt="السائق بعيد عن نقطة الالتقاء" loading="lazy"><figcaption>تبقّى 618 مترًا</figcaption></figure>
+        <figure class="phone"><img src="img/d07_at_pickup.webp" alt="السائق ضمن النطاق" loading="lazy"><figcaption>ضمن النطاق</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">5</span>وصلت: ابدأ أو «الزبون لم يحضر»</h3>
+        <ul>
+          <li>«ابدأ الرحلة» حين يركب الزبون.</li>
+          <li>«الزبون لم يحضر» معطَّل بعدٍّ تنازليّ حتّى ينقضي وقت الانتظار (5 دقائق افتراضيًّا).</li>
+          <li>بعد الانتظار يُفتح الزرّ، وتسجيله لا يُحسب عليك.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d08_arrived_noshow_countdown.webp" alt="عدّاد الانتظار قبل عدم الحضور" loading="lazy"><figcaption>ينتظر العدّاد</figcaption></figure>
+        <figure class="phone"><img src="img/d09_noshow_enabled.webp" alt="زرّ الزبون لم يحضر مفعّل" loading="lazy"><figcaption>انقضى الانتظار</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">6</span>الرحلة والإنهاء</h3>
+        <ul>
+          <li>العنوان يصير «إلى الوجهة»، والمسافة المتبقّية إليها.</li>
+          <li>«أنهِ الرحلة» يُقبل ضمن نطاق الوجهة فقط.</li>
+          <li>ما يقبضه السائق ظاهر طوال الرحلة.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d11_at_destination.webp" alt="عند الوجهة" loading="lazy"><figcaption>عند الوجهة</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">7</span>تحصيل الأجرة</h3>
+        <ul>
+          <li>«تحصيل الأجرة» بالمبلغ المتّفق عليه.</li>
+          <li>«استلمتُ المبلغ» حقّ السائق وحده، ولا يستطيع الزبون تأكيده عنه.</li>
+          <li>بعد التأكيد يعود السائق لقائمة الطلبات، ويرى الزبون «تمّ الدفع».</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d12_collect_cash.webp" alt="تحصيل الأجرة نقدًا" loading="lazy"><figcaption>استلمتُ المبلغ</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="step">
+      <div class="step-text">
+        <h3><span class="n num">8</span>رصيدي</h3>
+        <ul>
+          <li>موجب: سووم تدين لك (خصومات زبائنك وتعويضات المشاوير الفاضية).</li>
+          <li>سالب: عمولة عليك للمنصّة من الرحلات النقديّة.</li>
+          <li>مجموع ما كسبته ومجموع العمولة.</li>
+        </ul>
+      </div>
+      <div class="shots">
+        <figure class="phone"><img src="img/d20_balance.webp" alt="رصيد السائق" loading="lazy"><figcaption>رصيد السائق</figcaption></figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="block" id="scenarios">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">الحالات كما تحدث</div>
+      <h2>السيناريوهات</h2>
+    </div>
+    <button class="copy" type="button" data-copy="scenarios">انسخ القسم</button>
+  </div>
+  <div class="steps" data-text="scenarios">
+
+    <div class="scenario">
+      <span class="who">الزبون والسائق</span>
+      <h3>الزبون يعرض سعره ويرفعه</h3>
+      <p>رنا عرضت 4,000 بدل تسعيرة 4,944. رأى السائقون «سعر الزبون: 4,000»، فعرض سامر 4,000، ومحمد 4,500، ونزار 5,000. اختارت محمد لتقييمه.</p>
+      <div class="strip">
+        <figure class="phone"><img src="img/c08_price_lowered.webp" alt="الزبون يخفض السعر قبل عرضه" loading="lazy"><figcaption>− مرّتين</figcaption></figure>
+        <figure class="phone"><img src="img/c09_price_offered.webp" alt="السعر معروض" loading="lazy"><figcaption>عُرض السعر</figcaption></figure>
+        <figure class="phone"><img src="img/d03_request_list.webp" alt="السائق يرى سعر الزبون" loading="lazy"><figcaption>عند السائق</figcaption></figure>
+        <figure class="phone"><img src="img/d04_offer_sheet.webp" alt="السائق يعرض 4,500" loading="lazy"><figcaption>عرضٌ أعلى</figcaption></figure>
+        <figure class="phone"><img src="img/c10_offers.webp" alt="الزبون يرى ثلاثة عروض" loading="lazy"><figcaption>ثلاثة عروض</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <span class="who">الزبون والسائق</span>
+      <h3>«الأقرب»</h3>
+      <p>الخادم دعا أقرب سائق تلقائيًّا، ووصلته «دعوة واردة» بمهلة ثوانٍ وما سيقبضه ومسافة الالتقاء. لم يردّ، فانتقل الخادم للتالي، والزبون يقرأ «ننتظر ردّ أقرب سائق».</p>
+      <div class="strip">
+        <figure class="phone"><img src="img/c27_nearest_selected.webp" alt="اختيار الأقرب" loading="lazy"><figcaption>أرسل أقرب سائق</figcaption></figure>
+        <figure class="phone"><img src="img/c28_nearest_searching.webp" alt="نسأل أقرب السائقين" loading="lazy"><figcaption>نسأل بالترتيب</figcaption></figure>
+        <figure class="phone"><img src="img/d19_nearest_invitation.webp" alt="دعوة واردة للسائق" loading="lazy"><figcaption>دعوة واردة</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <span class="who">الزبون والسائق</span>
+      <h3>«اختر سيارتك»</h3>
+      <p>رنا لمست سيارة محمد على الخريطة فصارت بطاقتها معكوسة الألوان وظهرت أسفل الشاشة. طلبتها، فرأت «بانتظار ردّ السائق» مع عدّاد، ووصلت الدعوة لمحمد فقبل. ويمكن أيضًا الدعوة من قائمة السيارات القريبة مع اختيار مهلة الردّ.</p>
+      <div class="strip">
+        <figure class="phone"><img src="img/c14_pick_car_selected.webp" alt="سيارة مختارة على الخريطة" loading="lazy"><figcaption>السيارة المختارة</figcaption></figure>
+        <figure class="phone"><img src="img/c23_invite_sheet.webp" alt="قائمة السيارات للدعوة" loading="lazy"><figcaption>ادعُ من القائمة</figcaption></figure>
+        <figure class="phone"><img src="img/c22_invite_waiting.webp" alt="بانتظار ردّ السائق" loading="lazy"><figcaption>بانتظار الردّ</figcaption></figure>
+        <figure class="phone"><img src="img/d16_invitation.webp" alt="السائق يرى الدعوة" loading="lazy"><figcaption>عند السائق</figcaption></figure>
+        <figure class="phone"><img src="img/c25_invite_accepted.webp" alt="قبل السائق الدعوة" loading="lazy"><figcaption>قَبِل</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <span class="who">الزبون ثمّ السائق</span>
+      <h3>الزبون يلغي</h3>
+      <p>بعد التثبيت ألغت رنا واختارت «غيّرت رأيي». كان الإلغاء خلال الدقيقتين الأوليين فلم يُحسب مخالفة. عاد السائق لقائمة الطلبات ووصلته رسالة:</p>
+      <p class="msg">ألغى الزبون الرحلة.</p>
+      <div class="strip">
+        <figure class="phone"><img src="img/c13_cancel_reasons.webp" alt="أسباب الإلغاء" loading="lazy"><figcaption>السبب</figcaption></figure>
+        <figure class="phone"><img src="img/d18_customer_cancelled.webp" alt="رسالة إلغاء الزبون عند السائق" loading="lazy"><figcaption>عند السائق</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <span class="who">السائق ثمّ الزبون</span>
+      <h3>الزبون لم يحضر، والسائق يُعوَّض</h3>
+      <p>وصل محمد وانتظر. بعد انقضاء الانتظار سجّل «الزبون لم يحضر» وأكّد. لم يُحسب الإلغاء عليه، وأُغلق الطلب، وأضافت سووم تعويضًا لرصيده من حسابها. ووصلت الزبونة رسالة تشرح ما حدث.</p>
+      <p class="msg">سُجّل عدم حضور الزبون، وأُضيف 4,000 تعويضًا إلى رصيدك.</p>
+      <div class="strip">
+        <figure class="phone"><img src="img/d08_arrived_noshow_countdown.webp" alt="العدّاد قبل عدم الحضور" loading="lazy"><figcaption>ينتظر</figcaption></figure>
+        <figure class="phone"><img src="img/d14_noshow_confirm.webp" alt="تأكيد عدم الحضور" loading="lazy"><figcaption>التأكيد</figcaption></figure>
+        <figure class="phone"><img src="img/d15_noshow_compensated.webp" alt="التعويض أُضيف" loading="lazy"><figcaption>التعويض</figcaption></figure>
+        <figure class="phone"><img src="img/c21_noshow_message.webp" alt="رسالة الزبون" loading="lazy"><figcaption>عند الزبون</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="plain">
+      <div class="scenario">
+        <span class="who">بلا صورة</span>
+        <h3>انتهت مهلة البحث</h3>
+        <p>لم يصل أيّ عرض. يعود الزبون للرئيسية وتظهر رسالة: «لم نجد سائقًا — جرّب نمطًا أوسع أو أعد المحاولة».</p>
+      </div>
+      <div class="scenario">
+        <span class="who">بلا صورة</span>
+        <h3>السائق يعتذر بعد القبول</h3>
+        <p>يعود الطلب للبحث بمهلة جديدة ولا يبقى الزبون بلا سيارة، ويقرأ «السائق اعتذر — نبحث لك عن سائق آخر». وثلاثة إلغاءات في اليوم توقف السائق ساعة.</p>
+      </div>
+      <div class="scenario">
+        <span class="who">بلا صورة</span>
+        <h3>موقع مزيّف</h3>
+        <p>هاتف السائق يعلن أنّ الموقع من تطبيق تزييف: يرفضه الخادم ويسجّل إشارة في نظام النزاهة، ويرى السائق «أطفئ تطبيق تزييف الموقع» ولا تصله طلبات حتّى يطفئه.</p>
+      </div>
+      <div class="scenario">
+        <span class="who">بلا صورة</span>
+        <h3>الإدارة تلغي رحلة</h3>
+        <p>الطرفان يعودان لشاشتهما الأولى مع رسالة «أُلغيت الرحلة»، ولا تُحسب على أحد.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="rules">
+  <div class="block-head">
+    <div>
+      <div class="eyebrow">كلّها قابلة للتعديل من لوحة الإدارة لكلّ مدينة</div>
+      <h2>القواعد والأرقام</h2>
+    </div>
+    <button class="copy" type="button" data-copy="rules">انسخ القسم</button>
+  </div>
+  <div class="table-wrap" data-text="rules">
+    <table>
+      <thead><tr><th>القاعدة</th><th>الافتراضي</th><th>ماذا يعني</th></tr></thead>
+      <tbody>
+        <tr><td>إلغاء مجّانيّ</td><td class="num">دقيقتان</td><td>بعد تثبيت السائق، يلغي الزبون بلا أيّ أثر.</td></tr>
+        <tr><td>تأخّر السائق</td><td class="num">+5 دقائق</td><td>إن تأخّر السائق عن وقته المعلن بأكثر منها فالإلغاء مجّانيّ دائمًا.</td></tr>
+        <tr><td>إلغاء متأخّر</td><td class="num">مخالفة واحدة</td><td>بلا غرامة ماليّة. بعد وصول السائق وانتظاره: مخالفتان.</td></tr>
+        <tr><td>عقوبة الزبون</td><td class="num">3 مخالفات بالأسبوع</td><td>يتوقّف «الأقرب» و«اختر سيارتك» عنه 24 ساعة، ويبقى «سوم».</td></tr>
+        <tr><td>انتظار السائق</td><td class="num">5 دقائق</td><td>بعدها يُفتح «الزبون لم يحضر».</td></tr>
+        <tr><td>تعويض المشوار الفاضي</td><td>أجرة فتح العدّاد</td><td>من حساب المنصّة، ويُخصم من العمولة المستحقّة على السائق. صفر يطفئه.</td></tr>
+        <tr><td>حماية التعويض</td><td class="num">3 باليوم</td><td>ومرّة واحدة لنفس السائق والزبون كلّ 14 يومًا، ولا تعويض لحساب مقيَّد.</td></tr>
+        <tr><td>إلغاء السائق</td><td class="num">3 باليوم</td><td>بعدها إيقاف ساعة عن العروض والدعوات. «لم يحضر» لا يُحسب.</td></tr>
+        <tr><td>سعر الزبون الأدنى</td><td class="num">70٪</td><td>من تسعيرة المنصّة، ثمّ يُرفع ولا يُخفض.</td></tr>
+        <tr><td>أعلى عرض للسائق</td><td class="num">150٪</td><td>من سعر الزبون، ولا يقلّ عنه.</td></tr>
+        <tr><td>نطاق الوصول</td><td class="num">200 م</td><td>«وصلتُ» و«أنهِ الرحلة» لا يُقبلان خارجه.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>الصور ملتقطة من فرع <code>claude/taxi-app-features-design-w1fat8</code> في مستودع <code>modar-m-dwery/soom-taxi</code>، يوم 26 أيلول 2026.</p>
+  <p>التطبيقان بخطّ IBM Plex Sans Arabic وألوان «كهرمان»، كما في الصور.</p>
+</footer>
+</div>
+
+<script>
+(function () {
+  function textOf(key) {
+    var box = document.querySelector('[data-text="' + key + '"]');
+    if (!box) return '';
+    var head = box.closest('section').querySelector('h2');
+    var lines = [head ? head.innerText.trim() : ''];
+    box.querySelectorAll('h3, li, p, tr').forEach(function (el) {
+      if (el.closest('li') && el.tagName !== 'LI') return;
+      var t = el.tagName === 'TR'
+        ? Array.from(el.children).map(function (c) { return c.innerText.trim(); }).join(' — ')
+        : el.innerText.replace(/\s+/g, ' ').trim();
+      if (!t) return;
+      lines.push(el.tagName === 'H3' ? '\n' + t : (el.tagName === 'LI' ? '• ' + t : t));
+    });
+    return lines.join('\n').trim();
+  }
+  function selectFallback(key) {
+    var box = document.querySelector('[data-text="' + key + '"]');
+    var range = document.createRange();
+    range.selectNodeContents(box);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  document.querySelectorAll('button.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-copy');
+      var done = function () {
+        btn.setAttribute('data-done', '');
+        var old = btn.textContent;
+        btn.textContent = 'نُسخ';
+        setTimeout(function () { btn.removeAttribute('data-done'); btn.textContent = old; }, 1600);
+      };
+      try {
+        navigator.clipboard.writeText(textOf(key)).then(done, function () { selectFallback(key); });
+      } catch (e) { selectFallback(key); }
+    });
+  });
+})();
+</script>
