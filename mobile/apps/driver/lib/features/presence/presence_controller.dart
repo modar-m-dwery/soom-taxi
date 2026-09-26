@@ -30,6 +30,7 @@ import 'package:soum_core/soum_core.dart';
 import '../../providers.dart';
 import 'location_fix.dart';
 import 'presence_state.dart';
+import 'screen_awake.dart';
 
 final presenceControllerProvider =
     NotifierProvider<PresenceController, PresenceState>(PresenceController.new);
@@ -123,11 +124,14 @@ class PresenceController extends Notifier<PresenceState>
     _sendHeartbeat();
     _startHeartbeat();
     _watchPosition();
+    // قفل الشاشة يوقف النبض — فالشاشة تبقى مضاءة ما دام يعمل.
+    unawaited(ScreenAwake.set(true));
   }
 
   Future<void> goOffline() async {
     _teardown();
     state = const PresenceState();
+    unawaited(ScreenAwake.set(false));
 
     try {
       await _soum.driver.goOffline();

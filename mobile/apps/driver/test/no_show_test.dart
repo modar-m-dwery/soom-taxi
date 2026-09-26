@@ -46,4 +46,15 @@ void main() {
     final source = File('lib/features/run/run_screen.dart').readAsStringSync();
     expect(source, contains('config.timings.cancelWaitMinutes'));
   });
+
+  test('الشاشة تبقى مضاءة ما دام السائق يعمل — قفلها يوقف النبض', () {
+    final source =
+        File('lib/features/presence/presence_controller.dart').readAsStringSync();
+    expect(source, contains('ScreenAwake.set(true)'));
+    expect(source, contains('ScreenAwake.set(false)'));
+    final activity = File(
+      'android/app/src/main/kotlin/sy/soum/soum_driver/MainActivity.kt',
+    ).readAsStringSync();
+    expect(activity, contains('FLAG_KEEP_SCREEN_ON'));
+  });
 }
