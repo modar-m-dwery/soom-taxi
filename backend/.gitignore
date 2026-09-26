@@ -44,3 +44,5 @@ logs/
 celerybeat-schedule.*
 *.zip
 .env.docker
+# مفاتيح FCM للتطوير داخل دوكر (FCM_SECRETS_DIR=./secrets)
+secrets/

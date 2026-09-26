@@ -547,3 +547,16 @@ class ObjectOwnershipTests(SecurityTestBase):
                     (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
                     f"{path} مفتوح بلا مصادقة",
                 )
+
+
+class DemoSeedRefusedInProductionTests(APITestCase):
+    """seed_mobile_demo يُنشئ مديرًا برقمٍ معروف ويطبع توكنه.
+    لو شُغّل في الإنتاج — بمتغيّر SEED_DEMO منسيّ — صار بابًا خلفيًّا."""
+
+    @override_settings(DEPLOYMENT_ENV="production")
+    def test_refuses_in_production(self):
+        from django.core.management import CommandError, call_command
+
+        with self.assertRaises(CommandError):
+            call_command("seed_mobile_demo")
+        self.assertFalse(User.objects.filter(phone="+963990000103").exists())

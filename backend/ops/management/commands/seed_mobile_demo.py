@@ -2,6 +2,7 @@
 import json
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.files.base import ContentFile
 from django.core.management import call_command
@@ -39,6 +40,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        # أرقامٌ معروفة وتوكناتها تُطبع، وأحدها حساب مدير: في الإنتاج هذا
+        # بابٌ خلفيّ لا عرض. entrypoint يستدعيه إن ضُبط SEED_DEMO=1 — وهذا
+        # السطر يمنع أن يصير متغيّرٌ منسيّ ثغرة.
+        if getattr(settings, "DEPLOYMENT_ENV", "") == "production":
+            raise CommandError("بيانات العرض لا تُزرع في الإنتاج.")
         if options["reset_operational"]:
             if not options["i_understand_reset"]:
                 raise CommandError("Add --i-understand-reset to confirm operational cleanup.")
