@@ -135,7 +135,10 @@ class CountdownRing extends StatelessWidget {
             ),
           ),
           Text(
-            '$secondsRemaining',
+            // مهلة الدعوة ثوانٍ، ومهلة البحث دقائق: «9:58» أوضح من «598».
+            secondsRemaining >= 100
+                ? formatClock(secondsRemaining)
+                : '$secondsRemaining',
             textDirection: TextDirection.ltr,
             style: SoumTheme.tabular(
               Theme.of(context).textTheme.labelLarge!.copyWith(

@@ -52,7 +52,11 @@ class BootController extends Notifier<BootState> {
       state = const BootLoading(BootStep.activeRide);
       final snapshot = await _soum.rides.activeRide();
 
-      state = BootReady(config: config, user: user, snapshot: snapshot);
+      state = BootReady(
+        config: await _configForRide(config, snapshot),
+        user: user,
+        snapshot: snapshot,
+      );
 
       // ٤ — تسجيل الجهاز للإشعارات، بعد أن تصير الشاشة جاهزة.
       //
@@ -71,6 +75,28 @@ class BootController extends Notifier<BootState> {
         return;
       }
       state = BootFailed(error);
+    }
+  }
+
+  /// رحلةٌ قائمة تحمل نقطة انطلاقها: المدينة منها لا من الافتراض.
+  ///
+  /// الإقلاع كثيرًا ما يمرّ بلا موقع، فتأتي المدينة الافتراضية. وشاشة
+  /// البحث أو الرحلة بعد إعادة فتح التطبيق لا تمرّ بالرئيسية التي تصحّح
+  /// المدينة من الموقع — فكانت تعمل بنصف قطر مدينة أخرى ومهلها، وبلا
+  /// سيارات على الخريطة. وُجد بتصوير التطبيق: «ضمن 7 كم» بدل 5 بعد إعادة
+  /// الفتح وسط البحث.
+  Future<AppConfig> _configForRide(
+    AppConfig config,
+    ActiveRideSnapshot snapshot,
+  ) async {
+    final pickup = snapshot.ride?.pickup;
+    if (pickup == null || config.resolution == AreaResolution.coordinates) {
+      return config;
+    }
+    try {
+      return await _soum.config.load(lat: pickup.lat, lng: pickup.lng);
+    } on Object {
+      return config;
     }
   }
 

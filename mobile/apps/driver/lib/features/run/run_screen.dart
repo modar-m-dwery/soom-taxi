@@ -399,12 +399,15 @@ class _RunSheet extends ConsumerWidget {
     final result = await ref
         .read(workControllerProvider.notifier)
         .reportNoShow(strings.runNoShow);
-    if (!context.mounted) return;
     if (!result.ok) {
+      if (!context.mounted) return;
       final error = ref.read(workControllerProvider).failure;
       if (error != null) showApiError(context, error);
       return;
     }
+    // لا فحص `mounted` هنا: نجاح «لم يحضر» يُنهي الرحلة فتُغلق هذه الشاشة
+    // قبل أن نصل — والرسالة (ومعها مبلغ التعويض) على مِرسال التطبيق الذي
+    // أخذناه قبل الانتظار. وُجد بالتصوير: التعويض سُجّل ولم يرَه السائق.
     final compensation = result.compensation;
     messenger.showSnackBar(
       SnackBar(

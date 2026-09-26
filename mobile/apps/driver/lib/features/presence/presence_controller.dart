@@ -232,7 +232,9 @@ class PresenceController extends Notifier<PresenceState>
 
     // موقعٌ طازج لا آخر ما وصل من التدفّق: التدفّق مرشَّح بعشرة أمتار،
     // وسيارةٌ توقّفت قبل قليل قد لا تكون بعثت تحديثًا منذ ذلك.
-    final fresh = await _readPosition();
+    // مهلةٌ قصيرة: السائق ضغط «وصلتُ» وينتظر، وآخر موقع من التدفّق حديثٌ
+    // أصلًا — الطازج تحسينٌ لا شرط.
+    final fresh = await _readPosition(timeout: const Duration(seconds: 4));
     if (fresh != null) {
       _latest = fresh;
       state = state.copyWith(lastPosition: fresh.point);
@@ -358,7 +360,9 @@ class PresenceController extends Notifier<PresenceState>
     );
   }
 
-  Future<LocationFix?> _readPosition() async {
+  Future<LocationFix?> _readPosition({
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
 
@@ -371,12 +375,15 @@ class PresenceController extends Notifier<PresenceState>
         return null;
       }
 
+      // المهلة من `Future.timeout` لا من `timeLimit` وحده: `timeLimit` لا
+      // يُحترم على كلّ جهاز (قِيس على شاشة الزبون الرئيسية)، ونداءٌ معلّق هنا
+      // يعلّق «وصلتُ» و«أنهِ» إلى الأبد بلا أيّ رسالة — وُجد بالتصوير.
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
           timeLimit: Duration(seconds: 10),
         ),
-      );
+      ).timeout(timeout);
       return LocationFix.fromPosition(position);
     } on Object {
       return null;

@@ -629,7 +629,7 @@ abstract class SoumStrings {
   /// No description provided for @offerEta.
   ///
   /// In ar, this message translates to:
-  /// **'{minutes} دقيقة'**
+  /// **'{minutes, plural, =0{أقلّ من دقيقة} =1{دقيقة واحدة} =2{دقيقتان} few{{minutes} دقائق} other{{minutes} دقيقة}}'**
   String offerEta(int minutes);
 
   /// No description provided for @offerChoose.
@@ -1895,7 +1895,7 @@ abstract class SoumStrings {
   /// No description provided for @balanceOwedToYou.
   ///
   /// In ar, this message translates to:
-  /// **'تدين لك سووم بهذا المبلغ — خصوماتٌ تحمّلتها عن زبائنك'**
+  /// **'تدين لك سووم بهذا المبلغ — خصومات زبائنك وتعويضات المشاوير الفاضية'**
   String get balanceOwedToYou;
 
   /// No description provided for @balanceYouOwe.
@@ -2015,7 +2015,7 @@ abstract class SoumStrings {
   /// No description provided for @dispatchOffersHint.
   ///
   /// In ar, this message translates to:
-  /// **'السائقون يعرضون أسعارهم وأنت تختار الأنسب'**
+  /// **'عروض من السائقين وأنت تختار'**
   String get dispatchOffersHint;
 
   /// No description provided for @dispatchNearest.
@@ -2183,7 +2183,7 @@ abstract class SoumStrings {
   /// No description provided for @lateCancelBadge.
   ///
   /// In ar, this message translates to:
-  /// **'ألغى {count} مرّات مؤخرًا'**
+  /// **'{count, plural, =1{ألغى مرّة مؤخرًا} =2{ألغى مرّتين مؤخرًا} few{ألغى {count} مرّات مؤخرًا} other{ألغى {count} مرّة مؤخرًا}}'**
   String lateCancelBadge(int count);
 
   /// No description provided for @cancelFreeNow.
@@ -2437,6 +2437,30 @@ abstract class SoumStrings {
   /// In ar, this message translates to:
   /// **'سعر الزبون'**
   String get workCustomerPriceLabel;
+
+  /// No description provided for @unitMeters.
+  ///
+  /// In ar, this message translates to:
+  /// **'{value} م'**
+  String unitMeters(String value);
+
+  /// No description provided for @workPickupAway.
+  ///
+  /// In ar, this message translates to:
+  /// **'الالتقاط على بعد {distance} منك'**
+  String workPickupAway(String distance);
+
+  /// No description provided for @runCustomerCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ألغى الزبون الرحلة.'**
+  String get runCustomerCancelled;
+
+  /// No description provided for @runCustomerCancelledCompensated.
+  ///
+  /// In ar, this message translates to:
+  /// **'ألغى الزبون الرحلة بعد انتظارك — أُضيف {amount} تعويضًا إلى رصيدك.'**
+  String runCustomerCancelledCompensated(String amount);
 }
 
 class _SoumStringsDelegate extends LocalizationsDelegate<SoumStrings> {

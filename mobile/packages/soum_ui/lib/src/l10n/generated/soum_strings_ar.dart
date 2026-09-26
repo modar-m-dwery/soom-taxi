@@ -328,7 +328,16 @@ class SoumStringsAr extends SoumStrings {
 
   @override
   String offerEta(int minutes) {
-    return '$minutes دقيقة';
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes دقيقة',
+      few: '$minutes دقائق',
+      two: 'دقيقتان',
+      one: 'دقيقة واحدة',
+      zero: 'أقلّ من دقيقة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1020,7 +1029,7 @@ class SoumStringsAr extends SoumStrings {
 
   @override
   String get balanceOwedToYou =>
-      'تدين لك سووم بهذا المبلغ — خصوماتٌ تحمّلتها عن زبائنك';
+      'تدين لك سووم بهذا المبلغ — خصومات زبائنك وتعويضات المشاوير الفاضية';
 
   @override
   String get balanceYouOwe => 'عليك للمنصّة';
@@ -1087,7 +1096,7 @@ class SoumStringsAr extends SoumStrings {
   String get dispatchOffers => 'سوم';
 
   @override
-  String get dispatchOffersHint => 'السائقون يعرضون أسعارهم وأنت تختار الأنسب';
+  String get dispatchOffersHint => 'عروض من السائقين وأنت تختار';
 
   @override
   String get dispatchNearest => 'الأقرب';
@@ -1183,7 +1192,15 @@ class SoumStringsAr extends SoumStrings {
 
   @override
   String lateCancelBadge(int count) {
-    return 'ألغى $count مرّات مؤخرًا';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ألغى $count مرّة مؤخرًا',
+      few: 'ألغى $count مرّات مؤخرًا',
+      two: 'ألغى مرّتين مؤخرًا',
+      one: 'ألغى مرّة مؤخرًا',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1334,4 +1351,22 @@ class SoumStringsAr extends SoumStrings {
 
   @override
   String get workCustomerPriceLabel => 'سعر الزبون';
+
+  @override
+  String unitMeters(String value) {
+    return '$value م';
+  }
+
+  @override
+  String workPickupAway(String distance) {
+    return 'الالتقاط على بعد $distance منك';
+  }
+
+  @override
+  String get runCustomerCancelled => 'ألغى الزبون الرحلة.';
+
+  @override
+  String runCustomerCancelledCompensated(String amount) {
+    return 'ألغى الزبون الرحلة بعد انتظارك — أُضيف $amount تعويضًا إلى رصيدك.';
+  }
 }

@@ -33,6 +33,24 @@ class DriverShell extends ConsumerWidget {
     final onboarding = ref.watch(onboardingControllerProvider);
     final work = ref.watch(workControllerProvider);
 
+    // الزبون ألغى (أو الإدارة): الشاشة تعود للقائمة، والرسالة تقول لماذا.
+    ref.listen(workControllerProvider.select((w) => w.endNotice), (previous, next) {
+      if (next == null || identical(next, previous)) return;
+      final strings = SoumStrings.of(context);
+      final compensation = next.compensation;
+      final message = !next.byCustomer
+          ? strings.tripCancelledBy
+          : compensation == null
+              ? strings.runCustomerCancelled
+              : strings.runCustomerCancelledCompensated(compensation.format());
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 6),
+        ));
+    });
+
     // الرحلة القائمة تسبق كلّ شيء: سائقٌ توثيقه انتهت صلاحيته وسط رحلة
     // يجب أن يُكملها لا أن يُرمى إلى شاشة رفع وثائق.
     final Widget body;

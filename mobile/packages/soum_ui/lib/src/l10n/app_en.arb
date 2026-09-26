@@ -327,7 +327,7 @@
   "daySun": "Sun",
   "listSeparator": ", ",
   "perksNextFormat": "EEEE d MMM, HH:mm",
-  "balanceOwedToYou": "Soum owes you this — discounts you covered for your customers",
+  "balanceOwedToYou": "Soum owes you this — customer discounts and wasted-trip compensation",
   "balanceYouOwe": "You owe the platform",
   "balanceLifetimeEarned": "Lifetime earned",
   "balanceLifetimeCommission": "Lifetime commission",
@@ -374,7 +374,7 @@
   },
   "driverBookingOpen": "Go",
   "dispatchOffers": "Soum",
-  "dispatchOffersHint": "Drivers bid their prices, you pick the best",
+  "dispatchOffersHint": "Drivers bid, you pick",
   "dispatchNearest": "Nearest",
   "dispatchNearestHint": "The closest driver is sent automatically",
   "dispatchPick": "Pick a car",
@@ -565,5 +565,30 @@
       }
     }
   },
-  "workCustomerPriceLabel": "Rider's price"
+  "workCustomerPriceLabel": "Rider's price",
+  "unitMeters": "{value} m",
+  "@unitMeters": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "workPickupAway": "Pickup {distance} away",
+  "@workPickupAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "runCustomerCancelled": "The rider cancelled the trip.",
+  "runCustomerCancelledCompensated": "The rider cancelled after you waited — {amount} was added to your balance.",
+  "@runCustomerCancelledCompensated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

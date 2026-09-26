@@ -32,6 +32,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
   final _map = OsmMapController();
 
   @override
+  void initState() {
+    super.initState();
+    // السيارات الحيّة من خليّة نقطة الانطلاق. الرئيسية تشترك عادةً، لكنّ
+    // إعادة فتح التطبيق وسط البحث تبدأ من هنا مباشرةً — فتبقى الخريطة بلا
+    // سيارة واحدة إن لم نشترك نحن.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pickup = ref.read(rideControllerProvider).ride?.pickup;
+      if (pickup != null && mounted) {
+        ref.read(marketplaceControllerProvider.notifier).followCamera(pickup);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final config = ref.watch(configProvider);
     final clock = ref.watch(clockProvider);
@@ -99,9 +113,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen> {
               clock: clock,
               canInvite: canInvite,
               canShare: canShare,
-              // «سوم» بنمط inDrive: الزبون يعرض سعره. «الأقرب» بسعر المنصّة.
+              // «سوم» بنمط inDrive: الزبون يعرض سعره. «الأقرب» و«اختر
+              // سيارتك» بسعر المنصّة — ودعوةٌ معلّقة لا يُعرض فوقها سعرٌ آخر.
               canPropose: config.pricing.customerCanPropose &&
-                  !arc.isAutoDispatching,
+                  !arc.isAutoDispatching &&
+                  !(arc.invitation?.isPending ?? false),
               onSelect: _select,
               onInvite: () => showInviteSheet(context, ref),
               onShare: () => showSharedSheet(context, ride.id),
@@ -159,6 +175,8 @@ class _SearchHeader extends StatelessWidget {
           : strings.nearestAsking;
     }
     if (arc.autoDispatchExhausted) return strings.nearestExhausted;
+    // «اختر سيارتك»: دعوةٌ لسائقٍ بعينه تنتظر ردّه — لا «نبحث عن سائق».
+    if (arc.invitation?.isPending ?? false) return strings.inviteWaiting;
     return strings.searchingSubtitle(_km(radiusKm));
   }
 
@@ -312,6 +330,10 @@ class _OffersSheet extends StatelessWidget {
                 ],
               ),
             ),
+            // «الأقرب» يدعو بنفسه ويقول ذلك في الرأس — البطاقة لـ«اختر سيارتك».
+            if (arc.invitation case final invitation?
+                when invitation.isPending && !arc.isAutoDispatching)
+              _PendingInvitationBanner(invitation: invitation, clock: clock),
             if (canPropose && arc.ride != null)
               ProposalBar(ride: arc.ride!, isBusy: arc.isBusy),
             if (!arc.hasOffers)
@@ -402,7 +424,7 @@ class OfferCard extends StatelessWidget {
                         Icon(Icons.star_rounded,
                             size: 13, color: theme.colorScheme.tertiary),
                         Text(
-                          offer.driverRating!.toStringAsFixed(1),
+                          formatRating(offer.driverRating!),
                           style: SoumTheme.tabular(theme.textTheme.bodySmall!),
                         ),
                       ],
@@ -506,6 +528,7 @@ class _ProposalBarState extends ConsumerState<ProposalBar> {
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
@@ -538,12 +561,73 @@ class _ProposalBarState extends ConsumerState<ProposalBar> {
                 ),
                 const SizedBox(width: 10),
                 FilledButton(
+                  // سمة التطبيق تجعل الزرّ بعرض الشاشة (`Size.fromHeight`)،
+                  // وفي صفٍّ يعني ذلك عرضًا لا نهائيًّا يُسقط الصفّ كلّه.
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
                   onPressed: widget.isBusy ? null : () => _send(value),
                   child: Text(
                     proposed == null ? strings.proposalSend : strings.proposalRaise,
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// دعوةٌ لسائقٍ بعينه تنتظر ردّه — ظاهرةٌ في شاشة البحث نفسها.
+///
+/// كانت بطاقة الانتظار في ورقة الدعوة وحدها، و«اختر سيارتك» من الخريطة لا
+/// يفتح تلك الورقة: فيرى الزبون «نبحث عن سائق… لم يصل عرض» والسائق أمامه
+/// يقرأ الدعوة. وُجد بالتصوير.
+class _PendingInvitationBanner extends StatelessWidget {
+  const _PendingInvitationBanner({required this.invitation, required this.clock});
+
+  final RideInvitation invitation;
+  final ServerClock clock;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = SoumStrings.of(context);
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            SoumCountdown(
+              deadline: invitation.expiresAt,
+              clock: clock,
+              builder: (context, seconds) => CountdownRing(
+                secondsRemaining: seconds,
+                totalSeconds: invitation.ttlSeconds,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(strings.inviteWaiting, style: theme.textTheme.titleMedium),
+                  if (invitation.driverName.isNotEmpty)
+                    Text(
+                      [
+                        driverShortName(invitation.driverName),
+                        '${invitation.vehicleMake} ${invitation.vehicleModel}'.trim(),
+                      ].where((part) => part.isNotEmpty).join(' · '),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                ],
+              ),
             ),
           ],
         ),

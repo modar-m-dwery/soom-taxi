@@ -67,9 +67,23 @@ class MarketplaceController extends Notifier<MarketplaceState> {
   /// مهلة استقرار الكاميرا قبل التبديل.
   static const _settle = Duration(milliseconds: 600);
 
+  /// آخر مركز كاميرا — لإعادة الاشتراك حين تتغيّر المدينة تحته.
+  GeoPoint? _lastCenter;
+
   @override
   MarketplaceState build() {
     ref.onDispose(_close);
+    // الإقلاع بلا موقع يعطي مدينةً افتراضيّة، ثمّ تُحلّ المدينة الحقيقيّة من
+    // الموقع. الخليّة تحمل رمز المدينة (`JAB:sy391`)، فبقاؤها على الافتراض
+    // يعني خريطةً بلا سيارة واحدة حتّى يسحبها الزبون — وُجد بالتصوير.
+    ref.listen(
+      configProvider.select((config) => config.areaCode),
+      (previous, next) {
+        final center = _lastCenter;
+        if (previous != next && center != null) followCamera(center);
+      },
+      onError: (_, _) {},
+    );
     return const MarketplaceState();
   }
 
@@ -78,6 +92,7 @@ class MarketplaceController extends Notifier<MarketplaceState> {
 
   /// تُنادى عند استقرار الكاميرا. التبديل يحدث بعد صمت [_settle].
   void followCamera(GeoPoint center) {
+    _lastCenter = center;
     final cellId = _config.cellIdFor(center);
 
     // خارج مناطق الخدمة: لا خليّة. الاشتراك بغرفة مخترَعة يصمت بلا خطأ،

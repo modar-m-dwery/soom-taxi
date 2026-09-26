@@ -127,7 +127,7 @@ class _Label extends StatelessWidget {
       // صفرٌ يعني «لم يُقيَّم بعد» لا «أسوأ سائق»: نقول «جديد».
       if (vehicle.rating case final rating? when rating > 0) ...[
         Icon(Icons.star_rounded, size: 12, color: isSelected ? ink : scheme.tertiary),
-        Text(rating.toStringAsFixed(1), style: style),
+        Text(formatRating(rating), style: style),
       ] else
         Text(strings.carNew, style: style.copyWith(color: soft)),
       const SizedBox(width: 5),
@@ -183,24 +183,11 @@ class _Label extends StatelessWidget {
   }
 }
 
-/// الاسم الأوّل من اسم السائق — `driver_name` يصل كاملًا من الخادم.
-String driverFirstName(String fullName) {
-  final trimmed = fullName.trim();
-  if (trimmed.isEmpty) return '';
-  return trimmed.split(RegExp(r'\s+')).first;
-}
+/// الاسم الأوّل من اسم السائق — من soum_core ليشترك فيه التطبيقان.
+String driverFirstName(String fullName) => firstName(fullName);
 
-/// «محمد ع.» — الاسم الأوّل وأوّل حرف من الثاني.
-///
-/// قبل القبول لا يُعرض اسم السائق كاملًا (قرار الخصوصية في وثيقة المنتج):
-/// الاسم الكامل مع نوع السيارة ولونها يكفي لتعقّب السائق خارج العمل.
-String driverShortName(String fullName) {
-  final words = fullName.trim().split(RegExp(r'\s+'))
-    ..removeWhere((w) => w.isEmpty);
-  if (words.isEmpty) return '';
-  if (words.length == 1) return words.first;
-  return '${words.first} ${words[1].characters.first}.';
-}
+/// «محمد ع.» قبل القبول — راجع `shortName` في soum_core.
+String driverShortName(String fullName) => shortName(fullName);
 
 /// مقاعد السيارة المشتركة نقاطًا: الممتلئة مصمتة والشاغرة مفرّغة.
 ///

@@ -61,7 +61,12 @@ abstract final class SoumColors {
 }
 
 abstract final class SoumTheme {
-  static const fontFamily = 'IBMPlexSansArabic';
+  /// خطّ مُعلَن في حزمة soum_ui، فاسمه عند التطبيق مسبوقٌ بالحزمة.
+  ///
+  /// بالاسم المجرّد `IBMPlexSansArabic` لا يجده المحرّك أبدًا: على أندرويد
+  /// يسقط بصمت إلى خطّ النظام (فلا يظهر خطّ الهويّة في أيّ شاشة)، وعلى الويب
+  /// يظهر العربيّ مربّعات. وُجد عند تصوير التطبيق في المتصفّح.
+  static const fontFamily = 'packages/soum_ui/IBMPlexSansArabic';
 
   static ThemeData light() => _build(Brightness.light);
   static ThemeData dark() => _build(Brightness.dark);

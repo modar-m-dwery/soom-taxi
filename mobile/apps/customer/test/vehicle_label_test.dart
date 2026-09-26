@@ -21,6 +21,8 @@ void main() {
     test('الاسم الأوّل وأوّل حرف من الثاني', () {
       expect(driverShortName('محمد عبد الله'), 'محمد ع.');
       expect(driverShortName('  سامر   خليل '), 'سامر خ.');
+      expect(driverShortName('محمد العلي'), 'محمد ع.',
+          reason: 'أداة التعريف لا تميّز أحدًا');
     });
 
     test('اسمٌ واحد يبقى كما هو، والفارغ فارغ', () {

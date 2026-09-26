@@ -172,7 +172,7 @@
     }
   },
   "offersEmpty": "لم يصل عرض بعد",
-  "offerEta": "{minutes} دقيقة",
+  "offerEta": "{minutes, plural, =0{أقلّ من دقيقة} =1{دقيقة واحدة} =2{دقيقتان} few{{minutes} دقائق} other{{minutes} دقيقة}}",
   "@offerEta": {
     "placeholders": {
       "minutes": {
@@ -532,7 +532,7 @@
   "daySun": "الأحد",
   "listSeparator": "، ",
   "perksNextFormat": "EEEE d MMM، HH:mm",
-  "balanceOwedToYou": "تدين لك سووم بهذا المبلغ — خصوماتٌ تحمّلتها عن زبائنك",
+  "balanceOwedToYou": "تدين لك سووم بهذا المبلغ — خصومات زبائنك وتعويضات المشاوير الفاضية",
   "balanceYouOwe": "عليك للمنصّة",
   "balanceLifetimeEarned": "مجموع ما كسبته",
   "balanceLifetimeCommission": "مجموع العمولة",
@@ -579,7 +579,7 @@
   },
   "driverBookingOpen": "توجّه",
   "dispatchOffers": "سوم",
-  "dispatchOffersHint": "السائقون يعرضون أسعارهم وأنت تختار الأنسب",
+  "dispatchOffersHint": "عروض من السائقين وأنت تختار",
   "dispatchNearest": "الأقرب",
   "dispatchNearestHint": "أقرب سائق يُرسَل إليك تلقائيًّا",
   "dispatchPick": "اختر سيارتك",
@@ -648,7 +648,7 @@
       }
     }
   },
-  "lateCancelBadge": "ألغى {count} مرّات مؤخرًا",
+  "lateCancelBadge": "{count, plural, =1{ألغى مرّة مؤخرًا} =2{ألغى مرّتين مؤخرًا} few{ألغى {count} مرّات مؤخرًا} other{ألغى {count} مرّة مؤخرًا}}",
   "@lateCancelBadge": {
     "placeholders": {
       "count": {
@@ -770,5 +770,30 @@
       }
     }
   },
-  "workCustomerPriceLabel": "سعر الزبون"
+  "workCustomerPriceLabel": "سعر الزبون",
+  "unitMeters": "{value} م",
+  "@unitMeters": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "workPickupAway": "الالتقاط على بعد {distance} منك",
+  "@workPickupAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "runCustomerCancelled": "ألغى الزبون الرحلة.",
+  "runCustomerCancelledCompensated": "ألغى الزبون الرحلة بعد انتظارك — أُضيف {amount} تعويضًا إلى رصيدك.",
+  "@runCustomerCancelledCompensated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

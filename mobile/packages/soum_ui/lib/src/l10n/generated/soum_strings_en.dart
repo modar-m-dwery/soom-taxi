@@ -1016,7 +1016,7 @@ class SoumStringsEn extends SoumStrings {
 
   @override
   String get balanceOwedToYou =>
-      'Soum owes you this — discounts you covered for your customers';
+      'Soum owes you this — customer discounts and wasted-trip compensation';
 
   @override
   String get balanceYouOwe => 'You owe the platform';
@@ -1085,8 +1085,7 @@ class SoumStringsEn extends SoumStrings {
   String get dispatchOffers => 'Soum';
 
   @override
-  String get dispatchOffersHint =>
-      'Drivers bid their prices, you pick the best';
+  String get dispatchOffersHint => 'Drivers bid, you pick';
 
   @override
   String get dispatchNearest => 'Nearest';
@@ -1336,4 +1335,22 @@ class SoumStringsEn extends SoumStrings {
 
   @override
   String get workCustomerPriceLabel => 'Rider\'s price';
+
+  @override
+  String unitMeters(String value) {
+    return '$value m';
+  }
+
+  @override
+  String workPickupAway(String distance) {
+    return 'Pickup $distance away';
+  }
+
+  @override
+  String get runCustomerCancelled => 'The rider cancelled the trip.';
+
+  @override
+  String runCustomerCancelledCompensated(String amount) {
+    return 'The rider cancelled after you waited — $amount was added to your balance.';
+  }
 }

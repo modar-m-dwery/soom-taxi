@@ -224,6 +224,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // الخريطة بعشرين بطاقة لا يحتاجها.
                     showLabel: picking || fleet.length <= 6,
                     onTap: () => setState(() {
+                      // في وضع «حدّد على الخريطة» اللمسة وجهةٌ حتّى فوق
+                      // سيارة: السيارات تتحرّك تحت إصبع الزبون، ولمسةٌ
+                      // تصيب إحداها كانت تحوّله إلى «اختر سيارتك» بلا قصد.
+                      if (_pickingDestination) {
+                        _destination = vehicle.position;
+                        _pickingDestination = false;
+                        return;
+                      }
                       if (!picking) _style = DispatchStyle.pick;
                       _pickedDriverId = vehicle.driverId;
                     }),

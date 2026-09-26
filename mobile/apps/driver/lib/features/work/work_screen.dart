@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soum_core/soum_core.dart';
+import 'package:soum_maps/soum_maps.dart';
 import 'package:soum_ui/soum_ui.dart';
 
 import '../../providers.dart';
@@ -156,6 +157,18 @@ class CandidateCard extends ConsumerWidget {
                           ),
                         ),
                       ],
+                      // كم يبعد الالتقاء عنّي؟ السؤال الأوّل لأيّ سائق قبل
+                      // أن يعرض — والخادم يعرف المسار لا موقع السائق الآن.
+                      if (_pickupAway(ref, ride) case final meters?) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          strings.workPickupAway(meters >= 1000
+                              ? strings.unitKm((meters / 1000).toStringAsFixed(1))
+                              : strings.unitMeters('${(meters / 10).round() * 10}')),
+                          style: SoumTheme.tabular(theme.textTheme.bodySmall!)
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ],
                       const SizedBox(height: 2),
                       Text(
                         [
@@ -175,7 +188,8 @@ class CandidateCard extends ConsumerWidget {
                   deadline: ride.expiresAt,
                   clock: clock,
                   builder: (context, seconds) => Text(
-                    strings.searchingTimeLeft(seconds),
+                    // «9:58» لا «598 ثانية»: مهلة البحث دقائق لا ثوانٍ.
+                    formatClock(seconds),
                     style: SoumTheme.tabular(
                       theme.textTheme.labelMedium!.copyWith(
                         color: seconds < 30
@@ -308,4 +322,12 @@ class _BookingCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// المسافة من موقع السائق إلى نقطة الالتقاء بالمتر — null حين يغيب أحدهما.
+double? _pickupAway(WidgetRef ref, RideRequest ride) {
+  final me = ref.watch(presenceControllerProvider).lastPosition;
+  final pickup = ride.pickup;
+  if (me == null || pickup == null) return null;
+  return distanceMeters(me, pickup);
 }

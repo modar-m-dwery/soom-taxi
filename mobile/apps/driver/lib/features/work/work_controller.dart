@@ -26,6 +26,17 @@ import '../../providers.dart';
 import '../presence/presence_controller.dart';
 import '../presence/presence_state.dart';
 
+/// رحلةٌ انتهت بغير يد السائق — تُعرض رسالةً مرّة (القشرة تستمع).
+class RideEndNotice {
+  const RideEndNotice({required this.byCustomer, this.compensation});
+
+  /// ألغاها الزبون (وإلّا فالإدارة أو النظام).
+  final bool byCustomer;
+
+  /// تعويض المشوار الفاضي إن أُضيف لرصيد السائق.
+  final Money? compensation;
+}
+
 class WorkState {
   const WorkState({
     this.candidates = const [],
@@ -36,7 +47,11 @@ class WorkState {
     this.isBusy = false,
     this.failure,
     this.trips = const [],
+    this.endNotice,
   });
+
+  /// آخر رحلةٍ انتهت بغير يد السائق. كائنٌ جديد لكلّ نهاية فتُعرض مرّة.
+  final RideEndNotice? endNotice;
 
   /// كلّ رحلات السائق النشطة. أكثر من واحدة = رحلة مشتركة: لكلّ راكب
   /// التقاطه وإنزاله وأجرته. `ride`/`trip` أدناه هما الراكب المعروض الآن.
@@ -87,8 +102,10 @@ class WorkState {
     bool clearPayment = false,
     bool clearFailure = true,
     List<DriverTripEntry>? trips,
+    RideEndNotice? endNotice,
   }) =>
       WorkState(
+        endNotice: endNotice ?? this.endNotice,
         trips: trips ?? this.trips,
         candidates: candidates ?? this.candidates,
         invitation: clearInvitation ? null : (invitation ?? this.invitation),
@@ -306,6 +323,10 @@ class WorkController extends Notifier<WorkState> {
     final ride = state.ride;
     if (ride == null) return false;
 
+    // الزرّ يُظهر الانتظار من اللمسة الأولى: دفع الموقع قد يأخذ ثوانيَ،
+    // وزرٌّ لا يتغيّر يدفع السائق إلى الضغط مرارًا.
+    state = state.copyWith(isBusy: true);
+
     // النبضة أوّلًا: الحارس يُقاس على آخر نبضة لا على جسم الطلب.
     //
     // ولا ننتظر نافذة المزامنة هنا: النبض الدوري كلّ خمس ثوانٍ يُبقي
@@ -332,11 +353,16 @@ class WorkController extends Notifier<WorkState> {
     final ride = state.ride;
     if (ride == null) return false;
 
+    state = state.copyWith(isBusy: true);
+
     // كما في «وصلت»: نطاق الإنزال يُقاس على آخر نبضة.
     await ref.read(presenceControllerProvider.notifier).pushLocationNow();
 
     final position = ref.read(presenceControllerProvider).lastPosition;
-    if (position == null) return false;
+    if (position == null) {
+      state = state.copyWith(isBusy: false);
+      return false;
+    }
 
     final ok = await _act(
       () => _soum.driver.complete(ride.id, lat: position.lat, lng: position.lng),
@@ -517,9 +543,26 @@ class WorkController extends Notifier<WorkState> {
     if (guarded.isStale) return;
 
     switch (guarded.event.type) {
-      case RealtimeEventType.tripCompleted:
       case RealtimeEventType.tripCancelled:
       case RealtimeEventType.rideCancelled:
+        // السائق في طريقه والزبون ألغى: الشاشة تعود للقائمة، ورسالةٌ تقول
+        // لماذا — وكم عُوِّض إن كان وصل وانتظر. بلا رسالة يظنّ السائق أنّ
+        // التطبيق أضاع الرحلة.
+        final data = guarded.event.data;
+        final by = readStringOrNull(data, 'cancelled_by');
+        if (by != null && by != 'driver') {
+          final compensation = readMoneyOrNull(data, 'driver_compensation');
+          state = state.copyWith(
+            endNotice: RideEndNotice(
+              byCustomer: by == 'customer',
+              compensation:
+                  compensation == null || compensation.isZero ? null : compensation,
+            ),
+          );
+        }
+        unawaited(_resync());
+
+      case RealtimeEventType.tripCompleted:
       case RealtimeEventType.rideCancelledByDriver:
         unawaited(_resync());
 

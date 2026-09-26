@@ -720,7 +720,7 @@ class _PickedCar extends StatelessWidget {
                     color: theme.colorScheme.tertiary,
                   ),
                   Text(
-                    rating.toStringAsFixed(1),
+                    formatRating(rating),
                     style: SoumTheme.tabular(theme.textTheme.labelMedium!),
                   ),
                 ] else
